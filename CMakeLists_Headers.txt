@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.6)
+
+set(INCLUDE_HEADERS
+	"src/dms/dms.h"
+	"src/utils/strutil.h"
+	"src/utils/algorithm.hpp"
+	"src/utils/vector3d.hpp"
+	"src/latlon/latlon_spherical.h"
+)
