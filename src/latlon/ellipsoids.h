@@ -35,7 +35,7 @@ namespace geodesy
     {
         Ellipsoid ellipsoid;
         // transforms: t in metres, s in ppm, r in arcseconds
-        Transforms transforms
+        Transforms transforms;
     };
 
     /*

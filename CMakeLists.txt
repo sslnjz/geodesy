@@ -27,8 +27,8 @@ include(GNUInstallDirs)
 
 set(CMAKE_CONFIG_INSTALL_FILE ${PROJECT_BINARY_DIR}/config.toinstall.cmake)
 set(CMAKE_CONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
-set(INC_DIR ${PROJECT_SOURCE_DIR}/_include CACHE PATH "geodesy inc")
-set(LIB_DIR ${PROJECT_SOURCE_DIR}/_lib CACHE PATH "geodesy lib")
+set(INC_DIR ${PROJECT_SOURCE_DIR}/include CACHE PATH "geodesy inc")
+set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib CACHE PATH "geodesy lib")
 
 message(${INC_DIR})
 
