@@ -72,7 +72,7 @@ namespace geodesy
         Datum WGS84;
     };
 
-    static const Ellipsoids ellipsoids = {
+    static const Ellipsoids s_ellipsoids = {
         { 6378137,      6356752.314245, 1/298.257223563 },
         { 6377563.396,  6356256.909,    1/299.3249646   },
         { 6377340.189,  6356034.448,    1/299.3249646   },
@@ -84,18 +84,18 @@ namespace geodesy
         { 6378135,      6356750.5,      1/298.26        }
     };
 
-    static const Datums datums = {
-        { ellipsoids.Intl1924,      {   89.5,    93.8,    123.1,    -1.2,     0.0,      0.0,      0.156    } }, // epsg.io/1311
-        { ellipsoids.GRS80,         {    0,       0,        0,       0,       0,        0,        0        } }, // epsg.io/1149; @ 1-metre level
-        { ellipsoids.AiryModified,  { -482.530, 130.596, -564.557,  -8.150,   1.042,    0.214,    0.631    } }, // epsg.io/1954
-        { ellipsoids.Clarke1866,    {    8,    -160,     -176,       0,       0,        0,        0        } },
-        { ellipsoids.GRS80,         {    0.9956, -1.9103,  -0.5215, -0.00062, 0.025915, 0.009426, 0.011599 } },
-        { ellipsoids.Clarke1880IGN, {  168,      60,     -320,       0,       0,        0,        0        } },
-        { ellipsoids.Airy1830,      { -446.448, 125.157, -542.060,  20.4894, -0.1502,  -0.2470,  -0.8421   } }, // epsg.io/1314
-        { ellipsoids.Bessel1841,    { -582,    -105,     -414,      -8.3,     1.04,     0.35,    -3.08     } },
-        { ellipsoids.Bessel1841,    {  148,    -507,     -685,       0,       0,        0,        0        } },
-        { ellipsoids.WGS72,         {    0,       0,       -4.5,    -0.22,    0,        0,        0.554    } },
-        { ellipsoids.WGS84,         {    0.0,     0.0,      0.0,     0.0,     0.0,      0.0,      0.0      } }
+    static const Datums s_datums = {
+        { s_ellipsoids.Intl1924,      {   89.5,    93.8,    123.1,    -1.2,     0.0,      0.0,      0.156    } }, // epsg.io/1311
+        { s_ellipsoids.GRS80,         {    0,       0,        0,       0,       0,        0,        0        } }, // epsg.io/1149; @ 1-metre level
+        { s_ellipsoids.AiryModified,  { -482.530, 130.596, -564.557,  -8.150,   1.042,    0.214,    0.631    } }, // epsg.io/1954
+        { s_ellipsoids.Clarke1866,    {    8,    -160,     -176,       0,       0,        0,        0        } },
+        { s_ellipsoids.GRS80,         {    0.9956, -1.9103,  -0.5215, -0.00062, 0.025915, 0.009426, 0.011599 } },
+        { s_ellipsoids.Clarke1880IGN, {  168,      60,     -320,       0,       0,        0,        0        } },
+        { s_ellipsoids.Airy1830,      { -446.448, 125.157, -542.060,  20.4894, -0.1502,  -0.2470,  -0.8421   } }, // epsg.io/1314
+        { s_ellipsoids.Bessel1841,    { -582,    -105,     -414,      -8.3,     1.04,     0.35,    -3.08     } },
+        { s_ellipsoids.Bessel1841,    {  148,    -507,     -685,       0,       0,        0,        0        } },
+        { s_ellipsoids.WGS72,         {    0,       0,       -4.5,    -0.22,    0,        0,        0.554    } },
+        { s_ellipsoids.WGS84,         {    0.0,     0.0,      0.0,     0.0,     0.0,      0.0,      0.0      } }
     };
     /* sources:
      * - ED50:       www.gov.uk/guidance/oil-and-gas-petroleum-operations-notices#pon-4
