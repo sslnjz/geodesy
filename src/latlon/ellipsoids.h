@@ -1,6 +1,26 @@
-﻿//
-// Created by Bin on 2021/11/15.
-//
+﻿/***********************************************************************************
+ * MIT License                                                                     *
+ *                                                                                 *
+ * Copyright (c) 2021 Binbin Song                                                  *
+ *                                                                                 *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy    *
+ * of this software and associated documentation files (the "Software"), to deal   *
+ * in the Software without restriction, including without limitation the rights    *
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell       *
+ * copies of the Software, and to permit persons to whom the Software is           *
+ * furnished to do so, subject to the following conditions:                        *
+ *                                                                                 *
+ * The above copyright notice and this permission notice shall be included in all  *
+ * copies or substantial portions of the Software.                                 *
+ *                                                                                 *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR      *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,        *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE     *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER          *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,   *
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE   *
+ * SOFTWARE.                                                                       *
+ ***********************************************************************************/
 
 #ifndef ELLIPSOIDS_H
 #define ELLIPSOIDS_H
@@ -12,37 +32,37 @@ namespace geodesy
    */
    struct Ellipsoid
    {
-      double a = 0.0;
-      double b = 0.0;
-      double f = 0.0;
+      double a{ 0.0 };
+      double b{ 0.0 };
+      double f{ 0.0 };
 
-      explicit operator bool() const
+      inline bool operator==(const Ellipsoid& rhs)
       {
-        return std::fabs(a) <= std::numeric_limits<double>::epsilon() &&
-           std::fabs(b) <= std::numeric_limits<double>::epsilon() &&
-           std::fabs(f) <= std::numeric_limits<double>::epsilon();
+          return std::fabs(a- rhs.a) <= std::numeric_limits<double>::epsilon() &&
+            std::fabs(b- rhs.b) <= std::numeric_limits<double>::epsilon() &&
+            std::fabs(f- rhs.f) <= std::numeric_limits<double>::epsilon();
       }
    };
 
    struct Transforms
    {
-      double tx = 0.0;
-      double ty = 0.0;
-      double tz = 0.0;
-      double s  = 0.0;
-      double rx = 0.0;
-      double ry = 0.0;
-      double rz = 0.0;
+      double tx{ 0.0 };
+      double ty{ 0.0 };
+      double tz{ 0.0 };
+      double s { 0.0 };
+      double rx{ 0.0 };
+      double ry{ 0.0 };
+      double rz{ 0.0 };
 
-      explicit operator bool() const
+      inline bool operator==(const Transforms& rhs)
       {
-        return std::fabs(tx) <= std::numeric_limits<double>::epsilon() &&
-               std::fabs(ty) <= std::numeric_limits<double>::epsilon() &&
-               std::fabs(tz) <= std::numeric_limits<double>::epsilon() &&
-               std::fabs(s)  <= std::numeric_limits<double>::epsilon() &&
-               std::fabs(rx) <= std::numeric_limits<double>::epsilon() &&
-               std::fabs(ry) <= std::numeric_limits<double>::epsilon() &&
-               std::fabs(rz) <= std::numeric_limits<double>::epsilon();
+          return std::fabs(tx- rhs.tx) <= std::numeric_limits<double>::epsilon() &&
+              std::fabs(ty- rhs.ty) <= std::numeric_limits<double>::epsilon() &&
+              std::fabs(tz- rhs.tz) <= std::numeric_limits<double>::epsilon() &&
+              std::fabs(s - rhs.s ) <= std::numeric_limits<double>::epsilon() &&
+              std::fabs(rx- rhs.rx) <= std::numeric_limits<double>::epsilon() &&
+              std::fabs(ry- rhs.ry) <= std::numeric_limits<double>::epsilon() &&
+              std::fabs(rz- rhs.rz) <= std::numeric_limits<double>::epsilon();
       }
    };
 
@@ -84,9 +104,9 @@ namespace geodesy
       // transforms: t in metres, s in ppm, r in arcseconds
       Transforms transforms;
 
-      operator bool() const
+      inline bool operator==(const Datum& d)
       {
-         return ellipsoid && transforms;
+          return (ellipsoid == d.ellipsoid) && (transforms == d.transforms);
       }
    };
 
@@ -146,13 +166,8 @@ namespace geodesy
    struct ReferenceFrame
    {
       std::string name;
-      float epoch = std::numeric_limits<float>::epsilon();
+      double epoch{0.0};
       Ellipsoid ellipsoid;
-
-      operator bool() const
-      {
-         return !name.empty() && std::fabs(epoch - 0) <= std::numeric_limits<float>::epsilon() && ellipsoid;
-      }
    };
 
    struct ReferenceFrames

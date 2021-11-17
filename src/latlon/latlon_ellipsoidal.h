@@ -52,6 +52,7 @@ namespace geodesy
         *   const auto p = new LatLonEllipsoidal(51.47788, -0.00147, 17);
         */
        LatLonEllipsoidal(double lat, double lon, double height = 0);
+       virtual ~LatLonEllipsoidal();
 
        /**
         * Latitude in degrees north from equator (including aliases lat, latitude): can be set as
@@ -88,7 +89,7 @@ namespace geodesy
         *
         * @private
         */
-       [[nodiscard]] Datum datum() const { return m_datum; }
+       [[nodiscard]] Datum datum() const { return *m_datum; }
        void setDatum(const Datum& datum);
 
 
@@ -173,10 +174,10 @@ namespace geodesy
         double m_lat;
         double m_lon;
         double m_height;
-        double  m_epoch;
+        double m_epoch;
 
-        Datum m_datum;
-        ReferenceFrame m_referenceFrame;
+        Datum* m_datum;
+        ReferenceFrame* m_referenceFrame;
     };
 
     inline bool LatLonEllipsoidal::operator==(const LatLonEllipsoidal& point) const

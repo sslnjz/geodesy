@@ -13,19 +13,20 @@ LatLonEllipsoidal::LatLonEllipsoidal(double lat, double lon, double height)
     : m_lat(lat)
     , m_lon(lon)
     , m_height(height)
-    , m_epoch(std::numeric_limits<double>::epsilon())
+    , m_epoch(0.0)
+    , m_datum(nullptr)
+    , m_referenceFrame(nullptr)
 {
 }
 
 void LatLonEllipsoidal::setHeight(double height)
 {
-    if (std::isnan(m_height)) throw std::invalid_argument("invalid height");
     m_height = height;
 }
 
 void LatLonEllipsoidal::setDatum(const Datum &datum)
 {
-    m_datum = datum;
+    m_datum = new Datum{ datum.ellipsoid, datum.transforms };
 }
 
 Cartesian LatLonEllipsoidal::toCartesian() const
@@ -33,8 +34,8 @@ Cartesian LatLonEllipsoidal::toCartesian() const
    // x = (ν+h)⋅cosφ⋅cosλ, y = (ν+h)⋅cosφ⋅sinλ, z = (ν⋅(1-e²)+h)⋅sinφ
    // where ν = a/√(1−e²⋅sinφ⋅sinφ), e² = (a²-b²)/a² or (better conditioned) 2⋅f-f²
    const Ellipsoid ellipsoid = m_datum
-                     ? m_datum.ellipsoid
-                     : m_referenceFrame ? m_referenceFrame.ellipsoid : ellipsoids().WGS84;
+                     ? m_datum->ellipsoid
+                     : m_referenceFrame ? m_referenceFrame->ellipsoid : ellipsoids().WGS84;
 
    const double φ = toRadians(m_lat);
    const double λ = toRadians(m_lon);
@@ -76,6 +77,21 @@ std::wstring LatLonEllipsoidal::toString(Dms::eFormat format, int dph) const
    llwss << hwss.str();
 
    return llwss.str();
+}
+
+LatLonEllipsoidal::~LatLonEllipsoidal()
+{
+    if(nullptr != m_datum)
+    {
+        delete m_datum;
+        m_datum = nullptr;
+    }
+
+    if(nullptr != m_referenceFrame)
+    {
+        delete m_referenceFrame;
+        m_referenceFrame = nullptr;
+    }
 }
 
 Cartesian::Cartesian()
