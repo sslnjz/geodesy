@@ -1,26 +1,31 @@
-﻿/***********************************************************************************
- * MIT License                                                                     *
- *                                                                                 *
- * Copyright (c) 2021 Binbin Song                                                  *
- *                                                                                 *
- * Permission is hereby granted, free of charge, to any person obtaining a copy    *
- * of this software and associated documentation files (the "Software"), to deal   *
- * in the Software without restriction, including without limitation the rights    *
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell       *
- * copies of the Software, and to permit persons to whom the Software is           *
- * furnished to do so, subject to the following conditions:                        *
- *                                                                                 *
- * The above copyright notice and this permission notice shall be included in all  *
- * copies or substantial portions of the Software.                                 *
- *                                                                                 *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR      *
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,        *
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE     *
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER          *
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,   *
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE   *
- * SOFTWARE.                                                                       *
- ***********************************************************************************/
+﻿/**********************************************************************************
+*  MIT License                                                                    *
+*                                                                                 *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*                                                                                 *
+*  Geodesy tools for conversions between (historical) datums                      *
+*  (c) Chris Veness 2005-2019                                                     *
+*  www.movable-type.co.uk/scripts/latlong-convert-coords.html                     *
+*  www.movable-type.co.uk/scripts/geodesy-library.html#latlon-ellipsoidal-datum   *
+*                                                                                 *
+*  Permission is hereby granted, free of charge, to any person obtaining a copy   *
+*  of this software and associated documentation files (the "Software"), to deal  *
+*  in the Software without restriction, including without limitation the rights   *
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      *
+*  copies of the Software, and to permit persons to whom the Software is          *
+*  furnished to do so, subject to the following conditions:                       *
+*                                                                                 *
+*  The above copyright notice and this permission notice shall be included in all *
+*  copies or substantial portions of the Software.                                *
+*                                                                                 *
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     *
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       *
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    *
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  *
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
+*  SOFTWARE.                                                                      *
+***********************************************************************************/
 
 #ifndef ELLIPSOIDS_H
 #define ELLIPSOIDS_H
@@ -44,7 +49,7 @@ namespace geodesy
       }
    };
 
-   struct Transforms
+   struct Transform
    {
       double tx{ 0.0 };
       double ty{ 0.0 };
@@ -54,7 +59,7 @@ namespace geodesy
       double ry{ 0.0 };
       double rz{ 0.0 };
 
-      inline bool operator==(const Transforms& rhs)
+      inline bool operator==(const Transform& rhs)
       {
           return std::fabs(tx- rhs.tx) <= std::numeric_limits<double>::epsilon() &&
               std::fabs(ty- rhs.ty) <= std::numeric_limits<double>::epsilon() &&
@@ -64,6 +69,19 @@ namespace geodesy
               std::fabs(ry- rhs.ry) <= std::numeric_limits<double>::epsilon() &&
               std::fabs(rz- rhs.rz) <= std::numeric_limits<double>::epsilon();
       }
+
+       Transform &inverse()
+       {
+           tx = -tx;
+           ty = -ty;
+           tz = -tz;
+           s  = -s;
+           rx = -rx;
+           ry = -ry;
+           rz = -rz;
+
+           return *this;
+       }
    };
 
    /*
@@ -102,7 +120,7 @@ namespace geodesy
    {
       Ellipsoid ellipsoid;
       // transforms: t in metres, s in ppm, r in arcseconds
-      Transforms transforms;
+      Transform transforms;
 
       inline bool operator==(const Datum& d)
       {
@@ -163,28 +181,28 @@ namespace geodesy
    /*
     * Reference frames; exposed through static getter below.
     */
-   struct ReferenceFrame
+   struct Rf
    {
       std::string name;
       double epoch{0.0};
       Ellipsoid ellipsoid;
    };
 
-   struct ReferenceFrames
+   typedef struct _Rfs
    {
-      ReferenceFrame ITRF2014;
-      ReferenceFrame ITRF2008;
-      ReferenceFrame ITRF2005;
-      ReferenceFrame ITRF2000;
-      ReferenceFrame ITRF93;
-      ReferenceFrame ITRF91;
-      ReferenceFrame WGS84g1762;
-      ReferenceFrame WGS84g1674;
-      ReferenceFrame WGS84g1150;
-      ReferenceFrame ETRF2000;
-      ReferenceFrame NAD83;
-      ReferenceFrame GDA94;
-   };
+      Rf ITRF2014;
+      Rf ITRF2008;
+      Rf ITRF2005;
+      Rf ITRF2000;
+      Rf ITRF93;
+      Rf ITRF91;
+      Rf WGS84g1762;
+      Rf WGS84g1674;
+      Rf WGS84g1150;
+      Rf ETRF2000;
+      Rf NAD83;
+      Rf GDA94;
+   } ReferenceFrames;
 
    /*
     * Reference frames; exposed through static getter below.
