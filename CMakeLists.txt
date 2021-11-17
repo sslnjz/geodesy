@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+﻿cmake_minimum_required(VERSION 3.6)
 
 # Specifies the build type on single-configuration generators (e.g. Makefile Generators or Ninja). 
 # Typical values include Debug, Release, RelWithDebInfo and MinSizeRel, but custom build types can 

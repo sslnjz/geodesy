@@ -1,4 +1,4 @@
-#ifndef DMS_H
+﻿#ifndef DMS_H
 #define DMS_H
 
 #include <string>

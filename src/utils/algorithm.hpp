@@ -1,9 +1,9 @@
-
+﻿
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
 // π
-constexpr auto π = (3.1415926535897932);
+constexpr auto π = (3.141592653589793116);
 
 namespace geodesy
 {

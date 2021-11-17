@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+﻿cmake_minimum_required(VERSION 3.6)
 
 include_directories(${OPENSSL_INCLUDE_DIR} ${INC_DIR}/geodesy)
 

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef LATLON_SPHERICAL_H
 #define LATLON_SPHERICAL_H
 #include <stdexcept>
@@ -24,8 +24,8 @@ namespace geodesy
    public:
       LatLonSpherical(double lat, double lon);
 
-      double lat() const { return m_lat; }
-      double latitude() const { return m_lat; }
+      [[nodiscard]] double lat() const { return m_lat; }
+      [[nodiscard]] double latitude() const { return m_lat; }
 
       void setLat(double lat);
       void setLatitude(double lat);
@@ -34,9 +34,9 @@ namespace geodesy
        * Longitude in degrees east from international reference meridian (including aliases lon, lng,
        * longitude): can be set as numeric or hexagesimal (deg-min-sec); returned as numeric.
        */
-      double lon() const { return m_lon; }
-      double lng() const { return m_lon; }
-      double longitude() const { return m_lon; }
+      [[nodiscard]] double lon() const { return m_lon; }
+      [[nodiscard]] double lng() const { return m_lon; }
+      [[nodiscard]] double longitude() const { return m_lon; }
 
       void setLon(double lon);
       void setLng(double lon);
@@ -112,7 +112,7 @@ namespace geodesy
        *   const double d = p1.distanceTo(p2);       // 404.3×10³ m
        *   const double m = p1.distanceTo(p2, 3959); // 251.2 miles
        */
-      double distanceTo(const LatLonSpherical& point, double radius = 6371e3) const;
+      [[nodiscard]] double distanceTo(const LatLonSpherical& point, double radius = 6371e3) const;
 
 
       /**
@@ -126,7 +126,7 @@ namespace geodesy
        *   const double p2 = new LatLonSpherical(48.857, 2.351);
        *   const double b1 = p1.initialBearingTo(p2); // 156.2°
        */
-      double initialBearingTo(const LatLonSpherical& point) const;
+      [[nodiscard]] double initialBearingTo(const LatLonSpherical& point) const;
 
 
       /**
@@ -141,7 +141,7 @@ namespace geodesy
        *   const double p2 = new LatLonSpherical(48.857, 2.351);
        *   const double b2 = p1.finalBearingTo(p2); // 157.9°
        */
-      double finalBearingTo(const LatLonSpherical& point) const;
+      [[nodiscard]] double finalBearingTo(const LatLonSpherical& point) const;
 
       /**
        * Returns the midpoint between ‘this’ point and destination point.
@@ -154,7 +154,7 @@ namespace geodesy
        *   const double p2 = new LatLonSpherical(48.857, 2.351);
        *   const LatLonSpherical pMid = p1.midpointTo(p2); // 50.5363°N, 001.2746°E
        */
-      LatLonSpherical midpointTo(const LatLonSpherical& point) const;
+      [[nodiscard]] LatLonSpherical midpointTo(const LatLonSpherical& point) const;
 
 
       /**
@@ -169,7 +169,7 @@ namespace geodesy
        *   const p2 = new LatLon(48.857, 2.351);
        *   const pInt = p1.intermediatePointTo(p2, 0.25); // 51.3721°N, 000.7073°E
        */
-      LatLonSpherical intermediatePointTo(const LatLonSpherical& point, double fraction) const;
+      [[nodiscard]] LatLonSpherical intermediatePointTo(const LatLonSpherical& point, double fraction) const;
 
       /**
        * Returns the destination point from ‘this’ point having travelled the given distance on the
@@ -184,7 +184,7 @@ namespace geodesy
        *   const LatLonSpherical p1 = new LatLonSpherical(51.47788, -0.00147);
        *   const LatLonSpherical p2 = p1.destinationPoint(7794, 300.7); // 51.5136°N, 000.0983°W
        */
-      LatLonSpherical destinationPoint(double distance, double bearing, double radius = 6371e3) const;
+      [[nodiscard]] LatLonSpherical destinationPoint(double distance, double bearing, double radius = 6371e3) const;
 
       /**
        * Returns the point of intersection of two paths defined by point and bearing.
@@ -219,7 +219,7 @@ namespace geodesy
        *   const LatLonSpherical p2 = LatLonSpherical(53.1887, 0.1334);
        *   const double d = pCurrent.crossTrackDistanceTo(p1, p2);  // -307.5 m
        */
-      double crossTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
+      [[nodiscard]] double crossTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
                                   double radius = 6371e3) const;
 
 
@@ -240,7 +240,7 @@ namespace geodesy
        *   const auto p2 = new LatLonSpherical(53.1887,  0.1334);
        *   const auto d = pCurrent.alongTrackDistanceTo(p1, p2);  // 62.331 km
        */
-      double alongTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
+      [[nodiscard]] double alongTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
                                   double radius = 6371e3) const;
 
 
@@ -255,7 +255,7 @@ namespace geodesy
        * @param   {number} bearing - Initial bearing.
        * @returns {number} Maximum latitude reached.
        */
-      double maxLatitude(double bearing) const;
+      [[nodiscard]] double maxLatitude(double bearing) const;
 
       /**
        * Returns the pair of meridians at which a great circle defined by two points crosses the given
@@ -283,7 +283,7 @@ namespace geodesy
        *   const p2 = new LatLon(50.964, 1.853);
        *   const d = p1.distanceTo(p2); //  40.31 km
        */
-      double rhumbDistanceTo(const LatLonSpherical& point, double radius = 6371e3) const;
+      [[nodiscard]] double rhumbDistanceTo(const LatLonSpherical& point, double radius = 6371e3) const;
 
       /**
        * Returns the bearing from ‘this’ point to destination point along a rhumb line.
@@ -296,7 +296,7 @@ namespace geodesy
        *   const p2 = new LatLon(50.964, 1.853);
        *   const d = p1.rhumbBearingTo(p2); // 116.7°
        */
-      double rhumbBearingTo(const LatLonSpherical& point) const;
+      [[nodiscard]] double rhumbBearingTo(const LatLonSpherical& point) const;
 
 
       /**
@@ -312,7 +312,7 @@ namespace geodesy
        *   const p1 = new LatLon(51.127, 1.338);
        *   const p2 = p1.rhumbDestinationPoint(40300, 116.7); // 50.9642°N, 001.8530°E
        */
-      LatLonSpherical rhumbDestinationPoint(double distance, double bearing, double radius = 6371e3) const;
+      [[nodiscard]] LatLonSpherical rhumbDestinationPoint(double distance, double bearing, double radius = 6371e3) const;
 
       /**
        * Returns the loxodromic midpoint (along a rhumb line) between ‘this’ point and second point.
@@ -325,7 +325,7 @@ namespace geodesy
        *   const p2 = new LatLon(50.964, 1.853);
        *   const pMid = p1.rhumbMidpointTo(p2); // 51.0455°N, 001.5957°E
        */
-      LatLonSpherical rhumbMidpointTo(const LatLonSpherical& point) const;
+      [[nodiscard]] LatLonSpherical rhumbMidpointTo(const LatLonSpherical& point) const;
 
       /* Area - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     /**
@@ -355,7 +355,7 @@ namespace geodesy
        *   const dms = greenwich.toString('dms', 2);              // 51°28′40.37″N, 000°00′05.29″W
        *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4779, -0.0015
        */
-      std::wstring toString(Dms::eFormat e = Dms::D) const;
+      [[nodiscard]] std::wstring toString(Dms::eFormat e = Dms::D) const;
 
       /**
        * Converts ‘this’ point to a GeoJSON object string.
@@ -363,7 +363,7 @@ namespace geodesy
        * @returns {string} this point as a GeoJSON ‘Point’ string.
        *    { type: "Point", coordinates: [ lon, lat ] }
        */
-      std::wstring toGeoJSON() const;
+      [[nodiscard]] std::wstring toGeoJSON() const;
 
 
       /**

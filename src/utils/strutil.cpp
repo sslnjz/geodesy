@@ -1,4 +1,4 @@
-#include "strutil.h"
+﻿#include "strutil.h"
 
 #include <regex>
 
