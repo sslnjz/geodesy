@@ -30,10 +30,11 @@ cmake_minimum_required(VERSION 3.20)
 project(vector)
 
 set(SRC
-	"cartesian.cpp"
-	"nvector_ellipsoidal.cpp"
-	"nvector_spherical.cpp"
-	"nvector_cartesian.cpp"
+		"ned.cpp"
+		"cartesian.cpp"
+		"nvector_ellipsoidal.cpp"
+		"nvector_spherical.cpp"
+		"nvector_cartesian.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})
