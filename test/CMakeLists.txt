@@ -26,7 +26,7 @@
 # *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 # *  SOFTWARE.                                                                      *
 # ***********************************************************************************/
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "build type")
 
