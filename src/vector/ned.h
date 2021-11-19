@@ -54,6 +54,10 @@ namespace geodesy
          */
         Ned(double n, double e, double d);
 
+        [[nodiscard]] double north() const { return m_north; }
+        [[nodiscard]] double east() const  { return m_east; }
+        [[nodiscard]] double down() const  { return m_down; }
+
         /**
          * Length of NED vector.
          *

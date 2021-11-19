@@ -43,7 +43,7 @@ namespace geodesy
     * @param {number} degrees
     * @returns Radians.
     */
-   static double toRadians(double degrees)
+   [[maybe_unused]] static double toRadians(double degrees)
    {
        return degrees * π / 180.000;
    }

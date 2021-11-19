@@ -14,7 +14,7 @@ Cartesian::Cartesian(double x, double y, double z)
 
 }
 
-LatLonEllipsoidal Cartesian::toLatLonEllipsoidal(Ellipsoid ellipsoid) const
+LatLonEllipsoidal Cartesian::toLatLon(Ellipsoid ellipsoid) const
 {
    // note ellipsoid is available as a parameter for when toLatLon gets subclassed to
    // Ellipsoidal_Datum / Ellipsoidal_Referenceframe.
