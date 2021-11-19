@@ -33,7 +33,6 @@
 #include <cmath>
 
 #include "ellipsoids.h"
-#include "vector3d.hpp"
 #include "dms.h"
 
 /**
@@ -82,26 +81,26 @@ namespace geodesy
         * Latitude in degrees north from equator (including aliases lat, latitude): can be set as
         * numeric or hexagesimal (deg-min-sec); returned as numeric.
         */
-       [[nodiscard]] double lat() const { return m_lat; }
-       [[nodiscard]] double latitude() const { return m_lat; }
-       void setLat(double lat) { m_lat = Dms::wrap90(lat); }
-       void setLatitude(double lat) { m_lat = Dms::wrap90(lat); }
+       [[nodiscard]] double lat() const;
+       [[nodiscard]] double latitude() const;
+       void setLat(double lat);
+       void setLatitude(double lat);
 
        /**
         * Longitude in degrees east from international reference meridian (including aliases lon, lng,
         * longitude): can be set as numeric or hexagesimal (deg-min-sec); returned as numeric.
         */
-       [[nodiscard]] double lon() const { return m_lon; }
-       [[nodiscard]] double lng() const { return m_lon; }
-       [[nodiscard]] double longitude() const { return m_lon; }
-       void setLon(const double lon) { m_lon = Dms::wrap180(lon); }
-       void setLng(const double lon) { m_lon = Dms::wrap180(lon); }
-       void setLongitude(const double lon) { m_lon = Dms::wrap180(lon); }
+       [[nodiscard]] double lon() const;
+       [[nodiscard]] double lng() const;
+       [[nodiscard]] double longitude() const;
+       void setLon(const double lon);
+       void setLng(const double lon);
+       void setLongitude(const double lon);
 
        /**
         * Height in metres above ellipsoid.
         */
-       [[nodiscard]] double height() const { return m_height; }
+       [[nodiscard]] double height() const;
        void setHeight(const double height);
 
        /**
@@ -113,7 +112,7 @@ namespace geodesy
         *
         * @private
         */
-       [[nodiscard]] Datum datum() const { return *m_datum; }
+       [[nodiscard]] Datum datum() const;
        void setDatum(const Datum& datum);
 
 
@@ -124,10 +123,7 @@ namespace geodesy
         * @example
         *   const auto a = LatLon.ellipsoids.WGS84.a; // 6378137
         */
-       static Ellipsoids ellipsoids()
-       {
-          return s_ellipsoids;
-       }
+       static Ellipsoids ellipsoids();
 
        /**
         * Datums; this module only defines WGS84 datum, hence no datum transformations.
@@ -135,10 +131,7 @@ namespace geodesy
         * @example
         *   const a = LatLon.datums.WGS84.ellipsoid.a; // 6377563.396
         */
-       static Datums datums()
-       {
-          return s_datums;
-       }
+       static Datums datums();
 
        /**
         * Converts ‘this’ point from (geodetic) latitude/longitude coordinates to (geocentric)
@@ -162,10 +155,10 @@ namespace geodesy
         *   const auto greenwich = new LatLon(51.47788, -0.00147, 46);
         *   const auto d = greenwich.toString();                        // 51.4779°N, 000.0015°W
         *   const auto dms = greenwich.toString('dms', 2);              // 51°28′40″N, 000°00′05″W
-        *   const auto latlon = greenwich.toString('n').split(','); // 51.4779, -0.0015
+        *   const auto latlon = greenwich.toString('n').split(',');     // 51.4779, -0.0015
         *   const auto dmsh = greenwich.toString('dms', 0, 0);          // 51°28′40″N, 000°00′06″W +46m
         */
-       [[nodiscard]] std::wstring toString(Dms::eFormat format = Dms::D, int dph = 0) const;
+       [[nodiscard]] std::string toString(Dms::eFormat format = Dms::D, int dph = 0) const;
 
        /**
         * Checks if another point is equal to ‘this’ point.
@@ -179,7 +172,7 @@ namespace geodesy
         *   const p2 = new LatLon(52.205, 0.119);
         *   const equal = p1.equals(p2); // true
         */
-       [[nodiscard]] bool equals(const LatLonEllipsoidal& point) const { return *this == point; }
+       [[nodiscard]] bool equals(const LatLonEllipsoidal& point) const;
 
        /**
         * Checks if another point is equal to ‘this’ point.
@@ -194,14 +187,15 @@ namespace geodesy
         */
        inline bool operator==(const LatLonEllipsoidal& point) const;
 
+    protected:
+        Datum* m_datum;
+        Rf* m_referenceFrame;
+
     private:
         double m_lat;
         double m_lon;
         double m_height;
         double m_epoch;
-
-        Datum* m_datum;
-        Rf* m_referenceFrame;
     };
 
     inline bool LatLonEllipsoidal::operator==(const LatLonEllipsoidal& point) const
@@ -215,30 +209,6 @@ namespace geodesy
 
        return true;
     }
-
-    class Cartesian : public vector3d
-    {
-    public:
-        Cartesian();
-        Cartesian(double x, double y, double z);
-
-        /**
-         * Converts ‘this’ (geocentric) cartesian (x/y/z) coordinate to (geodetic) latitude/longitude
-         * point on specified ellipsoid.
-         *
-         * Uses Bowring’s (1985) formulation for μm precision in concise form; ‘The accuracy of geodetic
-         * latitude and height equations’, B R Bowring, Survey Review vol 28, 218, Oct 1985.
-         *
-         * @param   {LatLon.ellipsoids} [ellipsoid=WGS84] - Ellipsoid to use when converting point.
-         * @returns {LatLon} Latitude/longitude point defined by cartesian coordinates, on given ellipsoid.
-         * @throws  {TypeError} Invalid ellipsoid.
-         *
-         * @example
-         *   const auto c = new Cartesian(4027893.924, 307041.993, 4919474.294);
-         *   const auto p = c.toLatLon(); // 50.7978°N, 004.3592°E
-         */
-        [[nodiscard]] LatLonEllipsoidal toLatLonEllipsoidal(Ellipsoid ellipsoid = s_ellipsoids.WGS84) const;
-    };
 }
 
 #endif //GEODESY_LATLON_ELLIPSOIDAL_H

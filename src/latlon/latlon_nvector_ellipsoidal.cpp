@@ -1,7 +1,8 @@
-﻿/**********************************************************************************
+
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,25 +27,13 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef STRUTIL_H
-#define STRUTIL_H
 
-#include <string>
-#include <vector>
+#include "latlon_nvector_ellipsoidal.h"
 
-namespace geodesy
+using namespace geodesy;
+
+LatLonNvectorEllipsoidal::LatLonNvectorEllipsoidal(double lat, double lon, double height, Datum datum)
+    : LatLonEllipsoidal(lat, lon, height)
 {
-   class strutil
-   {
-   public:
-      static std::string strip(const std::string& str);
-      static bool start_with(const std::string& str, const std::string& prefix);
-
-      static std::vector<std::string> split(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_filter_empty(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_regex(const std::string& str, const std::string& sep);
-   };
+    m_datum = &datum;
 }
-
-
-#endif // STRUTIL_H

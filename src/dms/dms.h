@@ -58,8 +58,8 @@ namespace geodesy
        * formatting.
        *
        */
-      static wchar_t get_separator();
-      static void set_separator(wchar_t sep);
+      static char get_separator();
+      static void set_separator(char sep);
 
       /**
        * Parses string representing degrees/minutes/seconds into numeric degrees.
@@ -78,7 +78,7 @@ namespace geodesy
        *   const double lat = Dms.parse('51° 28′ 40.37″ N');
        *   const double lon = Dms.parse('000° 00′ 05.29″ W');
        */
-      static double parse(const std::wstring& dms);
+      static double parse(const std::string& dms);
 
       /**
        * Converts decimal degrees to deg/min/sec format
@@ -92,7 +92,7 @@ namespace geodesy
        * @param   {string} [format=dms] - Return value as 'd', 'dm', 'dms' for deg, deg+min, deg+min+sec.
        * @returns {string} Degrees formatted as deg/min/secs according to specified format.
        */
-      static std::wstring toDms(double deg, eFormat format = DMS);
+      static std::string toDms(double deg, eFormat format = DMS);
       
       /**
        * Converts numeric degrees to deg/min/sec latitude (2-digit degrees, suffixed with N/S).
@@ -102,9 +102,9 @@ namespace geodesy
        * @returns {string} Degrees formatted as deg/min/secs according to specified format.
        *
        * @example
-       *   const std::wstring lat = Dms::toLat(-3.62, 'dms'); // 3°37′12″S
+       *   const std::string lat = Dms::toLat(-3.62, 'dms'); // 3°37′12″S
        */
-      static std::wstring toLatitude(double deg, eFormat format = DMS);
+      static std::string toLatitude(double deg, eFormat format = DMS);
 
       /**
        * Convert numeric degrees to deg/min/sec longitude (3-digit degrees, suffixed with E/W).
@@ -114,9 +114,9 @@ namespace geodesy
        * @returns {string} Degrees formatted as deg/min/secs according to specified format.
        *
        * @example
-       *   const std::wstring lon = Dms::toLongitude(-3.62, 'dms'); // 3°37′12″W
+       *   const std::string lon = Dms::toLongitude(-3.62, 'dms'); // 3°37′12″W
        */
-      static std::wstring toLongitude(double deg, eFormat format = DMS);
+      static std::string toLongitude(double deg, eFormat format = DMS);
 
       /**
        * Converts numeric degrees to deg/min/sec as a bearing (0°..360°).
@@ -126,9 +126,9 @@ namespace geodesy
        * @returns {string} Degrees formatted as deg/min/secs according to specified format.
        *
        * @example
-       *   const std::wstring lon = Dms::toBearing(-3.62, 'dms'); // 356°22′48″
+       *   const std::string lon = Dms::toBearing(-3.62, 'dms'); // 356°22′48″
        */
-      std::wstring toBearing(double deg, eFormat format = DMS);
+      std::string toBearing(double deg, eFormat format = DMS) const;
 
       /**
        * Returns compass point (to given precision) for supplied bearing.
@@ -172,7 +172,7 @@ namespace geodesy
 
    private:
        /* Degree-minutes-seconds (& cardinal directions) separator character */
-       static wchar_t _separator; // U+202F = 'narrow no-break space'
+       static char _separator; // U+202F = 'narrow no-break space'
    };
 }
 

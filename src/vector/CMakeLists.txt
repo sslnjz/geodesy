@@ -1,4 +1,3 @@
-
 # /**********************************************************************************
 # *  MIT License                                                                    *
 # *                                                                                 *
@@ -28,13 +27,13 @@
 # *  SOFTWARE.                                                                      *
 # ***********************************************************************************/
 cmake_minimum_required(VERSION 3.6)
-project(latlon)
+project(vector)
 
 set(SRC
-	"latlon_spherical.cpp"
-	"latlon_ellipsoidal.cpp"
-	"latlon_nvector_spherical.cpp"
-	"latlon_nvector_ellipsoidal.cpp"
+	"cartesian.cpp"
+	"nvector_ellipsoidal.cpp"
+	"nvector_spherical.cpp"
+	"nvector_cartesian.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})

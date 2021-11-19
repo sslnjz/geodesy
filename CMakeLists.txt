@@ -26,7 +26,7 @@
 # *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 # *  SOFTWARE.                                                                      *
 # ***********************************************************************************/
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.20)
 
 # Specifies the build type on single-configuration generators (e.g. Makefile Generators or Ninja). 
 # Typical values include Debug, Release, RelWithDebInfo and MinSizeRel, but custom build types can 
@@ -109,6 +109,7 @@ else ()
 endif ()
 
 add_subdirectory(src)
+add_subdirectory(test)
 
 ####CONFIG
 

@@ -32,9 +32,9 @@
 
 using namespace geodesy;
 
-std::vector<std::wstring> strutil::split(const std::wstring& str, wchar_t sep)
+std::vector<std::string> strutil::split(const std::string& str, wchar_t sep)
 {
-	std::vector<std::wstring> res;
+	std::vector<std::string> res;
    auto start = str.begin();
    const auto end = str.end();
    auto next = find(start, end, sep);
@@ -54,12 +54,12 @@ std::vector<std::wstring> strutil::split(const std::wstring& str, wchar_t sep)
 	return res;
 }
 
-std::vector<std::wstring> strutil::split_filter_empty(const std::wstring& str, wchar_t sep)
+std::vector<std::string> strutil::split_filter_empty(const std::string& str, wchar_t sep)
 {
-	std::vector<std::wstring> res;
-	std::wstring::const_iterator start = str.begin();
-	std::wstring::const_iterator end = str.end();
-	std::wstring::const_iterator next = find(start, end, sep);
+	std::vector<std::string> res;
+	std::string::const_iterator start = str.begin();
+	std::string::const_iterator end = str.end();
+	std::string::const_iterator next = find(start, end, sep);
 
 	while (next != end)
 	{
@@ -77,13 +77,13 @@ std::vector<std::wstring> strutil::split_filter_empty(const std::wstring& str, w
 }
 
 
-std::vector<std::wstring> strutil::split_regex(const std::wstring& str, const std::wstring& sep)
+std::vector<std::string> strutil::split_regex(const std::string& str, const std::string& sep)
 {
-	std::vector<std::wstring> res;
-   const std::wregex rgx(sep);
+	std::vector<std::string> res;
+   const std::regex rgx(sep);
 
-	std::wsregex_token_iterator iter(str.begin(), str.end(), rgx, -1);
-   const std::wsregex_token_iterator end;
+	std::sregex_token_iterator iter(str.begin(), str.end(), rgx, -1);
+   const std::sregex_token_iterator end;
 
 	while (iter != end) 
 	{
@@ -94,14 +94,14 @@ std::vector<std::wstring> strutil::split_regex(const std::wstring& str, const st
 	return res;
 }
 
-std::wstring strutil::strip(const std::wstring& str)
+std::string strutil::strip(const std::string& str)
 {
-	std::wstring res;
+	std::string res;
 
 	if (!str.empty())
 	{
-		const wchar_t* st = str.c_str();
-		const wchar_t* ed = st + str.size() - 1;
+		const char* st = str.c_str();
+		const char* ed = st + str.size() - 1;
 
 		while (st <= ed)
 		{
@@ -124,7 +124,7 @@ std::wstring strutil::strip(const std::wstring& str)
 	return res;
 }
 
-bool strutil::start_with(const std::wstring& str, const std::wstring& prefix)
+bool strutil::start_with(const std::string& str, const std::string& prefix)
 {
    const size_t prefix_len = prefix.size();
 

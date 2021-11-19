@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -26,11 +26,38 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#include <gtest/gtest.h>
 
-#include "geodesy/dms.h"
+#ifndef CARTESIAN_H
+#define CARTESIAN_H
 
-TEST(dms_unittest, parse)
+#include "vector3d.h"
+#include "latlon_ellipsoidal.h"
+
+namespace geodesy
 {
-    auto lat = geodesy::Dms::parse("51° 28′ 40.37″");
+   class Cartesian : public vector3d
+   {
+   public:
+      Cartesian();
+      Cartesian(double x, double y, double z);
+
+      /**
+       * Converts ‘this’ (geocentric) cartesian (x/y/z) coordinate to (geodetic) latitude/longitude
+       * point on specified ellipsoid.
+       *
+       * Uses Bowring’s (1985) formulation for μm precision in concise form; ‘The accuracy of geodetic
+       * latitude and height equations’, B R Bowring, Survey Review vol 28, 218, Oct 1985.
+       *
+       * @param   {LatLon.ellipsoids} [ellipsoid=WGS84] - Ellipsoid to use when converting point.
+       * @returns {LatLon} Latitude/longitude point defined by cartesian coordinates, on given ellipsoid.
+       * @throws  {TypeError} Invalid ellipsoid.
+       *
+       * @example
+       *   const auto c = new Cartesian(4027893.924, 307041.993, 4919474.294);
+       *   const auto p = c.toLatLon(); // 50.7978°N, 004.3592°E
+       */
+      [[nodiscard]] LatLonEllipsoidal toLatLonEllipsoidal(Ellipsoid ellipsoid = s_ellipsoids.WGS84) const;
+   };
 }
+
+#endif // CARTESIAN_H

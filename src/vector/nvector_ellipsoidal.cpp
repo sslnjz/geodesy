@@ -1,7 +1,8 @@
-﻿/**********************************************************************************
+
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,25 +27,49 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef STRUTIL_H
-#define STRUTIL_H
 
-#include <string>
-#include <vector>
+#include "nvector_ellipsoidal.h"
 
-namespace geodesy
+using namespace geodesy;
+
+NvectorEllipsoidal::NvectorEllipsoidal(double x, double y, double z, double h, Datum datum)
+        : vector3d(vector3d(x, y, z).unit()), m_h(h), m_datum(datum)
 {
-   class strutil
-   {
-   public:
-      static std::string strip(const std::string& str);
-      static bool start_with(const std::string& str, const std::string& prefix);
 
-      static std::vector<std::string> split(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_filter_empty(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_regex(const std::string& str, const std::string& sep);
-   };
 }
 
+std::string NvectorEllipsoidal::toString(int dp, int dph)
+{
+    std::stringstream ssh;
+    if(m_h >= 0)
+    {
+        ssh << "+" << std::setprecision(dph) << m_h << "m";
+    }
+    std::stringstream ss;
+    ss << "[" << std::setprecision(dp) << x() << "," << y() << "," << z() << "]" << ssh.str();
+    return ss.str();
+}
 
-#endif // STRUTIL_H
+NvectorCartesian NvectorEllipsoidal::toCartesian()
+{
+    const auto [ a, b, f ] = m_datum.ellipsoid;
+
+    const auto m = (1-f) * (1-f); // (1−f)² = b²/a²
+    const auto n = b / std::sqrt(x()*x()/m + y()*y()/m + z()*z());
+
+    const auto xʹ = n * x() / m + x() * m_h;
+    const auto yʹ = n * y() / m + y() * m_h;
+    const auto zʹ = n * z()     + z() * m_h;
+
+    return NvectorCartesian(xʹ, yʹ, zʹ);
+}
+
+LatLonNvectorEllipsoidal NvectorEllipsoidal::toLatLon()
+{
+    // tanφ = z / √(x²+y²), tanλ = y / x (same as spherical calculation)
+
+    const auto φ = std::atan2(z(), std::sqrt(x()*x() + y()*y()));
+    const auto λ = std::atan2(y(), x());
+
+    return LatLonNvectorEllipsoidal(toDegrees(φ), toDegrees(λ), m_h, m_datum);
+}

@@ -1,7 +1,8 @@
-﻿/**********************************************************************************
+
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,25 +27,47 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef STRUTIL_H
-#define STRUTIL_H
 
-#include <string>
-#include <vector>
+#include "nvector_cartesian.h"
+#include "ellipsoids.h"
+#include "latlon_ellipsoidal.h"
+#include "nvector_ellipsoidal.h"
 
-namespace geodesy
+using namespace geodesy;
+
+NvectorCartesian::NvectorCartesian()
 {
-   class strutil
-   {
-   public:
-      static std::string strip(const std::string& str);
-      static bool start_with(const std::string& str, const std::string& prefix);
 
-      static std::vector<std::string> split(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_filter_empty(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_regex(const std::string& str, const std::string& sep);
-   };
 }
 
+NvectorCartesian::NvectorCartesian(double x, double y, double z)
+    : Cartesian(x, y, z)
+{
 
-#endif // STRUTIL_H
+}
+
+NvectorEllipsoidal NvectorCartesian::toNvector(Datum datum) {
+    const auto [ a, b, f ] = datum.ellipsoid;
+
+    const auto e2 = 2*f - f*f; // e² = 1st eccentricity squared ≡ (a²-b²)/a²
+    const auto e4 = e2*e2;     // e⁴
+
+    const auto p = (x()*x() + y()*y()) / (a*a);
+    const auto q = z()*z() * (1-e2) / (a*a);
+    const auto r = (p + q - e4) / 6;
+    const auto s = (e4*p*q) / (4*r*r*r);
+    const auto t = std::cbrt(1 + s + std::sqrt(2*s+s*s));
+    const auto u = r * (1 + t + 1/t);
+    const auto v = std::sqrt(u*u + e4*q);
+    const auto w = e2 * (u + v - q) / (2*v);
+    const auto k = std::sqrt(u + v + w*w) - w;
+    const auto d = k * std::sqrt(x()*x() + y()*y()) / (k + e2);
+
+    const auto tmp = 1 / std::sqrt(d*d + z()*z());
+    const auto xʹ = tmp * k/(k+e2) * x();
+    const auto yʹ = tmp * k/(k+e2) * y();
+    const auto zʹ = tmp * z();
+    const auto h = (k + e2 - 1)/k * std::sqrt(d*d + z()*z());
+
+    return NvectorEllipsoidal(xʹ, yʹ, zʹ, h, datum);
+}

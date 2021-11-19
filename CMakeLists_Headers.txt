@@ -32,9 +32,15 @@ cmake_minimum_required(VERSION 3.6)
 set(INCLUDE_HEADERS
 	"src/dms/dms.h"
 	"src/utils/strutil.h"
-	"src/utils/algorithm.hpp"
-	"src/utils/vector3d.hpp"
+	"src/utils/algorithm.h"
+	"src/latlon/ellipsoids.h"
 	"src/latlon/latlon_spherical.h"
 	"src/latlon/latlon_ellipsoidal.h"
-	"src/latlon/ellipsoids.h"
+	"src/latlon/latlon_nvector_spherical.h"
+	"src/latlon/latlon_nvector_ellipsoidal.h"
+	"src/vector/vector3d.h"
+	"src/vector/cartesian.h"
+	"src/vector/nvector_cartesian.h"
+	"src/vector/nvector_spherical.h"
+	"src/vector/nvector_ellipsoidal.h"
 )

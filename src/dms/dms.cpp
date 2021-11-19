@@ -33,23 +33,23 @@
 #include <cmath>
 
 #include "strutil.h"
-#include "vector3d.hpp"
+#include "vector3d.h"
 
 using namespace geodesy;
 
-wchar_t Dms::_separator = L'\u202f';
+char Dms::_separator = ' ';
 
-wchar_t Dms::get_separator()
+char Dms::get_separator()
 {
    return _separator;
 }
 
-void Dms::set_separator(wchar_t sep)
+void Dms::set_separator(char sep)
 {
    _separator = sep;
 }
 
-double Dms::parse(const std::wstring& dms)
+double Dms::parse(const std::string& dms)
 {
    // check for signed decimal degrees without NSEW, if so return it directly
    try
@@ -64,10 +64,11 @@ double Dms::parse(const std::wstring& dms)
    }
    
    // strip off any sign or compass dir'n & split out separate d/m/s
-   const std::wstring trim_dms = strutil::strip(dms);
-   std::vector<std::wstring> dms_parts = strutil::split_regex(
-      std::regex_replace(trim_dms,std::wregex(L"(^-)|([NSEW]$)", std::regex_constants::icase), L""), 
-      L"/[^0-9.,]+/");
+   const std::string trim_dms = strutil::strip(dms);
+   std::vector<std::string> dms_parts = strutil::split_regex(
+      std::regex_replace(trim_dms,std::regex("(^-)|([NSEW]$)",
+                             std::regex_constants::icase), ""),
+      "[^0-9.,]+");
 
    if (dms_parts[dms_parts.size() - 1].empty()) 
    {
@@ -77,13 +78,13 @@ double Dms::parse(const std::wstring& dms)
    if (dms_parts.empty())
        return NAN;
 
-   std::vector<double> dms_parts_int{};
+   std::vector<double> dms_parts_d{};
    for (auto elem: dms_parts)
    {
       try
       {
-         const double d = std::stod(dms);
-         dms_parts_int.emplace_back(d);
+         const double d = std::stod(elem);
+         dms_parts_d.emplace_back(d);
       }
       catch (...)
       {
@@ -96,19 +97,19 @@ double Dms::parse(const std::wstring& dms)
    switch (dms_parts.size())
    {
    case 3:
-      deg = dms_parts_int[0]/1.000 + dms_parts_int[1]/60.000 + dms_parts_int[2]/3600.000;
+      deg = dms_parts_d[0]/1.000 + dms_parts_d[1]/60.000 + dms_parts_d[2]/3600.000;
       break;
    case 2:
-      deg = dms_parts_int[0] / 1.000 + dms_parts_int[1] / 60.000;
+      deg = dms_parts_d[0] / 1.000 + dms_parts_d[1] / 60.000;
       break;
    case 1:
-      deg = dms_parts_int[0] / 1.000;
+      deg = dms_parts_d[0] / 1.000;
       break;
    default:
       return NAN;
    }
 
-   if (std::regex_match(trim_dms.c_str(), std::wregex(L"(^-)|([NSEW]$"))) 
+   if (std::regex_match(trim_dms.c_str(), std::regex("(^-)|([SW]$)")))
    {
       deg = -deg; // take '-', west and south as -ve
    }
@@ -116,26 +117,26 @@ double Dms::parse(const std::wstring& dms)
    return deg;
 }
 
-std::wstring Dms::toDms(double deg, eFormat format)
+std::string Dms::toDms(double deg, eFormat format)
 {
    // give up here if we can't make a number from deg
    if (isnan(deg)) 
-      return L"";
+      return "";
 
    // (unsigned result ready for appending compass dir'n)
    deg = std::abs(deg);  
 
    double dm = 0.0;
    double dd = 0.0;
-   std::wstring dms;
-   std::wstringstream stream;
+   std::string dms;
+   std::stringstream stream;
 
    switch (format)
    {
    case D:
       {
          // left-pad with leading zeros (note may include decimals)
-         stream << std::setprecision(4) << std::setfill(L'0') << deg << L"°";// round/right-pad degrees
+         stream << std::setprecision(4) << std::setfill('0') << deg << "°";// round/right-pad degrees
          dms = stream.str();
       }
       break;
@@ -150,8 +151,8 @@ std::wstring Dms::toDms(double deg, eFormat format)
             ++dd;
          }
 
-         stream << std::setprecision(3) << std::setfill(L'0') << dd << L"°" << _separator
-                << std::setprecision(2) << std::setfill(L'0') << dm << L"′";
+         stream << std::setprecision(3) << std::setfill('0') << dd << "°" << _separator
+                << std::setprecision(2) << std::setfill('0') << dm << "′";
 
          dms = stream.str();
       }
@@ -175,9 +176,9 @@ std::wstring Dms::toDms(double deg, eFormat format)
             ++dd;
          }
 
-         stream << std::setprecision(3) << std::setfill(L'0') << dd << L"°" << _separator
-                << std::setprecision(2) << std::setfill(L'0') << dm << L"′" << _separator
-                << std::setprecision(2) << std::setfill(L'0') << ds << L"″";
+         stream << std::setprecision(3) << std::setfill('0') << dd << "°" << _separator
+                << std::setprecision(2) << std::setfill('0') << dm << "′" << _separator
+                << std::setprecision(2) << std::setfill('0') << ds << "″";
 
          dms = stream.str();
       }
@@ -192,23 +193,23 @@ std::wstring Dms::toDms(double deg, eFormat format)
    return dms;
 }
 
-std::wstring Dms::toLatitude(double deg, eFormat format)
+std::string Dms::toLatitude(double deg, eFormat format)
 {
-   const std::wstring lat = toDms(wrap90(deg), format);
-   return lat.empty() ? L"-" : lat.substr(1) + _separator + (deg < 0 ? L"S" : L"N"); // knock off initial '0' for lat!
+   const std::string lat = toDms(wrap90(deg), format);
+   return lat.empty() ? "-" : lat.substr(1) + _separator + (deg < 0 ? "S" : "N"); // knock off initial '0' for lat!
 }
 
-std::wstring Dms::toLongitude(double deg, eFormat format)
+std::string Dms::toLongitude(double deg, eFormat format)
 {
-   const std::wstring lon = toDms(wrap180(deg), format);
-   return lon.empty() ? L"-" : lon + _separator + (deg < 0 ? L"W" : L"E");
+   const std::string lon = toDms(wrap180(deg), format);
+   return lon.empty() ? "-" : lon + _separator + (deg < 0 ? "W" : "E");
 }
 
-std::wstring Dms::toBearing(double deg, eFormat format)
+std::string Dms::toBearing(double deg, eFormat format) const
 {
-   const std::wstring brng = toDms(wrap360(deg), format);
+   const std::string brng = toDms(wrap360(deg), format);
    // just in case rounding took us up to 360∼!
-   return brng.empty() ? L"-" : std::regex_replace(brng, std::wregex(L"360"), L"0");
+   return brng.empty() ? "-" : std::regex_replace(brng, std::regex("360"), "0");
 }
 
 std::string Dms::compassPoint(double bearing, int precision)

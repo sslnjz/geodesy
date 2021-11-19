@@ -1,7 +1,8 @@
-﻿/**********************************************************************************
+
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,62 +27,34 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef ALGORITHM_H
-#define ALGORITHM_H
 
-// π
-constexpr auto π = (3.141592653589793116);
+#ifndef CARTESIAN_NVECTOR_H
+#define CARTESIAN_NVECTOR_H
+
+#include "cartesian.h"
 
 namespace geodesy
 {
-
-   /**
-    * Conversion degrees to Radians.
-    *
-    * @param {number} degrees
-    * @returns Radians.
-    */
-   static double toRadians(double degrees)
-   {
-       return degrees * π / 180.000;
-   }
-
-   /**
-    * Conversion radians to degrees.
-    *
-    * @param {number} radians
-    * @returns degrees.
-    */
-   static double toDegrees(double radians)
-   {
-       return radians * 180 / π;
-   }
-
-   /**
-    * @brief Demonstrates the use of machine epsilon to compare floating-point values for equality
-    * @tparam T float type
-    * @param x number to compare
-    * @param y number to be compare
-    * @param ulp units in the last place
-    * @return true if two float number almost equal with ulp
-   */
-   template<class T>
-   typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-      almost_equal(T x, T y, int ulp)
-   {
-      // the machine epsilon has to be scaled to the magnitude of the values used
-      // and multiplied by the desired precision in ULPs (units in the last place)
-      return std::fabs(x - y) <= std::numeric_limits<T>::epsilon() * std::fabs(x + y) * ulp
-         // unless the result is subnormal
-         || std::fabs(x - y) < std::numeric_limits<T>::min();
-   }
-
-   template <class T>
-   inline int sign(const T& z)
-   {
-      return (z == 0) ? 0 : std::signbit(z) ? -1 : 1;
-   }
-
+    class NvectorEllipsoidal;
+    class NvectorCartesian : public Cartesian
+    {
+    public:
+        NvectorCartesian();
+        NvectorCartesian(double x, double y, double z);
+        /**
+         * Converts ‘this’ cartesian coordinate to an n-vector.
+         *
+         * qv Gade 2010 ‘A Non-singular Horizontal Position Representation’ eqn 23
+         *
+         * @param   {LatLon.datums} [datum=WGS84] - Datum to use for conversion.
+         * @returns {Nvector} N-vector equivalent to this cartesian coordinate.
+         *
+         * @example
+         *   const c = new Cartesian(3980581, 97, 4966825);
+         *   const n = c.toNvector(); // { x: 0.6228, y: 0.0000, z: 0.7824, h: 0.0000 }
+         */
+        NvectorEllipsoidal toNvector(Datum datum = LatLonEllipsoidal::datums().WGS84);
+    };
 }
 
-#endif // ALGORITHM_H
+#endif //GEODESY_CARTESIAN_NVECTOR_H

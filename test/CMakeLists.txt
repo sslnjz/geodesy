@@ -34,7 +34,6 @@ project(geodesy_test
 		LANGUAGES C CXX
 )
 
-find_library(LIBRT rt)
 find_package(geodesy REQUIRED CONFIG HINTS ..)
 include_directories(${GEODESY_INCLUDE_DIR})
 link_directories(${GEODESY_LIB_DIR})
@@ -44,15 +43,32 @@ set(memcheck_command ${CMAKE_MEMORYCHECK_COMMAND} ${CMAKE_MEMORYCHECK_COMMAND_OP
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
+################################
+# GTest
+################################
+project(googletest-git NONE)
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        release-1.11.0
+)
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(BUILD_GTEST ON CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(googletest)
+
 enable_testing()
-find_package(GTest REQUIRED)
 
 if (WIN32)
 		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /MP /wd4200")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4200 /std:c++14")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4200 /std:c++17")
 else ()
 		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wall -fPIC -pipe -std=gnu90")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -pipe -std=c++11 -fno-exceptions")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -pipe -std=c++17 -fno-exceptions")
 endif ()
 
 
@@ -60,15 +76,12 @@ set(TEST_LIST
 	dms_unittest
 )
 
-if (APPLE)
-	set(GEODESY_LIB geodesy)
-else ()
-	set(GEODESY_LIB geodesy ${LIBRT})
-endif ()
+set(GEODESY_LIB geodesy)
+set(GTEST_LIB gtest gtest_main)
 
 foreach(src ${TEST_LIST})
 	add_executable(${src} EXCLUDE_FROM_ALL ${src}.cpp)
-	target_link_libraries(${src} ${GEODESY_LIB} GTest::GTest GTest::Main)
+	target_link_libraries(${src} ${GEODESY_LIB} ${GTEST_LIB})
 	add_test(${src} ${src})
 	add_dependencies(check ${src})
 endforeach()

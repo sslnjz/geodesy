@@ -1,7 +1,8 @@
-﻿/**********************************************************************************
+
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,25 +27,49 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef STRUTIL_H
-#define STRUTIL_H
 
-#include <string>
-#include <vector>
+#ifndef LATLON_NVECTOR_ELLIPSOIDAL_H
+#define LATLON_NVECTOR_ELLIPSOIDAL_H
+
+#include "latlon_ellipsoidal.h"
+#include "cartesian.h"
+#include "nvector_cartesian.h"
+
+/**
+ * Tools for working with points on (ellipsoidal models of) the earth’s surface using a vector-based
+ * approach using ‘n-vectors’ (rather than the more common spherical trigonometry).
+ *
+ * Based on Kenneth Gade’s ‘Non-singular Horizontal Position Representation’.
+ *
+ * Note that these formulations take x => 0°N,0°E, y => 0°N,90°E, z => 90°N (in order that n-vector
+ * = cartesian vector at 0°N,0°E); Gade uses x => 90°N, y => 0°N,90°E, z => 0°N,0°E.
+ *
+ * @module latlon-nvector-ellipsoidal
+ */
 
 namespace geodesy
 {
-   class strutil
-   {
-   public:
-      static std::string strip(const std::string& str);
-      static bool start_with(const std::string& str, const std::string& prefix);
+    class LatLonNvectorEllipsoidal : public LatLonEllipsoidal
+    {
+    public:
+        LatLonNvectorEllipsoidal(double lat, double lon, double height, Datum datum);
+        /**
+         * Converts ‘this’ point from (geodetic) latitude/longitude coordinates to (geocentric) cartesian
+         * (x/y/z) coordinates.
+         *
+         * @returns {Cartesian} Cartesian point equivalent to lat/lon point, with x, y, z in metres from
+         *   earth centre.
+         */
+        Cartesian toCartesian()
+        {
+            const Cartesian c = LatLonEllipsoidal::toCartesian();  // c is 'Cartesian'
 
-      static std::vector<std::string> split(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_filter_empty(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_regex(const std::string& str, const std::string& sep);
-   };
+            // return Cartesian_Nvector to have toNvector() available as method of exported LatLon
+            return NvectorCartesian(c.x(), c.y(), c.z());
+        }
+    };
 }
 
 
-#endif // STRUTIL_H
+
+#endif //LATLON_NVECTOR_ELLIPSOIDAL_H

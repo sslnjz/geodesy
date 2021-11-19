@@ -30,6 +30,10 @@
 #ifndef ELLIPSOIDS_H
 #define ELLIPSOIDS_H
 
+#include <numeric>
+#include <cmath>
+#include <string>
+
 namespace geodesy
 {
    /*
@@ -41,7 +45,7 @@ namespace geodesy
       double b{ 0.0 };
       double f{ 0.0 };
 
-      inline bool operator==(const Ellipsoid& rhs)
+      inline bool operator==(const Ellipsoid& rhs) const
       {
           return std::fabs(a- rhs.a) <= std::numeric_limits<double>::epsilon() &&
             std::fabs(b- rhs.b) <= std::numeric_limits<double>::epsilon() &&
@@ -59,7 +63,7 @@ namespace geodesy
       double ry{ 0.0 };
       double rz{ 0.0 };
 
-      inline bool operator==(const Transform& rhs)
+      inline bool operator==(const Transform& rhs) const
       {
           return std::fabs(tx- rhs.tx) <= std::numeric_limits<double>::epsilon() &&
               std::fabs(ty- rhs.ty) <= std::numeric_limits<double>::epsilon() &&
@@ -122,7 +126,7 @@ namespace geodesy
       // transforms: t in metres, s in ppm, r in arcseconds
       Transform transforms;
 
-      inline bool operator==(const Datum& d)
+      inline bool operator==(const Datum& d) const
       {
           return (ellipsoid == d.ellipsoid) && (transforms == d.transforms);
       }

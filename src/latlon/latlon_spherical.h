@@ -28,14 +28,13 @@
 ***********************************************************************************/
 #ifndef LATLON_SPHERICAL_H
 #define LATLON_SPHERICAL_H
+
 #include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <cmath>
-#include <cstdlib>
 
 #include "dms.h"
-#include "vector3d.hpp"
 
 namespace geodesy
 {
@@ -51,8 +50,8 @@ namespace geodesy
    public:
       LatLonSpherical(double lat, double lon);
 
-      [[nodiscard]] double lat() const { return m_lat; }
-      [[nodiscard]] double latitude() const { return m_lat; }
+      [[nodiscard]] double lat() const;
+      [[nodiscard]] double latitude() const;
 
       void setLat(double lat);
       void setLatitude(double lat);
@@ -61,9 +60,9 @@ namespace geodesy
        * Longitude in degrees east from international reference meridian (including aliases lon, lng,
        * longitude): can be set as numeric or hexagesimal (deg-min-sec); returned as numeric.
        */
-      [[nodiscard]] double lon() const { return m_lon; }
-      [[nodiscard]] double lng() const { return m_lon; }
-      [[nodiscard]] double longitude() const { return m_lon; }
+      [[nodiscard]] double lon() const;
+      [[nodiscard]] double lng() const;
+      [[nodiscard]] double longitude() const;
 
       void setLon(double lon);
       void setLng(double lon);
@@ -74,54 +73,11 @@ namespace geodesy
        * Conversion factor metres to kilometres.
        * Conversion factors; 1000 * LatLon.metresToKm gives 1.
        */
-      static inline double getMetresToKm() { return 1.000 / 1000.000; }
+      static inline double getMetresToKm();
       /** Conversion factors; 1000 * LatLon.metresToMiles gives 0.621371192237334. */
-      static inline double getMetresToMiles() { return 1.000 / 1609.344; }
+      static inline double getMetresToMiles();
       /** Conversion factors; 1000 * LatLon.metresToMiles gives 0.5399568034557236. */
-      static inline double getMetresToNauticalMiles() { return 1.000 / 1852.000; }
-
-
-      /**
-       * Parses a latitude/longitude point from a variety of formats.
-       *
-       * Latitude & longitude (in degrees) can be supplied as two separate parameters, as a single
-       * comma-separated lat/lon string, or as a decimal
-       *
-       * The latitude/longitude values may be numeric or strings; they may be signed decimal or
-       * deg-min-sec (hexagesimal) suffixed by compass direction (NSEW); a variety of separators are
-       * accepted. Examples -3.62, '3 37 12W', '3°37′12″W'.
-       *
-       * Thousands/decimal separators must be comma/dot; use Dms.fromLocale to convert locale-specific
-       * thousands/decimal separators.
-       *
-       * @param   {number|string}        _lat - Latitude (in degrees) or comma-separated lat/lon or lat/lon object.
-       * @param   {number|string}        _lon - Longitude (in degrees).
-       * @returns {LatLonSpherical}             Latitude/longitude point.
-       * @throws  {TypeError} Invalid point.
-       *
-       * @example
-       *   const LatLonSpherical p1 = LatLonSpherical::parse(52.205, 0.119);                                    // numeric pair (≡ new LatLon)
-       *   const LatLonSpherical p2 = LatLonSpherical::parse("52.205", "0.119");                                // numeric string pair (≡ new LatLon)
-       *   const LatLonSpherical p4 = LatLonSpherical::parse("52°12′18.0″N", "000°07′08.4″E");                  // DMS pair
-       */
-      // TODO: variadic template
-      template <typename T,
-          typename = typename std::enable_if< std::is_same<T, std::wstring>::value
-          || std::is_arithmetic<T>::value >>
-      static LatLonSpherical parse(const T& _lat, const T& _lon) {
-          double lat, lon;
-          if (std::is_same<T, std::wstring>::value) {
-              lat = Dms::wrap90(Dms::parse(_lat));
-              lon = Dms::wrap180(Dms::parse(_lon));
-          } else if (std::is_arithmetic<T>::value) {
-              lat = _lat;
-              lon = _lon;
-          } else {
-              throw std::invalid_argument("Unsupported arguments");
-          }
-
-          return LatLonSpherical(lat, lon);
-      }
+      static inline double getMetresToNauticalMiles();
 
       /**
        * Returns the distance along the surface of the earth from ‘this’ point to destination point.
@@ -382,7 +338,7 @@ namespace geodesy
        *   const dms = greenwich.toString('dms', 2);              // 51°28′40.37″N, 000°00′05.29″W
        *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4779, -0.0015
        */
-      [[nodiscard]] std::wstring toString(Dms::eFormat e = Dms::D) const;
+      [[nodiscard]] std::string toString(Dms::eFormat e = Dms::D) const;
 
       /**
        * Converts ‘this’ point to a GeoJSON object string.
@@ -390,7 +346,7 @@ namespace geodesy
        * @returns {string} this point as a GeoJSON ‘Point’ string.
        *    { type: "Point", coordinates: [ lon, lat ] }
        */
-      [[nodiscard]] std::wstring toGeoJSON() const;
+      [[nodiscard]] std::string toGeoJSON() const;
 
 
       /**
@@ -401,12 +357,8 @@ namespace geodesy
        * @returns {bool}   True if points have identical latitude and longitude values.
        *
        */
-      friend inline bool operator==(const LatLonSpherical& p1, const LatLonSpherical& p2)
-      {
-          return std::fabs(p1.m_lat - p2.m_lat) < std::numeric_limits<double>::epsilon() &&
-              std::fabs(p1.m_lon - p2.m_lon) < std::numeric_limits<double>::epsilon();
-      }
-      
+      friend inline bool operator==(const LatLonSpherical& p1, const LatLonSpherical& p2);
+
       /**
        * Checks if another point is NOT equal to ‘this’ point.
        *
@@ -415,10 +367,7 @@ namespace geodesy
        * @returns {bool}   True if points have different latitude or longitude values.
        *
        */
-      friend inline bool operator!=(const LatLonSpherical& p1, const LatLonSpherical& p2)
-      {
-         return (!(p1 == p2));
-      }
+      friend inline bool operator!=(const LatLonSpherical& p1, const LatLonSpherical& p2);
 
    private:
       double m_lat; // Latitude in degrees north from equator
