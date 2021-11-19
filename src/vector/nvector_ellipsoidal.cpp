@@ -38,15 +38,16 @@ NvectorEllipsoidal::NvectorEllipsoidal(double x, double y, double z, double h, D
 
 }
 
-std::string NvectorEllipsoidal::toString(int dp, int dph)
+std::string NvectorEllipsoidal::toString(int dp, std::optional<int> dph)
 {
     std::stringstream ssh;
     if(m_h >= 0)
     {
-        ssh << "+" << std::setprecision(dph) << m_h << "m";
+        ssh << "+" << std::setprecision(dph.value_or(0)) << m_h << "m";
     }
     std::stringstream ss;
-    ss << "[" << std::setprecision(dp) << x() << "," << y() << "," << z() << "]" << ssh.str();
+    ss << "[" << std::setprecision(dp) << x() << "," << y() << "," << z() << "]"
+        << (bool(dph) ? ssh.str() : "");
     return ss.str();
 }
 
@@ -70,6 +71,5 @@ LatLonNvectorEllipsoidal NvectorEllipsoidal::toLatLon()
 
     const auto φ = std::atan2(z(), std::sqrt(x()*x() + y()*y()));
     const auto λ = std::atan2(y(), x());
-
     return LatLonNvectorEllipsoidal(toDegrees(φ), toDegrees(λ), m_h, m_datum);
 }

@@ -206,9 +206,9 @@ namespace geodesy
        * Returns the point of intersection of two paths each defined by point pairs or start point and bearing.
        *
        * @param   {LatLon}        path1start - Start point of first path.
-       * @param   {LatLon|number} path1brngEnd - End point of first path.
+       * @param   {LatLon} path1brngEnd - End point of first path.
        * @param   {LatLon}        path2start - Start point of second path.
-       * @param   {LatLon|number} path2brngEnd - End point of second path.
+       * @param   {LatLon} path2brngEnd - End point of second path.
        * @returns {LatLon}        Destination point (null if no unique intersection defined)
        * @throws  {TypeError}     Invalid parameter.
        *
@@ -246,7 +246,7 @@ namespace geodesy
        * Returns (signed) distance from ‘this’ point to great circle defined by start-point and end-point/bearing.
        *
        * @param   {LatLon}        pathStart - Start point of great circle path.
-       * @param   {LatLon|number} pathBrngEnd - End point of great circle path or initial bearing from great circle start point.
+       * @param   {LatLon}        pathBrngEnd - End point of great circle path or initial bearing from great circle start point.
        * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
        * @returns {number}        Distance to great circle (-ve if to left, +ve if to right of path).
        * @throws  {TypeError}     Invalid parameter.

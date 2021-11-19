@@ -39,8 +39,8 @@ LatLonEllipsoidal::LatLonEllipsoidal(double lat, double lon, double height)
     , m_lon(lon)
     , m_height(height)
     , m_epoch(0.0)
-    , m_datum(nullptr)
-    , m_referenceFrame(nullptr)
+    , m_datum(std::nullopt)
+    , m_referenceFrame(std::nullopt)
 {
 }
 
@@ -51,7 +51,7 @@ void LatLonEllipsoidal::setHeight(double height)
 
 void LatLonEllipsoidal::setDatum(const Datum &datum)
 {
-    m_datum = new Datum{ datum.ellipsoid, datum.transforms };
+    m_datum = { datum.ellipsoid, datum.transforms };
 }
 
 double LatLonEllipsoidal::lat() const
@@ -155,11 +155,11 @@ Cartesian LatLonEllipsoidal::toCartesian() const
    return { x, y, z };
 }
 
-std::string LatLonEllipsoidal::toString(Dms::eFormat format, int dph) const
+std::string LatLonEllipsoidal::toString(Dms::eFormat format, std::optional<int> dph) const
 {
    std::stringstream hwss;
    hwss << (m_height >= 0 ? L" +" : L" ");
-   hwss << std::fixed << std::setprecision(dph) << m_height << L"m";
+   hwss << std::fixed << std::setprecision(dph.value_or(0)) << m_height << L"m";
 
    std::stringstream llwss;
    if (format == Dms::N)
@@ -174,22 +174,10 @@ std::string LatLonEllipsoidal::toString(Dms::eFormat format, int dph) const
 
    llwss << Dms::toLatitude(m_lat, format) << ", ";
    llwss << Dms::toLatitude(m_lon, format);
-   llwss << hwss.str();
+   llwss << bool(dph) ? "" : hwss.str();
 
    return llwss.str();
 }
 
 LatLonEllipsoidal::~LatLonEllipsoidal()
-{
-    if(nullptr != m_datum)
-    {
-        delete m_datum;
-        m_datum = nullptr;
-    }
-
-    if(nullptr != m_referenceFrame)
-    {
-        delete m_referenceFrame;
-        m_referenceFrame = nullptr;
-    }
-}
+= default;

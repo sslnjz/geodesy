@@ -35,6 +35,8 @@
 #include "cartesian.h"
 #include "nvector_cartesian.h"
 
+#include <optional>
+
 /**
  * Tools for working with points on (ellipsoidal models of) the earth’s surface using a vector-based
  * approach using ‘n-vectors’ (rather than the more common spherical trigonometry).
@@ -52,7 +54,7 @@ namespace geodesy
     class LatLonNvectorEllipsoidal : public LatLonEllipsoidal
     {
     public:
-        LatLonNvectorEllipsoidal(double lat, double lon, double height, Datum datum);
+        LatLonNvectorEllipsoidal(double lat, double lon, double h, Datum datum);
         /**
          * Converts ‘this’ point from (geodetic) latitude/longitude coordinates to (geocentric) cartesian
          * (x/y/z) coordinates.
@@ -60,13 +62,7 @@ namespace geodesy
          * @returns {Cartesian} Cartesian point equivalent to lat/lon point, with x, y, z in metres from
          *   earth centre.
          */
-        Cartesian toCartesian()
-        {
-            const Cartesian c = LatLonEllipsoidal::toCartesian();  // c is 'Cartesian'
-
-            // return Cartesian_Nvector to have toNvector() available as method of exported LatLon
-            return NvectorCartesian(c.x(), c.y(), c.z());
-        }
+        Cartesian toCartesian();
     };
 }
 

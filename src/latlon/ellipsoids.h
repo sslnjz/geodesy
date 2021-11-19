@@ -51,6 +51,11 @@ namespace geodesy
             std::fabs(b- rhs.b) <= std::numeric_limits<double>::epsilon() &&
             std::fabs(f- rhs.f) <= std::numeric_limits<double>::epsilon();
       }
+
+       inline bool operator!=(const Ellipsoid& rhs) const
+       {
+          return !(*this == rhs);
+       }
    };
 
    struct Transform
@@ -73,6 +78,11 @@ namespace geodesy
               std::fabs(ry- rhs.ry) <= std::numeric_limits<double>::epsilon() &&
               std::fabs(rz- rhs.rz) <= std::numeric_limits<double>::epsilon();
       }
+
+       inline bool operator!=(const Transform& rhs) const
+       {
+          return !(*this == rhs);
+       }
 
        Transform &inverse()
        {
@@ -130,6 +140,11 @@ namespace geodesy
       {
           return (ellipsoid == d.ellipsoid) && (transforms == d.transforms);
       }
+
+       inline bool operator!=(const Datum& d) const
+       {
+          return !(*this == d);
+       }
    };
 
    /*
@@ -185,27 +200,37 @@ namespace geodesy
    /*
     * Reference frames; exposed through static getter below.
     */
-   struct Rf
+   struct RFrame
    {
       std::string name;
-      double epoch{0.0};
+      float epoch{0};
       Ellipsoid ellipsoid;
+
+       inline bool operator==(const RFrame& rhs) const
+       {
+           return name == rhs.name && epoch == rhs.epoch && ellipsoid == rhs.ellipsoid;
+       }
+
+       inline bool operator!=(const RFrame& rhs) const
+       {
+           return !(*this == rhs);
+       }
    };
 
-   typedef struct _Rfs
+   typedef struct _RFs
    {
-      Rf ITRF2014;
-      Rf ITRF2008;
-      Rf ITRF2005;
-      Rf ITRF2000;
-      Rf ITRF93;
-      Rf ITRF91;
-      Rf WGS84g1762;
-      Rf WGS84g1674;
-      Rf WGS84g1150;
-      Rf ETRF2000;
-      Rf NAD83;
-      Rf GDA94;
+      RFrame ITRF2014;
+      RFrame ITRF2008;
+      RFrame ITRF2005;
+      RFrame ITRF2000;
+      RFrame ITRF93;
+      RFrame ITRF91;
+      RFrame WGS84g1762;
+      RFrame WGS84g1674;
+      RFrame WGS84g1150;
+      RFrame ETRF2000;
+      RFrame NAD83;
+      RFrame GDA94;
    } ReferenceFrames;
 
    /*

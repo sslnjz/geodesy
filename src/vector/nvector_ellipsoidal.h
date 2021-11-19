@@ -31,6 +31,8 @@
 #ifndef NVECTOR_ELLIPSOIDAL_H
 #define NVECTOR_ELLIPSOIDAL_H
 
+#include <optional>
+
 #include "vector3d.h"
 #include "ellipsoids.h"
 #include "latlon_ellipsoidal.h"
@@ -96,14 +98,14 @@ namespace geodesy
          * dpHeight is specified.
          *
          * @param   {number} [dp=3] - Number of decimal places to display.
-         * @param   {number} [dpHeight=null] - Number of decimal places to use for height; default is no height display.
+         * @param   {number} [dph=null] - Number of decimal places to use for height; default is no height display.
          * @returns {string} Comma-separated x, y, z, h values.
          *
          * @example
          *   new Nvector(0.5000, 0.5000, 0.7071).toString();        // [0.500,0.500,0.707]
          *   new Nvector(0.5000, 0.5000, 0.7071, 1).toString(6, 0); // [0.500002,0.500002,0.707103+1m]
          */
-        std::string toString(int dp =3, int dph = 0);
+        std::string toString(int dp =3, std::optional<int> dph = std::nullopt);
 
     private:
         double m_h;

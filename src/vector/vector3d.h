@@ -34,6 +34,7 @@
 #include <limits>
 #include <string>
 #include <sstream>
+#include <optional>
 
 #include "algorithm.h"
 
@@ -150,12 +151,12 @@ namespace geodesy
        * @returns {number}   Angle (in radians) between this vector and supplied vector (in range 0..π
        *                     if n not supplied, range -π..+π if n supplied).
        */
-      double angleTo(const vector3d& v, const vector3d& n = {}) const
+      double angleTo(const vector3d& v, const std::optional<vector3d>& n = std::nullopt) const
       {
          // q.v. stackoverflow.com/questions/14066933#answer-16544330, but n·p₁×p₂ is numerically
          // ill-conditioned, so just calculate sign to apply to |p₁×p₂|
          // if n·p₁×p₂ is -ve, negate |p₁×p₂|
-         const int sign = cross(v).dot(n) >= 0 ? 1 : -1;
+         const int sign = n == std::nullopt || cross(v).dot(*n) >= 0 ? 1 : -1;
          const double sinθ = cross(v).length() * sign;
          const double cosθ = dot(v);
          return std::atan2(sinθ, cosθ);

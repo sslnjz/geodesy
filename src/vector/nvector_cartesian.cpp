@@ -46,7 +46,8 @@ NvectorCartesian::NvectorCartesian(double x, double y, double z)
 
 }
 
-NvectorEllipsoidal NvectorCartesian::toNvector(Datum datum) {
+NvectorEllipsoidal NvectorCartesian::toNvector(Datum datum)
+{
     const auto [ a, b, f ] = datum.ellipsoid;
 
     const auto e2 = 2*f - f*f; // e² = 1st eccentricity squared ≡ (a²-b²)/a²

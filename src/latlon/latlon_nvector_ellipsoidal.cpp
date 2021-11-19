@@ -32,8 +32,15 @@
 
 using namespace geodesy;
 
-LatLonNvectorEllipsoidal::LatLonNvectorEllipsoidal(double lat, double lon, double height, Datum datum)
-    : LatLonEllipsoidal(lat, lon, height)
+LatLonNvectorEllipsoidal::LatLonNvectorEllipsoidal(double lat, double lon, double h, Datum datum)
+    : LatLonEllipsoidal(lat, lon, h)
 {
-    m_datum = &datum;
+    setDatum(datum);
+}
+
+Cartesian LatLonNvectorEllipsoidal::toCartesian() {
+    const Cartesian c = LatLonEllipsoidal::toCartesian();  // c is 'Cartesian'
+
+    // return Cartesian_Nvector to have toNvector() available as method of exported LatLon
+    return NvectorCartesian(c.x(), c.y(), c.z());
 }

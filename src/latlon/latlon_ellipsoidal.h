@@ -31,6 +31,7 @@
 
 #include <string>
 #include <cmath>
+#include <optional>
 
 #include "ellipsoids.h"
 #include "dms.h"
@@ -74,7 +75,7 @@ namespace geodesy
         * @example
         *   const auto p = new LatLonEllipsoidal(51.47788, -0.00147, 17);
         */
-       LatLonEllipsoidal(double lat, double lon, double height = 0);
+       LatLonEllipsoidal(double lat, double lon, double height = 0.0);
        virtual ~LatLonEllipsoidal();
 
        /**
@@ -158,7 +159,7 @@ namespace geodesy
         *   const auto latlon = greenwich.toString('n').split(',');     // 51.4779, -0.0015
         *   const auto dmsh = greenwich.toString('dms', 0, 0);          // 51°28′40″N, 000°00′06″W +46m
         */
-       [[nodiscard]] std::string toString(Dms::eFormat format = Dms::D, int dph = 0) const;
+       [[nodiscard]] std::string toString(Dms::eFormat format = Dms::D, std::optional<int> dph = std::nullopt) const;
 
        /**
         * Checks if another point is equal to ‘this’ point.
@@ -188,24 +189,24 @@ namespace geodesy
        inline bool operator==(const LatLonEllipsoidal& point) const;
 
     protected:
-        Datum* m_datum;
-        Rf* m_referenceFrame;
+        std::optional<float> m_epoch;
+        std::optional<Datum>  m_datum;
+        std::optional<RFrame> m_referenceFrame;
 
     private:
         double m_lat;
         double m_lon;
         double m_height;
-        double m_epoch;
     };
 
     inline bool LatLonEllipsoidal::operator==(const LatLonEllipsoidal& point) const
     {
-       if (std::abs(m_lat - point.m_lat) > std::numeric_limits<double>::epsilon()) return false;
-       if (std::abs(m_lon - point.m_lon) > std::numeric_limits<double>::epsilon()) return false;
-       if (std::abs(m_height - point.m_height) > std::numeric_limits<double>::epsilon()) return false;
-       if (std::abs(m_epoch - point.m_epoch) > std::numeric_limits<double>::epsilon()) return false;
-       if (m_datum != point.m_datum) return false;
-       if (m_referenceFrame != point.m_referenceFrame) return false;
+       if (std::fabs(m_lat - point.m_lat) > std::numeric_limits<double>::epsilon()) return false;
+       if (std::fabs(m_lon - point.m_lon) > std::numeric_limits<double>::epsilon()) return false;
+       if (std::fabs(m_height - point.m_height) > std::numeric_limits<double>::epsilon()) return false;
+       if (std::fabs(*m_epoch - *point.m_epoch) > std::numeric_limits<double>::epsilon()) return false;
+       if (*m_datum != *point.m_datum) return false;
+       if (*m_referenceFrame!= *point.m_referenceFrame) return false;
 
        return true;
     }
