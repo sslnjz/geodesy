@@ -34,13 +34,27 @@
 
 using namespace geodesy;
 
-LatLonEllipsoidal::LatLonEllipsoidal(double lat, double lon, double height)
-    : m_lat(lat)
-    , m_lon(lon)
-    , m_height(height)
-    , m_epoch(0.0)
+LatLonEllipsoidal::LatLonEllipsoidal()
+    : m_epoch(std::nullopt)
     , m_datum(std::nullopt)
     , m_referenceFrame(std::nullopt)
+    , m_lat(0.0)
+    , m_lon(0.0)
+    , m_height(0.0)
+{
+}
+
+LatLonEllipsoidal::~LatLonEllipsoidal()
+= default;
+
+LatLonEllipsoidal::LatLonEllipsoidal(double lat, double lon, double height,
+    std::optional<Datum> datum, std::optional<RFrame> reference, std::optional<float> epoch)
+    : m_epoch(epoch)
+    , m_datum(datum)
+    , m_referenceFrame(reference)
+    , m_lat(lat)
+    , m_lon(lon)
+    , m_height(height)
 {
 }
 
@@ -174,10 +188,8 @@ std::string LatLonEllipsoidal::toString(Dms::eFormat format, std::optional<int> 
 
    llwss << Dms::toLatitude(m_lat, format) << ", ";
    llwss << Dms::toLatitude(m_lon, format);
-   llwss << bool(dph) ? "" : hwss.str();
+   llwss << (bool(dph) ? "" : hwss.str());
 
    return llwss.str();
 }
 
-LatLonEllipsoidal::~LatLonEllipsoidal()
-= default;

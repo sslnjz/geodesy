@@ -36,6 +36,7 @@ set(INCLUDE_HEADERS
 	"src/latlon/ellipsoids.h"
 	"src/latlon/latlon_spherical.h"
 	"src/latlon/latlon_ellipsoidal.h"
+	"src/latlon/latlon_ellipsoidal_vincenty.h"
 	"src/latlon/latlon_nvector_spherical.h"
 	"src/latlon/latlon_nvector_ellipsoidal.h"
 	"src/vector/ned.h"

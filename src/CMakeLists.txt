@@ -28,7 +28,7 @@
 # ***********************************************************************************/
 cmake_minimum_required(VERSION 3.20)
 
-include_directories(${OPENSSL_INCLUDE_DIR} ${INC_DIR}/geodesy)
+include_directories(${INC_DIR}/geodesy ${INC_DIR})
 
 add_subdirectory(dms)
 add_subdirectory(utils)

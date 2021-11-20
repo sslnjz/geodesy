@@ -35,9 +35,8 @@
 using namespace geodesy;
 
 LatLonNvectorEllipsoidal::LatLonNvectorEllipsoidal(double lat, double lon, double h, Datum datum)
-    : LatLonEllipsoidal(lat, lon, h)
+    : LatLonEllipsoidal(lat, lon, h, datum)
 {
-    setDatum(datum);
 }
 
 Cartesian LatLonNvectorEllipsoidal::toCartesian()

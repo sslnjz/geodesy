@@ -30,7 +30,7 @@ cmake_minimum_required(VERSION 3.20)
 project(utils)
 
 set(SRC
-	"strutil.cpp"
+		"strutil.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})

@@ -33,6 +33,7 @@
 #include <cmath>
 // π
 constexpr auto π = (3.141592653589793116);
+constexpr auto ε = std::numeric_limits<double>::epsilon();
 
 namespace geodesy
 {
@@ -54,7 +55,7 @@ namespace geodesy
     * @param {number} radians
     * @returns degrees.
     */
-   static double toDegrees(double radians)
+   [[maybe_unused]] static double toDegrees(double radians)
    {
        return radians * 180 / π;
    }

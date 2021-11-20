@@ -65,6 +65,7 @@ namespace geodesy
     class LatLonEllipsoidal
     {
     public:
+        LatLonEllipsoidal();
        /**
         * Creates a geodetic latitude/longitude point on a (WGS84) ellipsoidal model earth.
         *
@@ -75,7 +76,10 @@ namespace geodesy
         * @example
         *   const auto p = new LatLonEllipsoidal(51.47788, -0.00147, 17);
         */
-       LatLonEllipsoidal(double lat, double lon, double height = 0.0);
+       LatLonEllipsoidal(double lat, double lon, double height = 0.0,
+                         std::optional<Datum> datum = std::nullopt,
+                         std::optional<RFrame> reference = std::nullopt,
+                         std::optional<float> epoch = std::nullopt);
        virtual ~LatLonEllipsoidal();
 
        /**
@@ -108,7 +112,7 @@ namespace geodesy
         * Datum.
         *
         * Note this is replicated within LatLonEllipsoidal in order that a LatLonEllipsoidal object can
-        * be monkey-patched to look like a LatLonEllipsoidal_Datum, for Vincenty calculations on
+        * be monkey-patched to look like a LatLonEllipsoidal_Datum, for VincentyInverse calculations on
         * different ellipsoids.
         *
         * @private
@@ -189,7 +193,7 @@ namespace geodesy
        inline bool operator==(const LatLonEllipsoidal& point) const;
 
     protected:
-        std::optional<float> m_epoch;
+        std::optional<float>  m_epoch;
         std::optional<Datum>  m_datum;
         std::optional<RFrame> m_referenceFrame;
 

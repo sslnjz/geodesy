@@ -31,10 +31,11 @@ cmake_minimum_required(VERSION 3.20)
 project(latlon)
 
 set(SRC
-	"latlon_spherical.cpp"
-	"latlon_ellipsoidal.cpp"
-	"latlon_nvector_spherical.cpp"
-	"latlon_nvector_ellipsoidal.cpp"
+		"latlon_spherical.cpp"
+		"latlon_ellipsoidal.cpp"
+		"latlon_nvector_spherical.cpp"
+		"latlon_nvector_ellipsoidal.cpp"
+		"latlon_ellipsoidal_vincenty.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})
