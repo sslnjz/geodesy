@@ -78,7 +78,7 @@ namespace geodesy
         */
        LatLonEllipsoidal(double lat, double lon, double height = 0.0,
                          std::optional<Datum> datum = std::nullopt,
-                         std::optional<RFrame> reference = std::nullopt,
+                         std::optional<ReferenceFrame> reference = std::nullopt,
                          std::optional<float> epoch = std::nullopt);
        virtual ~LatLonEllipsoidal();
 
@@ -195,7 +195,7 @@ namespace geodesy
     protected:
         std::optional<float>  m_epoch;
         std::optional<Datum>  m_datum;
-        std::optional<RFrame> m_referenceFrame;
+        std::optional<ReferenceFrame> m_referenceFrame;
 
     private:
         double m_lat;

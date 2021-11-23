@@ -48,7 +48,7 @@ LatLonEllipsoidal::~LatLonEllipsoidal()
 = default;
 
 LatLonEllipsoidal::LatLonEllipsoidal(double lat, double lon, double height,
-    std::optional<Datum> datum, std::optional<RFrame> reference, std::optional<float> epoch)
+                                     std::optional<Datum> datum, std::optional<ReferenceFrame> reference, std::optional<float> epoch)
     : m_epoch(epoch)
     , m_datum(datum)
     , m_referenceFrame(reference)
@@ -130,12 +130,12 @@ Datum LatLonEllipsoidal::datum() const
 
 Ellipsoids LatLonEllipsoidal::ellipsoids()
 {
-   return s_ellipsoids;
+   return g_ellipsoids;
 }
 
 Datums LatLonEllipsoidal::datums()
 {
-   return s_datums;
+   return g_datums;
 }
 
 bool LatLonEllipsoidal::equals(const LatLonEllipsoidal& point) const

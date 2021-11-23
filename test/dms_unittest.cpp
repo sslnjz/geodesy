@@ -30,7 +30,49 @@
 
 #include "geodesy/dms.h"
 
-TEST(dms_unittest, parse)
+TEST(dms_unittest, parse_0)
 {
-    auto lat = geodesy::Dms::parse("51° 28′ 40.37″");
+    EXPECT_EQ(0, geodesy::Dms::parse("0.0°"));
+    EXPECT_EQ(0, geodesy::Dms::parse("0°"));
+    EXPECT_EQ(0, geodesy::Dms::parse("000 00 00 "));
+    EXPECT_EQ(0, geodesy::Dms::parse("000°00′00″"));
+    EXPECT_EQ(0, geodesy::Dms::parse("000°00′00.0″"));
+}
+
+TEST(dms_unittest, toDms_0)
+{
+   EXPECT_EQ(geodesy::Dms::toDms(0), "000.0000°");
+   EXPECT_EQ(geodesy::Dms::toDms(0, geodesy::Dms::D, 0), "000°");
+   EXPECT_EQ(geodesy::Dms::toDms(0, geodesy::Dms::DMS), "000°00′00″");
+   EXPECT_EQ(geodesy::Dms::toDms(0, geodesy::Dms::DMS, 2), "000°00′00.00″");
+}
+
+TEST(dms_unittest, parse_variations)
+{
+   const std::string variations[] = {
+         "45.76260",
+         "45.76260 ",
+         "45.76260°",
+         "45°45.756′",
+         "45° 45.756′",
+         "45 45.756",
+         "45°45′45.36″",
+         "45º45\'45.36\"",
+         "45°45’45.36”",
+         "45 45 45.36 ",
+         "45° 45′ 45.36″",
+         "45º 45\' 45.36\"",
+         "45° 45’ 45.36”",
+   };
+
+   for (auto var: variations) EXPECT_DOUBLE_EQ(45.76260, geodesy::Dms::parse(var));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(-45.76260, geodesy::Dms::parse("-" + var));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(45.76260, geodesy::Dms::parse(var + "N"));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(-45.76260, geodesy::Dms::parse(var + "S"));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(45.76260, geodesy::Dms::parse(var + "E"));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(-45.76260, geodesy::Dms::parse(var + "W"));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(45.76260, geodesy::Dms::parse(var + " N"));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(-45.76260, geodesy::Dms::parse(var + " S"));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(45.76260, geodesy::Dms::parse(var + " E"));
+   for (auto var: variations) EXPECT_DOUBLE_EQ(-45.76260, geodesy::Dms::parse(var + " W"));
 }

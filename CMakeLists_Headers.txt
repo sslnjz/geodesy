@@ -1,5 +1,4 @@
-﻿
-# /**********************************************************************************
+﻿# /**********************************************************************************
 # *  MIT License                                                                    *
 # *                                                                                 *
 # *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -37,12 +36,14 @@ set(INCLUDE_HEADERS
 	"src/latlon/latlon_spherical.h"
 	"src/latlon/latlon_ellipsoidal.h"
 	"src/latlon/latlon_ellipsoidal_vincenty.h"
+	"src/latlon/latlon_ellipsoidal_referenceframe.h"
 	"src/latlon/latlon_ellipsoidal_referenceframe_txparams.h"
 	"src/latlon/latlon_nvector_spherical.h"
 	"src/latlon/latlon_nvector_ellipsoidal.h"
 	"src/vector/ned.h"
 	"src/vector/vector3d.h"
 	"src/vector/cartesian.h"
+	"src/vector/cartesian_referenceFrame.h"
 	"src/vector/nvector_cartesian.h"
 	"src/vector/nvector_spherical.h"
 	"src/vector/nvector_ellipsoidal.h"

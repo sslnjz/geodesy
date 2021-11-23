@@ -42,6 +42,8 @@ project(
 	LANGUAGES C CXX
 )
 
+set(CMAKE_CXX_STANDARD 17)
+
 # compile platform check
 if (CYGWIN)
 	message(FATAL_ERROR "Sorry, DO NOT support Cygwin")

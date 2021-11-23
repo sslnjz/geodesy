@@ -65,8 +65,6 @@ namespace geodesy
       constexpr vector3d() noexcept;
       constexpr vector3d(double x, double y, double z) noexcept;
 
-      vector3d(const vector3d& v);
-
       [[nodiscard]] constexpr inline double x() const noexcept;
       [[nodiscard]] constexpr inline double y() const noexcept;
       [[nodiscard]] constexpr inline double z() const noexcept;
@@ -329,14 +327,6 @@ namespace geodesy
    {
       return std::sqrt(xv * xv + yv * yv + zv * zv);
    }
-
-    vector3d::vector3d(const vector3d &v)
-    {
-        xv = v.xv;
-        yv = v.yv;
-        zv = v.zv;
-    }
-
 }
 
 #endif // VECTOR3D_H

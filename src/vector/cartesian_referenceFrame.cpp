@@ -1,7 +1,7 @@
-﻿/**********************************************************************************
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,26 +26,24 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef STRUTIL_H
-#define STRUTIL_H
 
-#include <string>
-#include <vector>
+#include "cartesian_referenceFrame.h"
 
-namespace geodesy
+using namespace geodesy;
+
+CartesianReferenceFrame::CartesianReferenceFrame(double x, double y, double z,
+    std::optional<ReferenceFrame> referenceFrame,
+    std::optional<float> epoch)
+    : Cartesian(x, y, z)
 {
-   class strutil
-   {
-   public:
-      static std::string strip(const std::string& str);
-      static bool start_with(const std::string& str, const std::string& prefix);
-      static bool ends_with(const std::string& str, const std::string& suffix);
+    if (referenceFrame.has_value() && !referenceFrame.value().epoch.has_value())
+        throw std::invalid_argument("unrecognised reference frame");
 
-      static std::vector<std::string> split(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_filter_empty(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_regex(const std::string& str, const std::string& sep);
-   };
+    if (epoch.has_value() && std::isnan(epoch.value()))
+        throw std::invalid_argument("invalid epoch");
+
+    if (referenceFrame.has_value())
+        _referenceFrame = referenceFrame.value();
+    if (epoch.has_value())
+        _epoch = epoch.value();
 }
-
-
-#endif // STRUTIL_H

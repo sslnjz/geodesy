@@ -1,7 +1,7 @@
-﻿/**********************************************************************************
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,26 +26,54 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef STRUTIL_H
-#define STRUTIL_H
 
-#include <string>
-#include <vector>
+#include "latlon_ellipsoidal_referenceframe.h"
 
-namespace geodesy
+using namespace geodesy;
+
+LatLonEllipsoidalReferenceFrame::LatLonEllipsoidalReferenceFrame(
+    double lat, double lon, double height,
+    std::optional<ReferenceFrame> referenceFrame,
+    std::optional<std::string> epoch)
+    : LatLonEllipsoidal(lat, lon, height)
 {
-   class strutil
-   {
-   public:
-      static std::string strip(const std::string& str);
-      static bool start_with(const std::string& str, const std::string& prefix);
-      static bool ends_with(const std::string& str, const std::string& suffix);
+    if (!referenceFrame || referenceFrame.value().epoch == std::nullopt)
+        throw std::runtime_error("unrecognised reference frame");
+    if (epoch.has_value() && std::isnan(std::stod(epoch.value())))
+        throw std::runtime_error("invalid epoch");
 
-      static std::vector<std::string> split(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_filter_empty(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_regex(const std::string& str, const std::string& sep);
-   };
+    m_referenceFrame = referenceFrame;
+    try
+    {
+        m_epoch = std::stof(epoch.value());
+    }
+    catch (const std::exception& e)
+    {
+        throw e;
+    }
 }
 
+std::optional<ReferenceFrame> LatLonEllipsoidalReferenceFrame::referenceFrame()
+{
+    return m_referenceFrame;
+}
 
-#endif // STRUTIL_H
+std::optional<float> LatLonEllipsoidalReferenceFrame::epoch()
+{
+    return m_epoch || m_referenceFrame.value().epoch;
+}
+
+Ellipsoids LatLonEllipsoidalReferenceFrame::ellipsoids()
+{
+    return g_ellipsoids;
+}
+
+ReferenceFrames LatLonEllipsoidalReferenceFrame::referenceFrames()
+{
+    return g_reference_frames;
+}
+
+std::map<std::string, Helmert> LatLonEllipsoidalReferenceFrame::transformParameters()
+{
+    return s_txParams;
+}

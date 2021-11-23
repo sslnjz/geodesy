@@ -35,6 +35,7 @@ set(SRC
 		"latlon_nvector_spherical.cpp"
 		"latlon_nvector_ellipsoidal.cpp"
 		"latlon_ellipsoidal_vincenty.cpp"
+		"latlon_ellipsoidal_referenceframe.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})

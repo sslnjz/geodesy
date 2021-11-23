@@ -49,7 +49,7 @@ struct geodesy::VD
 
 LatLonEllipsoidalVincenty::LatLonEllipsoidalVincenty(double lat, double lon, double height,
     std::optional<Datum> datum,
-    std::optional<RFrame> reference,
+    std::optional<ReferenceFrame> reference,
     std::optional<float> epoch)
     : LatLonEllipsoidal(lat, lon, height, datum, reference, epoch)
 {

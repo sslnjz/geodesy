@@ -131,12 +131,20 @@ bool strutil::start_with(const std::string& str, const std::string& prefix)
 	if (str.size() < prefix_len)
 		return false;
 
-	for (size_t i = 0; i < prefix_len; i++)
+	for (size_t i = 0; i < prefix_len; ++i)
 	{
 		if (str[i] != prefix[i])
 			return false;
 	}
 
 	return true;
+}
+
+bool strutil::ends_with(const std::string& str, const std::string& suffix)
+{
+	if (suffix.size() > str.size()) {
+		return false;
+	}
+	return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
 }
 

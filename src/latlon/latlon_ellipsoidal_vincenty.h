@@ -73,7 +73,7 @@ namespace geodesy
         LatLonEllipsoidalVincenty();
         LatLonEllipsoidalVincenty(double lat, double lon, double height = 0.0,
                                   std::optional<Datum> datum = std::nullopt,
-                                  std::optional<RFrame> reference = std::nullopt,
+                                  std::optional<ReferenceFrame> reference = std::nullopt,
                                   std::optional<float> epoch = std::nullopt);
 
         /**

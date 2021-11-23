@@ -52,17 +52,11 @@ void Dms::set_separator(char sep)
 double Dms::parse(const std::string& dms)
 {
    // check for signed decimal degrees without NSEW, if so return it directly
-   try
+   if (std::regex_search(strutil::strip(dms), std::regex("^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$")))
    {
-      std::string::size_type sz;     // alias of size_t
-      const double e = std::stod(dms, &sz);
-      if (!isnan(e) && sz == dms.length()) return e;
+      return std::stod(dms);
    }
-   catch (...)
-   {
-      return NAN;
-   }
-   
+
    // strip off any sign or compass dir'n & split out separate d/m/s
    const std::string trim_dms = strutil::strip(dms);
    std::vector<std::string> dms_parts = strutil::split_regex(
@@ -109,7 +103,7 @@ double Dms::parse(const std::string& dms)
       return NAN;
    }
 
-   if (std::regex_match(trim_dms.c_str(), std::regex("(^-)|([SW]$)")))
+   if (std::regex_search(dms, std::regex("(^-)|([SW]$)")))
    {
       deg = -deg; // take '-', west and south as -ve
    }
@@ -117,50 +111,80 @@ double Dms::parse(const std::string& dms)
    return deg;
 }
 
-std::string Dms::toDms(double deg, eFormat format)
+std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)
 {
    // give up here if we can't make a number from deg
    if (isnan(deg)) 
       return "";
 
+   // default values
+   if (dp == std::nullopt) 
+   {
+      switch (format)
+      {
+      case D: 
+         dp = 4;
+         break;
+      case DM: 
+         dp = 2;
+         break;
+      case DMS: 
+         dp = 0;
+         break;
+      case N:
+          dp = 4;
+          break;
+      }
+   }
+
    // (unsigned result ready for appending compass dir'n)
    deg = std::abs(deg);  
 
-   double dm = 0.0;
-   double dd = 0.0;
    std::string dms;
-   std::stringstream stream;
-
    switch (format)
    {
    case D:
       {
+         std::string d;
+         std::stringstream dss;
          // left-pad with leading zeros (note may include decimals)
-         stream << std::setprecision(4) << std::setfill('0') << deg << "°";// round/right-pad degrees
-         dms = stream.str();
+         dss << std::fixed << std::setprecision(*dp) << std::setfill('0') << deg;// round/right-pad degrees
+         d = dss.str();
+         if (deg < 100) d = "0" + d;                    // left-pad with leading zeros (note may include decimals)
+         if (deg < 10) d = "0" + d;
+         dms = d + "°";
       }
       break;
    case DM:
       {
-         dd = std::floor(deg); // get component deg
-         dm = std::fmod((deg * 60), 60); // get component min & round/right-pad
+         std::string  m;
+         std::stringstream dss, mss;
+
+         int dd = static_cast<int>(std::floor(deg)); // get component deg
+         double dm = std::fmod((deg * 60), 60); // get component min & round/right-pad
 
          if (std::fabs(60 - dm) < std::numeric_limits<double>::epsilon()) // check for rounding up
          {
             dm = 0.0;
             ++dd;
          }
+         
+         dss << std::setfill('0') << std::setw(3) << dd;
+         mss << std::fixed << std::setprecision(*dp) << dm;
+         m = mss.str();
 
-         stream << std::setprecision(3) << std::setfill('0') << dd << "°" << _separator
-                << std::setprecision(2) << std::setfill('0') << dm << "′";
-
-         dms = stream.str();
+         if (dm < 10)
+            m = "0" + m;
+         dms = dss.str() + "°" + _separator + m + "′";
       }
       break;
    case DMS:
       {
-         dd = std::floor(deg); // get component deg
-         dm = std::fmod((deg * 3600) / 60, 60); // get component min
+         std::string d, m, s;
+         std::stringstream dss, mss, sss;
+
+         int dd = static_cast<int>(std::floor(deg)); // get component deg
+         int dm = static_cast<int>(std::fmod((deg * 3600) / 60, 60)); // get component min
          double ds = std::fmod(deg * 3600, 60); // get component sec & round/right-pad
 
          if(std::fabs(60 - ds) < std::numeric_limits<double>::epsilon()) // check for rounding up
@@ -176,17 +200,21 @@ std::string Dms::toDms(double deg, eFormat format)
             ++dd;
          }
 
-         stream << std::setprecision(3) << std::setfill('0') << dd << "°" << _separator
-                << std::setprecision(2) << std::setfill('0') << dm << "′" << _separator
-                << std::setprecision(2) << std::setfill('0') << ds << "″";
+         dss << std::setfill('0') << std::setw(3) << dd;
+         mss << std::setfill('0') << std::setw(2) << dm;
+         sss << std::fixed << std::setprecision(*dp) << std::setfill('0') << ds;
+         s = sss.str();
 
-         dms = stream.str();
+         if (ds < 10) s = "0" + s;
+
+         dms = dss.str() + "°" + mss.str() + "′" + s + "″";
       }
       break;
    case N:
       {
-         stream << deg;
-         dms = stream.str();
+         std::stringstream dmss;
+         dmss << std::fixed << std::setprecision(*dp) << std::setfill('0') << deg;
+         dms = dmss.str();
       }
       break;
    }

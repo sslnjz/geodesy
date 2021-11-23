@@ -31,6 +31,7 @@
 
 #include <string>
 #include <regex>
+#include <optional>
 
 namespace geodesy
 {
@@ -71,7 +72,7 @@ namespace geodesy
        * Thousands/decimal separators must be comma/dot; use Dms.fromLocale to convert locale-specific
        * thousands/decimal separators.
        *
-       * @param   {string} dms  - Degrees or deg/min/sec in variety of formats.
+       * @param   {string|number} dms  - Degrees or deg/min/sec in variety of formats.
        * @returns {number}      - Degrees as decimal number.
        *
        * @example
@@ -90,9 +91,10 @@ namespace geodesy
        * @private
        * @param   {number} deg - Degrees to be formatted as specified.
        * @param   {string} [format=dms] - Return value as 'd', 'dm', 'dms' for deg, deg+min, deg+min+sec.
+       * @param   {number} [dp=4|2|0] - Number of decimal places to use – default 4 for d, 2 for dm, 0 for dms.
        * @returns {string} Degrees formatted as deg/min/secs according to specified format.
        */
-      static std::string toDms(double deg, eFormat format = DMS);
+      static std::string toDms(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
       
       /**
        * Converts numeric degrees to deg/min/sec latitude (2-digit degrees, suffixed with N/S).

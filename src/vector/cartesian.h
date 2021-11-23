@@ -56,7 +56,7 @@ namespace geodesy
        *   const auto c = new Cartesian(4027893.924, 307041.993, 4919474.294);
        *   const auto p = c.toLatLon(); // 50.7978°N, 004.3592°E
        */
-      [[nodiscard]] LatLonEllipsoidal toLatLon(Ellipsoid ellipsoid = s_ellipsoids.WGS84) const;
+      [[nodiscard]] LatLonEllipsoidal toLatLon(Ellipsoid ellipsoid = g_ellipsoids.WGS84) const;
    };
 }
 

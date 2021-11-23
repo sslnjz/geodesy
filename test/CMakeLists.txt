@@ -34,14 +34,11 @@ project(geodesy_test
 		LANGUAGES C CXX
 )
 
+set(CMAKE_CXX_STANDARD 17)
+
 find_package(geodesy REQUIRED CONFIG HINTS ..)
 include_directories(${GEODESY_INCLUDE_DIR})
 link_directories(${GEODESY_LIB_DIR})
-
-find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
-set(memcheck_command ${CMAKE_MEMORYCHECK_COMMAND} ${CMAKE_MEMORYCHECK_COMMAND_OPTIONS} --error-exitcode=1 --leak-check=full)
-
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 ################################
 # GTest
@@ -50,9 +47,9 @@ project(googletest-git NONE)
 
 include(FetchContent)
 FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.11.0
+		googletest
+		GIT_REPOSITORY https://github.com/google/googletest.git
+		GIT_TAG        release-1.11.0
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -62,6 +59,13 @@ set(BUILD_GTEST ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
+
+find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
+set(memcheck_command ${CMAKE_MEMORYCHECK_COMMAND} ${CMAKE_MEMORYCHECK_COMMAND_OPTIONS} --error-exitcode=1 --leak-check=full)
+
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+
+
 
 if (WIN32)
 		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /MP /wd4200")
@@ -82,6 +86,7 @@ set(GTEST_LIB gtest gtest_main)
 foreach(src ${TEST_LIST})
 	add_executable(${src} EXCLUDE_FROM_ALL ${src}.cpp)
 	target_link_libraries(${src} ${GEODESY_LIB} ${GTEST_LIB})
+	#target_compile_features(${src} PRIVATE cxx_std_17)
 	add_test(${src} ${src})
 	add_dependencies(check ${src})
 endforeach()
