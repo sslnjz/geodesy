@@ -32,8 +32,8 @@
 #include <limits>
 #include <cmath>
 // π
-constexpr auto π = (3.141592653589793116);
-constexpr auto ε = std::numeric_limits<double>::epsilon();
+constexpr auto pi = (3.141592653589793116);
+constexpr auto epsilon = std::numeric_limits<double>::epsilon();
 
 namespace geodesy
 {
@@ -46,7 +46,7 @@ namespace geodesy
     */
    [[maybe_unused]] static double toRadians(double degrees)
    {
-       return degrees * π / 180.000;
+       return degrees * pi / 180.000;
    }
 
    /**
@@ -57,7 +57,7 @@ namespace geodesy
     */
    [[maybe_unused]] static double toDegrees(double radians)
    {
-       return radians * 180 / π;
+       return radians * 180 / pi;
    }
 
    /**
@@ -83,6 +83,25 @@ namespace geodesy
    inline int sign(const T& z)
    {
       return (z == 0) ? 0 : std::signbit(z) ? -1 : 1;
+   }
+
+   /**
+    * Conversion factor metres to kilometres.
+    * Conversion factors; 1000 * LatLon.metresToKm gives 1.
+    */
+   static inline double getMetresToKm()
+   {
+      return 1.000 / 1000.000;
+   }
+
+   static inline double getMetresToMiles()
+   {
+      return 1.000 / 1609.344;
+   }
+
+   static inline double getMetresToNauticalMiles()
+   {
+      return 1.000 / 1852.000;
    }
 
 }

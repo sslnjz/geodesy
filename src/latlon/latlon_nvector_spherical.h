@@ -62,12 +62,6 @@ namespace geodesy
       void setLng(double lon) { m_lon = Dms::wrap180(lon); }
       void setLongitude(double lon) { m_lon = Dms::wrap180(lon); }
 
-      /** Conversion factors; 1000 * LatLon.metresToKm gives 1. */
-      static double metresToKm() { return 1 / 1000.000; }
-      /** Conversion factors; 1000 * LatLon.metresToMiles gives 0.621371192237334. */
-      static double metresToMiles() { return 1 / 1609.344; }
-      /** Conversion factors; 1000 * LatLon.metresToMiles gives 0.5399568034557236. */
-      static double metresToNauticalMiles() { return 1 / 1852.000; }
 
       /**
         * Converts ‘this’ latitude/longitude point to an n-vector (normal to earth's surface).
@@ -348,7 +342,7 @@ namespace geodesy
        *   const p0 = new LatLon(51.0, 2.1);
        *   const p = p0.nearestPointOnSegment(p1, p2); // 51.0000°N, 002.0000°E
        */
-      LatLonNvectorSpherical nearestPointOnSegment(const LatLonNvectorSpherical& point1,
+      [[nodiscard]] LatLonNvectorSpherical nearestPointOnSegment(const LatLonNvectorSpherical& point1,
                                                    const LatLonNvectorSpherical& point2) const;
 
       /**
@@ -405,32 +399,32 @@ namespace geodesy
        static double areaOf(std::vector<LatLonNvectorSpherical>& polygon, double radius=6371e3);
 
 
-       /**
-        * Returns point representing geographic mean of supplied points.
-        *
-        * @param   {LatLon[]} points - Array of points to be averaged.
-        * @returns {LatLon}   Point at the geographic mean of the supplied points.
-        *
-        * @example
-        *   const p = LatLon.meanOf([ new LatLon(1, 1), new LatLon(4, 2), new LatLon(1, 3) ]); // 02.0001°N, 002.0000°E
-        */
-       static LatLonNvectorSpherical meanOf(const std::vector<LatLonNvectorSpherical>& points);
+      /**
+      * Returns point representing geographic mean of supplied points.
+      *
+      * @param   {LatLon[]} points - Array of points to be averaged.
+      * @returns {LatLon}   Point at the geographic mean of the supplied points.
+      *
+      * @example
+      *   const p = LatLon.meanOf([ new LatLon(1, 1), new LatLon(4, 2), new LatLon(1, 3) ]); // 02.0001°N, 002.0000°E
+      */
+      static LatLonNvectorSpherical meanOf(const std::vector<LatLonNvectorSpherical>& points);
 
-       /**
-        * Returns a string representation of ‘this’ point, formatted as degrees, degrees+minutes, or
-        * degrees+minutes+seconds.
-        *
-        * @param   {string} [format=d] - Format point as 'd', 'dm', 'dms', or 'n' for signed numeric.
-        * @param   {number} [dp=4|2|0] - Number of decimal places to use: default 4 for d, 2 for dm, 0 for dms.
-        * @returns {string} Comma-separated formatted latitude/longitude.
-        *
-        * @example
-        *   const greenwich = new LatLon(51.47788, -0.00147);
-        *   const d = greenwich.toString();                        // 51.4778°N, 000.0015°W
-        *   const dms = greenwich.toString('dms', 2);              // 51°28′40.37″N, 000°00′05.29″W
-        *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4778, -0.0015
-        */
-       std::string toString(Dms::eFormat format = Dms::D);
+      /**
+       * Returns a string representation of ‘this’ point, formatted as degrees, degrees+minutes, or
+       * degrees+minutes+seconds.
+       *
+       * @param   {string} [format=d] - Format point as 'd', 'dm', 'dms', or 'n' for signed numeric.
+       * @param   {number} [dp=4|2|0] - Number of decimal places to use: default 4 for d, 2 for dm, 0 for dms.
+       * @returns {string} Comma-separated formatted latitude/longitude.
+       *
+       * @example
+       *   const greenwich = new LatLon(51.47788, -0.00147);
+       *   const d = greenwich.toString();                        // 51.4778°N, 000.0015°W
+       *   const dms = greenwich.toString('dms', 2);              // 51°28′40.37″N, 000°00′05.29″W
+       *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4778, -0.0015
+       */
+      [[nodiscard]] std::string toString(Dms::eFormat format = Dms::D);
 
       /**
        * Checks if another point is equal to ‘this’ point.
@@ -463,7 +457,7 @@ namespace geodesy
        *   const within1 = new LatLon(52, 1).isWithinExtent(p1, p2); // true
        *   const within2 = new LatLon(51, 0).isWithinExtent(p1, p2); // false
        */
-      bool isWithinExtent(const LatLonNvectorSpherical& point1, const LatLonNvectorSpherical& point2) const;
+      [[nodiscard]] bool isWithinExtent(const LatLonNvectorSpherical& point1, const LatLonNvectorSpherical& point2) const;
 
        /**
         * Tests whether ‘this’ point is enclosed by the polygon defined by a set of points.
@@ -476,7 +470,7 @@ namespace geodesy
         *   const p = new LatLon(45.1, 1.1);
         *   const inside = p.isEnclosedBy(bounds); // true
         */
-       bool isEnclosedBy(std::vector<LatLonNvectorSpherical>& polygon) const;
+      [[nodiscard]] bool isEnclosedBy(std::vector<LatLonNvectorSpherical>& polygon) const;
 
    private:
       double m_lat;

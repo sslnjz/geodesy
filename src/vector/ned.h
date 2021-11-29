@@ -1,4 +1,4 @@
-
+﻿
 /**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
@@ -63,21 +63,21 @@ namespace geodesy
          *
          * @returns {number} Length of NED vector in metres.
          */
-        double length();
+        double length() const;
 
         /**
          * Bearing of NED vector.
          *
          * @returns {number} Bearing of NED vector in degrees from north.
          */
-        double bearing();
+        double bearing() const;
 
         /**
          * Elevation of NED vector.
          *
          * @returns {number} Elevation of NED vector in degrees from horizontal (ie tangent to ellipsoid surface).
          */
-        double elevation();
+        double elevation() const;
 
         /**
          * Creates North-East-Down vector from distance, bearing, & elevation (in local coordinate system).
@@ -98,7 +98,7 @@ namespace geodesy
          * @param   {number} [dp=0] - Number of decimal places to display.
          * @returns {string} Comma-separated (labelled) n, e, d values.
          */
-        std::string toString(int dp = 0);
+        std::string toString(int dp = 0) const;
 
 
     private:

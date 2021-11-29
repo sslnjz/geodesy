@@ -1,4 +1,4 @@
-
+﻿
 /**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
@@ -53,7 +53,7 @@ namespace geodesy
          *   const c = new Cartesian(3980581, 97, 4966825);
          *   const n = c.toNvector(); // { x: 0.6228, y: 0.0000, z: 0.7824, h: 0.0000 }
          */
-        NvectorEllipsoidal toNvector(Datum datum = LatLonEllipsoidal::datums().WGS84);
+        NvectorEllipsoidal toNvector(Datum datum = LatLonEllipsoidal::datums().WGS84) const;
     };
 }
 

@@ -1,4 +1,4 @@
-
+﻿
 /**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
@@ -36,9 +36,7 @@
 using namespace geodesy;
 
 NvectorCartesian::NvectorCartesian()
-{
-
-}
+= default;
 
 NvectorCartesian::NvectorCartesian(double x, double y, double z)
     : Cartesian(x, y, z)
@@ -46,7 +44,7 @@ NvectorCartesian::NvectorCartesian(double x, double y, double z)
 
 }
 
-NvectorEllipsoidal NvectorCartesian::toNvector(Datum datum)
+NvectorEllipsoidal NvectorCartesian::toNvector(Datum datum) const
 {
     const auto [ a, b, f ] = datum.ellipsoid;
 

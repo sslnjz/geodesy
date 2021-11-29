@@ -38,29 +38,22 @@ LatLonEllipsoidalReferenceFrame::LatLonEllipsoidalReferenceFrame(
     : LatLonEllipsoidal(lat, lon, height)
 {
     if (!referenceFrame || referenceFrame.value().epoch == std::nullopt)
-        throw std::runtime_error("unrecognised reference frame");
-    if (epoch.has_value() && std::isnan(std::stod(epoch.value())))
+        throw std::runtime_error("unrecognized reference frame");
+    if (!epoch)
         throw std::runtime_error("invalid epoch");
 
     m_referenceFrame = referenceFrame;
-    try
-    {
-        m_epoch = std::stof(epoch.value());
-    }
-    catch (const std::exception& e)
-    {
-        throw e;
-    }
+    m_epoch = epoch.value();
 }
 
-std::optional<ReferenceFrame> LatLonEllipsoidalReferenceFrame::referenceFrame()
+std::optional<ReferenceFrame> LatLonEllipsoidalReferenceFrame::referenceFrame() const
 {
     return m_referenceFrame;
 }
 
-std::optional<float> LatLonEllipsoidalReferenceFrame::epoch()
+std::optional<std::string> LatLonEllipsoidalReferenceFrame::epoch()
 {
-    return m_epoch || m_referenceFrame.value().epoch;
+    return m_epoch ? *m_epoch : m_referenceFrame.value().epoch;
 }
 
 Ellipsoids LatLonEllipsoidalReferenceFrame::ellipsoids()

@@ -1,4 +1,4 @@
-
+﻿
 /**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
@@ -52,7 +52,7 @@ Ned LatLonNvectorEllipsoidal::deltaTo(const LatLonEllipsoidal &point)
     // get delta in cartesian frame
     const auto c1 = toCartesian();
     const auto c2 = point.toCartesian();
-    const auto δc = c2 - c1;
+    const auto deltac = c2 - c1;
     // get local (n-vector) coordinate frame
     const auto n1 = toNvector();
     const auto a = vector3d(0, 0, 1); // axis vector pointing to 90°N
@@ -66,18 +66,18 @@ Ned LatLonNvectorEllipsoidal::deltaTo(const LatLonEllipsoidal &point)
             {d.x(), d.y(), d.z()}
     };
     // apply rotation to δc to get delta in n-vector reference frame
-    const auto δn = Cartesian(
-            r[0][0]*δc.x() + r[0][1]*δc.y() + r[0][2]*δc.z(),
-            r[1][0]*δc.x() + r[1][1]*δc.y() + r[1][2]*δc.z(),
-            r[2][0]*δc.x() + r[2][1]*δc.y() + r[2][2]*δc.z()
+    const auto deltan = Cartesian(
+            r[0][0]*deltac.x() + r[0][1]*deltac.y() + r[0][2]*deltac.z(),
+            r[1][0]*deltac.x() + r[1][1]*deltac.y() + r[1][2]*deltac.z(),
+            r[2][0]*deltac.x() + r[2][1]*deltac.y() + r[2][2]*deltac.z()
     );
-    return Ned(δn.x(), δn.y(), δn.z());
+    return Ned(deltan.x(), deltan.y(), deltan.z());
 }
 
 LatLonEllipsoidal LatLonNvectorEllipsoidal::destinationPoint(const Ned &delta)
 {
     // convert North-East-Down delta to standard x/y/z vector in coordinate frame of n-vector
-    const auto δn = vector3d(delta.north(), delta.east(), delta.down());
+    const auto deltan = vector3d(delta.north(), delta.east(), delta.down());
 
     // get local (n-vector) coordinate frame
     const auto n1 = toNvector();
@@ -94,15 +94,15 @@ LatLonEllipsoidal LatLonNvectorEllipsoidal::destinationPoint(const Ned &delta)
     };
 
     // apply rotation to δn to get delta in cartesian (ECEF) coordinate reference frame
-    const auto δc = Cartesian(
-            r[0][0]*δn.x() + r[0][1]*δn.y() + r[0][2]*δn.z(),
-            r[1][0]*δn.x() + r[1][1]*δn.y() + r[1][2]*δn.z(),
-            r[2][0]*δn.x() + r[2][1]*δn.y() + r[2][2]*δn.z()
+    const auto deltac = Cartesian(
+            r[0][0]*deltan.x() + r[0][1]*deltan.y() + r[0][2]*deltan.z(),
+            r[1][0]*deltan.x() + r[1][1]*deltan.y() + r[1][2]*deltan.z(),
+            r[2][0]*deltan.x() + r[2][1]*deltan.y() + r[2][2]*deltan.z()
     );
 
     // apply (cartesian) delta to c1 to obtain destination point as cartesian coordinate
     const auto c1 = toCartesian();              // convert this LatLon to Cartesian
-    const auto v2 = c1 + δc;                     // the plus() gives us a plain vector,..
+    const auto v2 = c1 + deltac;                     // the plus() gives us a plain vector,..
     const auto c2 = Cartesian(v2.x(), v2.y(), v2.z()); // ... need to convert it to Cartesian to get LatLon
 
     // return destination cartesian coordinate as latitude/longitude
@@ -111,16 +111,16 @@ LatLonEllipsoidal LatLonNvectorEllipsoidal::destinationPoint(const Ned &delta)
 
 NvectorEllipsoidal LatLonNvectorEllipsoidal::toNvector()
 { // note: replicated in LatLonNvectorSpherical
-    const auto φ = toRadians(lat());
-    const auto λ = toRadians(lon());
+    const auto phi = toRadians(lat());
+    const auto lambda = toRadians(lon());
 
-    const auto sinφ = std::sin(φ), cosφ = std::cos(φ);
-    const auto sinλ = std::sin(λ), cosλ = std::cos(λ);
+    const auto sinphi = std::sin(phi), cosphi = std::cos(phi);
+    const auto sinlambda = std::sin(lambda), coslambda = std::cos(lambda);
 
     // right-handed vector: x -> 0°E,0°N; y -> 90°E,0°N, z -> 90°N
-    const auto x = cosφ * cosλ;
-    const auto y = cosφ * sinλ;
-    const auto z = sinφ;
+    const auto x = cosphi * coslambda;
+    const auto y = cosphi * sinlambda;
+    const auto z = sinphi;
 
     return NvectorEllipsoidal(x, y, z, height(), datum());
 }

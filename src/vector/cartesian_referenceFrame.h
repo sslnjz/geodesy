@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
@@ -61,7 +61,7 @@ namespace geodesy
          */
         CartesianReferenceFrame(double x, double y, double z,
                                 std::optional<ReferenceFrame> referenceFrame = std::nullopt,
-                                std::optional<float> epoch = std::nullopt);
+                                std::optional<std::string> epoch = std::nullopt);
 
         /**
          * Reference frame this point is defined within.
@@ -80,14 +80,12 @@ namespace geodesy
         /**
          * Point’s observed epoch.
          */
-        std::optional<float> epoch()
+        std::optional<std::string> epoch()
         {
             return _epoch ? *_epoch : _referenceFrame ? _referenceFrame->epoch : std::nullopt;
         }
-        void setEpoch(float epoch)
+        void setEpoch(std::string epoch)
         {
-            if (std::isnan(epoch))
-                throw std::invalid_argument("invalid epoch");
             if (_referenceFrame.has_value() &&
                 _referenceFrame->epoch.has_value() &&
                 _epoch != (*_referenceFrame).epoch.value())
@@ -98,7 +96,7 @@ namespace geodesy
 
     private:
         std::optional<ReferenceFrame> _referenceFrame;
-        std::optional<float> _epoch;
+        std::optional<std::string> _epoch;
     };
 }
 

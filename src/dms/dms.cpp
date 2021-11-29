@@ -31,20 +31,21 @@
 #include <iomanip>
 #include <sstream>
 #include <cmath>
+#include <locale>
 
 #include "strutil.h"
 #include "vector3d.h"
 
 using namespace geodesy;
 
-char Dms::_separator = ' ';
+std::string& Dms::_separator = *new std::string("\u202f");
 
-char Dms::get_separator()
+std::string Dms::get_separator()
 {
    return _separator;
 }
 
-void Dms::set_separator(char sep)
+void Dms::set_separator(const std::string& sep)
 {
    _separator = sep;
 }
@@ -138,7 +139,7 @@ std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)
    }
 
    // (unsigned result ready for appending compass dir'n)
-   deg = std::abs(deg);  
+   deg = std::fabs(deg);  
 
    std::string dms;
    switch (format)
@@ -163,7 +164,7 @@ std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)
          int dd = static_cast<int>(std::floor(deg)); // get component deg
          double dm = std::fmod((deg * 60), 60); // get component min & round/right-pad
 
-         if (std::fabs(60 - dm) < std::numeric_limits<double>::epsilon()) // check for rounding up
+         if (std::fabs(60.0 - dm) < (*dp + 1) * 0.1) // check for rounding up
          {
             dm = 0.0;
             ++dd;
@@ -187,14 +188,14 @@ std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)
          int dm = static_cast<int>(std::fmod((deg * 3600) / 60, 60)); // get component min
          double ds = std::fmod(deg * 3600, 60); // get component sec & round/right-pad
 
-         if(std::fabs(60 - ds) < std::numeric_limits<double>::epsilon()) // check for rounding up
+         if(std::fabs(60.0 - ds) <= (*dp + 1) * 0.1 ) // check for rounding up
          {
             ds = 0;
             ++dm;
          }
 
          // check for rounding up
-         if (std::fabs(60 - dm) < std::numeric_limits<double>::epsilon()) // check for rounding up
+         if (dm == 60) // check for rounding up
          {
             dm = 0.0;
             ++dd;
@@ -221,23 +222,39 @@ std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)
    return dms;
 }
 
-std::string Dms::toLatitude(double deg, eFormat format)
+std::string Dms::toLat(double deg, eFormat format, std::optional<int> dp)
 {
-   const std::string lat = toDms(wrap90(deg), format);
+   const std::string lat = toDms(wrap90(deg), format, dp);
    return lat.empty() ? "-" : lat.substr(1) + _separator + (deg < 0 ? "S" : "N"); // knock off initial '0' for lat!
 }
 
-std::string Dms::toLongitude(double deg, eFormat format)
+std::string Dms::toLon(double deg, eFormat format, std::optional<int> dp)
 {
-   const std::string lon = toDms(wrap180(deg), format);
+   const std::string lon = toDms(wrap180(deg), format, dp);
    return lon.empty() ? "-" : lon + _separator + (deg < 0 ? "W" : "E");
 }
 
-std::string Dms::toBearing(double deg, eFormat format) const
+std::string Dms::toBearing(double deg, eFormat format, std::optional<int> dp)
 {
-   const std::string brng = toDms(wrap360(deg), format);
+   const std::string brng = toDms(wrap360(deg), format, dp);
    // just in case rounding took us up to 360∼!
    return brng.empty() ? "-" : std::regex_replace(brng, std::regex("360"), "0");
+}
+
+std::string Dms::fromLocale(const std::string& str)
+{
+   std::locale::global(std::locale("en_US.UTF-8"));
+   std::stringstream ss;
+   ss << str;
+   return ss.str();
+}
+
+std::string Dms::toLocale(const std::string& str)
+{
+   std::locale::global(std::locale(""));
+   std::stringstream ss;
+   ss << str;
+   return ss.str();
 }
 
 std::string Dms::compassPoint(double bearing, int precision)

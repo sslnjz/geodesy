@@ -29,10 +29,7 @@
 #ifndef LATLON_SPHERICAL_H
 #define LATLON_SPHERICAL_H
 
-#include <stdexcept>
 #include <string>
-#include <type_traits>
-#include <cmath>
 
 #include "dms.h"
 
@@ -43,7 +40,7 @@ namespace geodesy
     /* LatLonSpherical - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
     /**
      * Latitude/longitude points on a spherical model earth, and methods for calculating distances,
-     * bearings, destinations, etc on (orthodromic) great-circle paths and (loxodromic) rhumb lines.
+     * bearings, destinations, etc on (orthorhombic) great-circle paths and (loxodromic) rhumb lines.
      */
    class LatLonSpherical
    {
@@ -58,7 +55,7 @@ namespace geodesy
 
       /**
        * Longitude in degrees east from international reference meridian (including aliases lon, lng,
-       * longitude): can be set as numeric or hexagesimal (deg-min-sec); returned as numeric.
+       * longitude): can be set as numeric or hexadecimal (deg-min-sec); returned as numeric.
        */
       [[nodiscard]] double lon() const;
       [[nodiscard]] double lng() const;
@@ -67,17 +64,6 @@ namespace geodesy
       void setLon(double lon);
       void setLng(double lon);
       void setLongitude(double lon);
-
-
-      /**
-       * Conversion factor metres to kilometres.
-       * Conversion factors; 1000 * LatLon.metresToKm gives 1.
-       */
-      static inline double getMetresToKm();
-      /** Conversion factors; 1000 * LatLon.metresToMiles gives 0.621371192237334. */
-      static inline double getMetresToMiles();
-      /** Conversion factors; 1000 * LatLon.metresToMiles gives 0.5399568034557236. */
-      static inline double getMetresToNauticalMiles();
 
       /**
        * Returns the distance along the surface of the earth from ‘this’ point to destination point.

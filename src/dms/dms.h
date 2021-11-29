@@ -58,9 +58,14 @@ namespace geodesy
        * To change this (e.g. to empty string or full space), set Dms.separator prior to invoking
        * formatting.
        *
+       * @example
+       *   import LatLon, { Dms } from '/js/geodesy/latlon-spherical.js';
+       *   const p = new LatLon(51.2, 0.33).toString('dms');  // 51° 12′ 00″ N, 000° 19′ 48″ E
+       *   Dms.separator = '';                                // no separator
+       *   const pʹ = new LatLon(51.2, 0.33).toString('dms'); // 51°12′00″N, 000°19′48″E
        */
-      static char get_separator();
-      static void set_separator(char sep);
+      static std::string get_separator();
+      static void set_separator(const std::string& sep);
 
       /**
        * Parses string representing degrees/minutes/seconds into numeric degrees.
@@ -106,7 +111,7 @@ namespace geodesy
        * @example
        *   const std::string lat = Dms::toLat(-3.62, 'dms'); // 3°37′12″S
        */
-      static std::string toLatitude(double deg, eFormat format = DMS);
+      static std::string toLat(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
 
       /**
        * Convert numeric degrees to deg/min/sec longitude (3-digit degrees, suffixed with E/W).
@@ -116,9 +121,9 @@ namespace geodesy
        * @returns {string} Degrees formatted as deg/min/secs according to specified format.
        *
        * @example
-       *   const std::string lon = Dms::toLongitude(-3.62, 'dms'); // 3°37′12″W
+       *   const std::string lon = Dms::toLon(-3.62, 'dms'); // 3°37′12″W
        */
-      static std::string toLongitude(double deg, eFormat format = DMS);
+      static std::string toLon(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
 
       /**
        * Converts numeric degrees to deg/min/sec as a bearing (0°..360°).
@@ -130,7 +135,37 @@ namespace geodesy
        * @example
        *   const std::string lon = Dms::toBearing(-3.62, 'dms'); // 356°22′48″
        */
-      std::string toBearing(double deg, eFormat format = DMS) const;
+      [[nodiscard]] static std::string toBearing(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
+
+      /**
+       * Converts DMS string from locale thousands/decimal separators to JavaScript comma/dot separators
+       * for subsequent parsing.
+       *
+       * Both thousands and decimal separators must be followed by a numeric character, to facilitate
+       * parsing of single lat/long string (in which whitespace must be left after the comma separator).
+       *
+       * @param   {string} str - Degrees/minutes/seconds formatted with locale separators.
+       * @returns {string} Degrees/minutes/seconds formatted with standard Javascript separators.
+       *
+       * @example
+       *   const lat = Dms.fromLocale('51°28′40,12″N');                          // '51°28′40.12″N' in France
+       *   const p = new LatLon(Dms.fromLocale('51°28′40,37″N, 000°00′05,29″W'); // '51.4779°N, 000.0015°W' in France
+       */
+      static std::string fromLocale(const std::string& str);
+
+      /**
+       * Converts DMS string from JavaScript comma/dot thousands/decimal separators to locale separators.
+       *
+       * Can also be used to format standard numbers such as distances.
+       *
+       * @param   {string} str - Degrees/minutes/seconds formatted with standard Javascript separators.
+       * @returns {string} Degrees/minutes/seconds formatted with locale separators.
+       *
+       * @example
+       *   const Dms.toLocale('123,456.789');                   // '123.456,789' in France
+       *   const Dms.toLocale('51°28′40.12″N, 000°00′05.31″W'); // '51°28′40,12″N, 000°00′05,31″W' in France
+       */
+      static std::string toLocale(const std::string& str);
 
       /**
        * Returns compass point (to given precision) for supplied bearing.
@@ -174,7 +209,7 @@ namespace geodesy
 
    private:
        /* Degree-minutes-seconds (& cardinal directions) separator character */
-       static char _separator; // U+202F = 'narrow no-break space'
+       static std::string& _separator; // U+202F = 'narrow no-break space'
    };
 }
 

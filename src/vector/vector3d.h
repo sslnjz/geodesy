@@ -89,7 +89,7 @@ namespace geodesy
        */
       [[nodiscard]] double dot(const vector3d& v) const
       {
-         return xv * v.xv + yv * v.yv + zv * v.zv;
+         return vx * v.vx + vy * v.vy + vz * v.vz;
       }
 
       /**
@@ -99,7 +99,7 @@ namespace geodesy
        */
       [[nodiscard]] vector3d negate() const
       {
-         return vector3d(-xv, -yv, -zv);
+         return vector3d(-vx, -vy, -vz);
       }
 
 
@@ -111,9 +111,9 @@ namespace geodesy
        */
       [[nodiscard]] vector3d cross(const vector3d& v) const
       {
-         const double x = yv * v.zv - zv * v.yv;
-         const double y = zv * v.xv - xv * v.zv;
-         const double z = xv * v.yv - yv * v.xv;
+         const double x = vy * v.vz - vz * v.vy;
+         const double y = vz * v.vx - vx * v.vz;
+         const double z = vx * v.vy - vy * v.vx;
          return vector3d(x, y, z);
       }
 
@@ -136,7 +136,7 @@ namespace geodesy
             return *this;
          }
 
-         return vector3d(xv / norm, yv / norm, zv / norm);
+         return vector3d(vx / norm, vy / norm, vz / norm);
       }
 
       /**
@@ -155,9 +155,9 @@ namespace geodesy
          // ill-conditioned, so just calculate sign to apply to |p₁×p₂|
          // if n·p₁×p₂ is -ve, negate |p₁×p₂|
          const int sign = n == std::nullopt || cross(v).dot(*n) >= 0 ? 1 : -1;
-         const double sinθ = cross(v).length() * sign;
-         const double cosθ = dot(v);
-         return std::atan2(sinθ, cosθ);
+         const double sintheta = cross(v).length() * sign;
+         const double costheta = dot(v);
+         return std::atan2(sintheta, costheta);
       }
 
       /**
@@ -169,15 +169,15 @@ namespace geodesy
        */
       vector3d rotateAround(const vector3d& axis, double angle) const
       {
-         const double θ = toRadians(angle);
+         const double theta = toRadians(angle);
          // en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle
          // en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Quaternion-derived_rotation_matrix
          const vector3d p = unit();
          const vector3d a = axis.unit();
-         const double s = std::sin(θ);
-         const double c = std::cos(θ);
+         const double s = std::sin(theta);
+         const double c = std::cos(theta);
          const double t = 1 - c;
-         const double x = a.xv, y = a.yv, z = a.zv;
+         const double x = a.vx, y = a.vy, z = a.vz;
          const double r[3][3] = 
          { // rotation matrix for rotation about supplied axis
             { t * x * x + c, t * x * y - s * z, t * x * z + s * y } ,
@@ -186,9 +186,9 @@ namespace geodesy
          };
          // multiply r × p
          const double rp[3] = {
-            r[0][0] * p.xv + r[0][1] * p.yv + r[0][2] * p.zv,
-            r[1][0] * p.xv + r[1][1] * p.yv + r[1][2] * p.zv,
-            r[2][0] * p.xv + r[2][1] * p.yv + r[2][2] * p.zv,
+            r[0][0] * p.vx + r[0][1] * p.vy + r[0][2] * p.vz,
+            r[1][0] * p.vx + r[1][1] * p.vy + r[1][2] * p.vz,
+            r[2][0] * p.vx + r[2][1] * p.vy + r[2][2] * p.vz,
          };
          return vector3d(rp[0], rp[1], rp[2]);
          // https://en.wikipedia.org/wiki/Rodrigues'_rotation_formula
@@ -205,9 +205,9 @@ namespace geodesy
          std::stringstream ss;
          ss << std::setprecision(dp);
          ss << "[";
-         ss << xv << ", ";
-         ss << yv << ", ";
-         ss << zv;
+         ss << vx << ", ";
+         ss << vy << ", ";
+         ss << vz;
          ss << "]";
          return ss.str();
       }
@@ -220,9 +220,9 @@ namespace geodesy
        */
       constexpr inline vector3d& operator+=(const vector3d& v)
       {
-         xv += v.xv;
-         yv += v.yv;
-         zv += v.zv;
+         vx += v.vx;
+         vy += v.vy;
+         vz += v.vz;
          return *this;
       }
 
@@ -234,9 +234,9 @@ namespace geodesy
        */
       constexpr inline vector3d& operator-=(const vector3d& v)
       {
-         xv -= v.xv;
-         yv -= v.yv;
-         zv -= v.zv;
+         vx -= v.vx;
+         vy -= v.vy;
+         vz -= v.vz;
          return *this;
       }
 
@@ -248,9 +248,9 @@ namespace geodesy
        */
       constexpr inline vector3d& operator*=(double x)
       {
-         xv *= x;
-         yv *= x;
-         zv *= x;
+         vx *= x;
+         vy *= x;
+         vz *= x;
          return *this;
       }
 
@@ -262,70 +262,70 @@ namespace geodesy
        */
       constexpr inline vector3d& operator/=(double x)
       {
-         xv /= x;
-         yv /= x;
-         zv /= x;
+         vx /= x;
+         vy /= x;
+         vz /= x;
          return *this;
       }
 
       friend constexpr inline vector3d operator+(const vector3d& v1, const vector3d& v2)
-      { return vector3d(v1.xv + v2.xv, v1.yv + v2.yv, v1.zv + v2.zv);}
+      { return vector3d(v1.vx + v2.vx, v1.vy + v2.vy, v1.vz + v2.vz);}
       friend constexpr inline vector3d operator-(const vector3d& v1, const vector3d& v2)
-      { return vector3d(v1.xv - v2.xv, v1.yv - v2.yv, v1.zv - v2.zv);}
+      { return vector3d(v1.vx - v2.vx, v1.vy - v2.vy, v1.vz - v2.vz);}
       friend constexpr inline vector3d operator*(const vector3d& v, double x)
-      { return vector3d(v.xv * x, v.yv * x, v.zv * x);}
+      { return vector3d(v.vx * x, v.vy * x, v.vz * x);}
       friend constexpr inline vector3d operator*(double x, const vector3d& v)
-      { return vector3d(v.xv * x, v.yv * x, v.zv * x);}
+      { return vector3d(v.vx * x, v.vy * x, v.vz * x);}
       friend constexpr vector3d operator/(const vector3d& v, double x)
-      { return vector3d(v.xv / x, v.yv / x, v.zv / x);}
+      { return vector3d(v.vx / x, v.vy / x, v.vz / x);}
       friend inline vector3d operator+(const vector3d& v)
       { return v;}
       friend inline vector3d operator-(const vector3d& v)
       { return vector3d(v.x(), v.y(), v.z());}
 
    private:
-      double xv;
-      double yv;
-      double zv;
+      double vx;
+      double vy;
+      double vz;
    };
 
 
-   constexpr vector3d::vector3d() noexcept : xv(0), yv(0), zv(0) { }
-   constexpr vector3d::vector3d(double x, double y, double z) noexcept : xv(x), yv(y), zv(z) { }
+   constexpr vector3d::vector3d() noexcept : vx(0), vy(0), vz(0) { }
+   constexpr vector3d::vector3d(double x, double y, double z) noexcept : vx(x), vy(y), vz(z) { }
 
    constexpr inline double vector3d::x() const noexcept
    {
-      return xv;
+      return vx;
    }
 
    constexpr inline double vector3d::y() const noexcept
    {
-      return yv;
+      return vy;
    }
 
    constexpr inline double vector3d::z() const noexcept
    {
-      return zv;
+      return vz;
    }
 
    inline double& vector3d::rx() noexcept
    {
-      return xv;
+      return vx;
    }
 
    inline double& vector3d::ry() noexcept
    {
-      return yv;
+      return vy;
    }
 
    inline double& vector3d::rz() noexcept
    {
-      return zv;
+      return vz;
    }
 
    inline double vector3d::length() const
    {
-      return std::sqrt(xv * xv + yv * yv + zv * zv);
+      return std::sqrt(vx * vx + vy * vy + vz * vz);
    }
 }
 

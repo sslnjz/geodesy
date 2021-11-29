@@ -1,4 +1,4 @@
-
+﻿
 /**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
@@ -74,7 +74,7 @@ namespace geodesy
         LatLonEllipsoidalVincenty(double lat, double lon, double height = 0.0,
                                   std::optional<Datum> datum = std::nullopt,
                                   std::optional<ReferenceFrame> reference = std::nullopt,
-                                  std::optional<float> epoch = std::nullopt);
+                                  std::optional<std::string> epoch = std::nullopt);
 
         /**
          * Returns the distance between ‘this’ point and destination point along a geodesic on the

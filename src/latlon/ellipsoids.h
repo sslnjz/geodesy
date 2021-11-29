@@ -73,7 +73,7 @@ namespace geodesy
       Ellipsoid GRS80         { 6378137,      6356752.314140, 1 / 298.257222101 };
       Ellipsoid Intl1924      { 6378388,      6356911.946,    1 / 297.000000000 };             // aka Hayford
       Ellipsoid WGS72         { 6378135,      6356750.5,      1 / 298.26        };
-   } g_ellipsoids;
+   } &g_ellipsoids = *new Ellipsoids;
 
 
    struct Transform
@@ -115,15 +115,10 @@ namespace geodesy
          return *this;
       }
    };
-
-   /*
-   * Datums; exposed through static getter below.
-   */
    struct Datum
    {
       Ellipsoid ellipsoid;
-      // transforms: t in metres, s in ppm, r in arcseconds
-      Transform transforms;
+      Transform transforms;// transforms: t in metres, s in ppm, r in arcseconds
 
       inline bool operator==(const Datum& d) const
       {
@@ -136,6 +131,9 @@ namespace geodesy
       }
    };
 
+   /*
+   * Datums; exposed through static getter below.
+   */
    static const struct Datums
    {
       Datum ED50       { g_ellipsoids.Intl1924,      {   89.5,    93.8,    123.1,    -1.2,     0.0,      0.0,      0.156    } };
@@ -170,15 +168,11 @@ namespace geodesy
     */
 
 
-
-   /*
-    * Reference frames; exposed through static getter below.
-    */
    struct ReferenceFrame
    {
-      std::string name;
-      std::optional<float> epoch;
-      Ellipsoid ellipsoid;
+      std::string                name;
+      std::optional<std::string> epoch;
+      Ellipsoid                  ellipsoid;
 
        inline bool operator==(const ReferenceFrame& rhs) const
        {
@@ -196,18 +190,18 @@ namespace geodesy
     */
    static const struct ReferenceFrames
    {
-      ReferenceFrame ITRF2014  { "ITRF2014",   2010.0, g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF2008  { "ITRF2008",   2005.0, g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF2005  { "ITRF2005",   2000.0, g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF2000  { "ITRF2000",   1997.0, g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF93    { "ITRF93",     1988.0, g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF91    { "ITRF91",     1988.0, g_ellipsoids.GRS80 };
-      ReferenceFrame WGS84g1762{ "WGS84g1762", 2005.0, g_ellipsoids.WGS84 };
-      ReferenceFrame WGS84g1674{ "WGS84g1674", 2005.0, g_ellipsoids.WGS84 };
-      ReferenceFrame WGS84g1150{ "WGS84g1150", 2001.0, g_ellipsoids.WGS84 };
-      ReferenceFrame ETRF2000  { "ETRF2000",   2005.0, g_ellipsoids.GRS80 }; // ETRF2000(R08)
-      ReferenceFrame NAD83     { "NAD83",      1997.0, g_ellipsoids.GRS80 }; // CORS96
-      ReferenceFrame GDA94     { "GDA94",      1994.0, g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2014  { "ITRF2014",   "2010.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2008  { "ITRF2008",   "2005.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2005  { "ITRF2005",   "2000.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2000  { "ITRF2000",   "1997.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF93    { "ITRF93",     "1988.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF91    { "ITRF91",     "1988.0", g_ellipsoids.GRS80 };
+      ReferenceFrame WGS84g1762{ "WGS84g1762", "2005.0", g_ellipsoids.WGS84 };
+      ReferenceFrame WGS84g1674{ "WGS84g1674", "2005.0", g_ellipsoids.WGS84 };
+      ReferenceFrame WGS84g1150{ "WGS84g1150", "2001.0", g_ellipsoids.WGS84 };
+      ReferenceFrame ETRF2000  { "ETRF2000",   "2005.0", g_ellipsoids.GRS80 }; // ETRF2000(R08)
+      ReferenceFrame NAD83     { "NAD83",      "1997.0", g_ellipsoids.GRS80 }; // CORS96
+      ReferenceFrame GDA94     { "GDA94",      "1994.0", g_ellipsoids.GRS80 };
    } &g_reference_frames = *new ReferenceFrames;
 
 }

@@ -41,29 +41,29 @@ LatLonNvectorSpherical::LatLonNvectorSpherical(double lat, double lon) : m_lat(l
 
 NvectorSpherical LatLonNvectorSpherical::toNvector() const
 {
-   const auto φ = toRadians(m_lat);
-   const auto λ = toRadians(m_lon);
+   const auto phi = toRadians(m_lat);
+   const auto lambda = toRadians(m_lon);
 
-   const auto sinφ = std::sin(φ), cosφ = std::cos(φ);
-   const auto sinλ = std::sin(λ), cosλ = std::cos(λ);
+   const auto sinphi = std::sin(phi), cosphi = std::cos(phi);
+   const auto sinlambda = std::sin(lambda), coslambda = std::cos(lambda);
 
    // right-handed vector: x -> 0°E,0°N; y -> 90°E,0°N, z -> 90°N
-   const auto x = cosφ * cosλ;
-   const auto y = cosφ * sinλ;
-   const auto z = sinφ;
+   const auto x = cosphi * coslambda;
+   const auto y = cosphi * sinlambda;
+   const auto z = sinphi;
 
    return { x, y, z};
 }
 
 vector3d LatLonNvectorSpherical::greatCircle(double bearing) const
 {
-   const auto φ = toRadians(m_lat);
-   const auto λ = toRadians(m_lon);
-   const auto θ = toRadians(bearing);
+   const auto phi = toRadians(m_lat);
+   const auto lambda = toRadians(m_lon);
+   const auto theta = toRadians(bearing);
 
-   const auto x = std::sin(λ) * std::cos(θ) - std::sin(φ) * std::cos(λ) * std::sin(θ);
-   const auto y = -std::cos(λ) * std::cos(θ) - std::sin(φ) * std::sin(λ) * std::sin(θ);
-   const auto z = std::cos(φ) * std::sin(θ);
+   const auto x = std::sin(lambda) * std::cos(theta) - std::sin(phi) * std::cos(lambda) * std::sin(theta);
+   const auto y = -std::cos(lambda) * std::cos(theta) - std::sin(phi) * std::sin(lambda) * std::sin(theta);
+   const auto z = std::cos(phi) * std::sin(theta);
 
    return { x, y, z };
 }
@@ -75,11 +75,11 @@ double LatLonNvectorSpherical::distanceTo(const LatLonNvectorSpherical& point, d
    const auto n1 = toNvector();
    const auto n2 = toNvector();
 
-   const auto sinθ = n1.cross(n2).length();
-   const auto cosθ = n1.dot(n2);
-   const auto δ = std::atan2(sinθ, cosθ); // tanδ = |n₁×n₂| / n₁⋅n₂
+   const auto sintheta = n1.cross(n2).length();
+   const auto costheta = n1.dot(n2);
+   const auto delta = std::atan2(sintheta, costheta); // tanδ = |n₁×n₂| / n₁⋅n₂
 
-   return δ * R;
+   return delta * R;
 }
 
 double LatLonNvectorSpherical::initialBearingTo(const LatLonNvectorSpherical& point) const
@@ -95,9 +95,9 @@ double LatLonNvectorSpherical::initialBearingTo(const LatLonNvectorSpherical& po
    const auto c1 = p1.cross(p2); // great circle through p1 & p2
    const auto c2 = p1.cross(N); // great circle through p1 & north pole
 
-   const auto θ = c1.angleTo(c2, p1); // bearing is (signed) angle between c1 & c2
+   const auto theta = c1.angleTo(c2, p1); // bearing is (signed) angle between c1 & c2
 
-   return Dms::wrap360(toDegrees(θ)); // normalise to range 0..360°
+   return Dms::wrap360(toDegrees(theta)); // normalise to range 0..360°
 }
 
 double LatLonNvectorSpherical::finalBearingTo(const LatLonNvectorSpherical& point) const
@@ -121,20 +121,20 @@ LatLonNvectorSpherical LatLonNvectorSpherical::intermediatePointTo(const LatLonN
    // angular distance between points; tanδ = |n₁×n₂| / n₁⋅n₂
    const auto n1 = toNvector();
    const auto n2 = point.toNvector();
-   const auto sinθ = n1.cross(n2).length();
-   const auto cosθ = n1.dot(n2);
-   const auto δ = std::atan2(sinθ, cosθ);
+   const auto sintheta = n1.cross(n2).length();
+   const auto costheta = n1.dot(n2);
+   const auto delta = std::atan2(sintheta, costheta);
 
    // interpolated angular distance on straight line between points
-   const auto δi = δ * fraction;
-   const auto sinδi = std::sin(δi);
-   const auto cosδi = std::cos(δi);
+   const auto deltai = delta * fraction;
+   const auto sindeltai = std::sin(deltai);
+   const auto cosdeltai = std::cos(deltai);
 
    // direction vector (perpendicular to n1 in plane of n2)
    const auto d = n1.cross(n2).unit().cross(n1); // unit(n₁×n₂) × n₁
 
    // interpolated position
-   const auto ip = n1 * cosδi  + d * sinδi; // n₁⋅cosδᵢ + d⋅sinδᵢ
+   const auto ip = n1 * cosdeltai  + d * sindeltai; // n₁⋅cosδᵢ + d⋅sinδᵢ
 
    return NvectorSpherical(ip.x(), ip.y(), ip.z()).toLatLon();
 }
@@ -151,21 +151,21 @@ LatLonNvectorSpherical LatLonNvectorSpherical::intermediatePointOnChordTo(const 
 LatLonNvectorSpherical LatLonNvectorSpherical::destinationPoint(double distance, double bearing, double radius) const
 {
    const auto n1 = toNvector();        // Gade's n_EA_E
-   const auto δ = distance / radius;            // angular distance in radians
-   const auto θ = toRadians(bearing);           // initial bearing in radians
+   const auto delta = distance / radius;            // angular distance in radians
+   const auto theta = toRadians(bearing);           // initial bearing in radians
 
    const auto N = NvectorSpherical(0, 0, 1);          // north pole
 
    const auto de = N.cross(n1).unit();               // east direction vector @ n1 (Gade's k_e_E)
    const auto dn = n1.cross(de);                     // north direction vector @ n1 (Gade's (k_n_E)
 
-   const auto deSinθ = de * (std::sin(θ));
-   const auto dnCosθ = dn * (std::cos(θ));
+   const auto deSintheta = de * (std::sin(theta));
+   const auto dnCostheta = dn * (std::cos(theta));
 
-   const auto d = dnCosθ + deSinθ;               // direction vector @ n1 (≡ C×n1; C = great circle)
+   const auto d = dnCostheta + deSintheta;               // direction vector @ n1 (≡ C×n1; C = great circle)
 
-   const auto x = n1 * (std::cos(δ));             // component of n2 parallel to n1
-   const auto y = d *  (std::sin(δ));              // component of n2 perpendicular to n1
+   const auto x = n1 * (std::cos(delta));             // component of n2 parallel to n1
+   const auto y = d *  (std::sin(delta));              // component of n2 perpendicular to n1
 
    const auto n2 = x + y;                        // Gade's n_EB_E
 
@@ -248,9 +248,9 @@ double LatLonNvectorSpherical::crossTrackDistanceTo(const LatLonNvectorSpherical
 
    const auto p = toNvector();
    const auto gc = pathStart.toNvector().cross(pathBrngEnd.toNvector()); // great circle defined by two points
-   const auto α = gc.angleTo(p) - π / 2; // angle between point & great-circle
+   const auto alpha = gc.angleTo(p) - pi / 2; // angle between point & great-circle
 
-   return α * radius;
+   return alpha * radius;
 }
 
 double LatLonNvectorSpherical::crossTrackDistanceTo(const LatLonNvectorSpherical& pathStart, double pathBrngEnd,
@@ -260,9 +260,9 @@ double LatLonNvectorSpherical::crossTrackDistanceTo(const LatLonNvectorSpherical
 
    const auto p = toNvector();
    const auto gc = pathStart.greatCircle(pathBrngEnd);  // great circle defined by two points
-   const auto α = gc.angleTo(p) - π / 2; // angle between point & great-circle
+   const auto alpha = gc.angleTo(p) - pi / 2; // angle between point & great-circle
 
-   return α * radius;
+   return alpha * radius;
 }
 
 double LatLonNvectorSpherical::alongTrackDistanceTo(const LatLonNvectorSpherical& pathStart,
@@ -271,9 +271,9 @@ double LatLonNvectorSpherical::alongTrackDistanceTo(const LatLonNvectorSpherical
    const auto p = toNvector();
    const auto gc = pathStart.toNvector().cross(pathBrngEnd.toNvector()); // great circle defined by two points
    const auto pat = gc.cross(p).cross(gc); // along-track point c × p × c
-   const auto α = pathStart.toNvector().angleTo(pat, gc); // angle between start point and along-track point
+   const auto alpha = pathStart.toNvector().angleTo(pat, gc); // angle between start point and along-track point
 
-   return α * radius;
+   return alpha * radius;
 }
 
 double LatLonNvectorSpherical::alongTrackDistanceTo(const LatLonNvectorSpherical& pathStart, double pathBrngEnd,
@@ -282,9 +282,9 @@ double LatLonNvectorSpherical::alongTrackDistanceTo(const LatLonNvectorSpherical
    const auto p = toNvector();
    const auto gc = pathStart.greatCircle(pathBrngEnd); // great circle defined by two points
    const auto pat = gc.cross(p).cross(gc); // along-track point c × p × c
-   const auto α = pathStart.toNvector().angleTo(pat, gc); // angle between start point and along-track point
+   const auto alpha = pathStart.toNvector().angleTo(pat, gc); // angle between start point and along-track point
 
-   return α * radius;
+   return alpha * radius;
 }
 
 LatLonNvectorSpherical LatLonNvectorSpherical::nearestPointOnSegment(const LatLonNvectorSpherical& point1,
@@ -315,24 +315,24 @@ LatLonNvectorSpherical LatLonNvectorSpherical::triangulate(const LatLonNvectorSp
    const auto n1 = point1.toNvector();
    const auto n2 = point2.toNvector();
 
-   const auto θ1 = toRadians(bearing1);
-   const auto θ2 = toRadians(bearing2);
+   const auto theta1 = toRadians(bearing1);
+   const auto theta2 = toRadians(bearing2);
 
    const auto N = NvectorSpherical(0, 0, 1); // north pole
 
    const auto de1 = N.cross(n1).unit(); // east vector @ n1
    const auto dn1 = n1.cross(de1); // north vector @ n1
-   const auto de1Sinθ = de1 * (std::sin(θ1));
-   const auto dn1Cosθ = dn1 * (std::cos(θ1));
-   const auto d1 = dn1Cosθ + de1Sinθ; // direction vector @ n1
+   const auto de1Sintheta = de1 * (std::sin(theta1));
+   const auto dn1Costheta = dn1 * (std::cos(theta1));
+   const auto d1 = dn1Costheta + de1Sintheta; // direction vector @ n1
 
    const auto c1 = n1.cross(d1); // great circle p1 + bearing1
 
    const auto de2 = N.cross(n2).unit(); // east vector @ n2
    const auto dn2 = n2.cross(de2); // north vector @ n2
-   const auto de2Sinθ = de2 * sin(θ2);
-   const auto dn2Cosθ = dn2 * cos(θ2);
-   const auto d2 = dn2Cosθ + de2Sinθ; // direction vector @ n2
+   const auto de2Sintheta = de2 * sin(theta2);
+   const auto dn2Costheta = dn2 * cos(theta2);
+   const auto d2 = dn2Costheta + de2Sintheta; // direction vector @ n2
 
    const auto c2 = n2.cross(d2); // great circle p2 + bearing2
    const auto ni = c1.cross(c2); // n-vector of intersection point
@@ -350,9 +350,9 @@ LatLonNvectorSpherical LatLonNvectorSpherical::trilaterate(const LatLonNvectorSp
    const auto n1 = point1.toNvector();
    const auto n2 = point2.toNvector();
    const auto n3 = point3.toNvector();
-   const auto δ1 = distance1 / radius;
-   const auto δ2 = distance2 / radius;
-   const auto δ3 = distance3 / radius;
+   const auto delta1 = distance1 / radius;
+   const auto delta2 = distance2 / radius;
+   const auto delta3 = distance3 / radius;
 
    // the following uses x,y coordinate system with origin at n1, x axis n1->n2
    const auto eX = (n2 - n1).unit(); // unit vector in x direction n1->n2
@@ -360,8 +360,8 @@ LatLonNvectorSpherical LatLonNvectorSpherical::trilaterate(const LatLonNvectorSp
    const auto eY = ((n3 - n1) - (eX * i )).unit(); // unit vector in y direction
    const auto d = (n2 - n1).length(); // distance n1->n2
    const auto j = eY.dot(n3 - n1); // signed magnitude of y component of n1->n3
-   const auto x = (δ1 * δ1 - δ2 * δ2 + d * d) / (2 * d); // x component of n1 -> intersection
-   const auto y = (δ1 * δ1 - δ3 * δ3 + i * i + j * j) / (2 * j) - x * i / j; // y component of n1 -> intersection
+   const auto x = (delta1 * delta1 - delta2 * delta2 + d * d) / (2 * d); // x component of n1 -> intersection
+   const auto y = (delta1 * delta1 - delta3 * delta3 + i * i + j * j) / (2 * j) - x * i / j; // y component of n1 -> intersection
    // const eZ = eX.cross(eY);                            // unit vector perpendicular to plane
    // const z = Math.sqrt(δ1*δ1 - x*x - y*y);             // z will be NaN for no intersections
 
@@ -397,10 +397,10 @@ bool LatLonNvectorSpherical::isEnclosedBy(std::vector<LatLonNvectorSpherical>& p
    vectorToVertex.push_back(vectorToVertex[0]);
 
    // sum subtended angles of each edge (using vector p to determine sign)
-   double Σθ = 0.0;
+   double Σtheta = 0.0;
    for (size_t v = 0; v < nVertices; ++v) 
    {
-      Σθ += vectorToVertex[v].angleTo(vectorToVertex[v + 1], p);
+      Σtheta += vectorToVertex[v].angleTo(vectorToVertex[v + 1], p);
    }
 
    if (!closed)
@@ -408,7 +408,7 @@ bool LatLonNvectorSpherical::isEnclosedBy(std::vector<LatLonNvectorSpherical>& p
       polygon.pop_back(); // restore polygon to pristine condition
    }
 
-   return std::abs(Σθ) > π;
+   return std::abs(Σtheta) > pi;
 }
 
 bool LatLonNvectorSpherical::equals(const LatLonNvectorSpherical& point) const
@@ -430,12 +430,12 @@ bool LatLonNvectorSpherical::isWithinExtent(const LatLonNvectorSpherical& point1
    const auto n2 = point2.toNvector(); // n-vectors
 
    // get vectors representing p0->p1, p0->p2, p1->p2, p2->p1
-   const auto δ10 = n0 - n1, δ12 = n2 - n1;
-   const auto δ20 = n0 - n2, δ21 = n1 - n2;
+   const auto delta10 = n0 - n1, delta12 = n2 - n1;
+   const auto delta20 = n0 - n2, delta21 = n1 - n2;
 
    // dot product δ10⋅δ12 tells us if p0 is on p2 side of p1, similarly for δ20⋅δ21
-   const auto extent1 = δ10.dot(δ12);
-   const auto extent2 = δ20.dot(δ21);
+   const auto extent1 = delta10.dot(delta12);
+   const auto extent2 = delta20.dot(delta21);
 
    const auto isSameHemisphere = n0.dot(n1) >= 0 && n0.dot(n2) >= 0;
 
@@ -465,17 +465,17 @@ double LatLonNvectorSpherical::areaOf(std::vector<LatLonNvectorSpherical> &polyg
     // (cannot use Σ(π−|α|) as concave polygons would fail); use vector to 1st point as plane
     // normal for sign of α
     const auto n1 = polygon[0].toNvector();
-    double Σα = 0.0;
+    double Σalpha = 0.0;
     for (size_t v=0; v<n; v++) {
-        Σα += c[v].angleTo(c[v+1], n1);
+        Σalpha += c[v].angleTo(c[v+1], n1);
     }
-    const auto Σθ = n*π - std::abs(Σα);
+    const auto Σtheta = n*pi - std::abs(Σalpha);
 
     // note: angle between two sides of a spherical triangle is acos(c₁·c₂) where cₙ is the
     // plane normal vector to the great circle representing the triangle side - use this instead
     // of angleTo()?
 
-    const auto E = (Σθ - (n-2)*π); // spherical excess (in steradians)
+    const auto E = (Σtheta - (n-2)*pi); // spherical excess (in steradians)
     const auto A = E * radius*radius;        // area in units of R²
 
     if (!closed)
@@ -505,9 +505,9 @@ std::string LatLonNvectorSpherical::toString(Dms::eFormat format)
         ss << std::fixed << std::setprecision(4) << m_lat << "," << m_lon;
         return ss.str();
     }
-    const auto lat = Dms::toLatitude(m_lat, format);
-    const auto lon = Dms::toLongitude(m_lon, format);
+    const auto lat = Dms::toLat(m_lat, format);
+    const auto lon = Dms::toLon(m_lon, format);
 
-    ss << Dms::toLatitude(m_lat, format) << ", " << Dms::toLongitude(m_lon, format);
+    ss << Dms::toLat(m_lat, format) << ", " << Dms::toLon(m_lon, format);
     return ss.str();
 }

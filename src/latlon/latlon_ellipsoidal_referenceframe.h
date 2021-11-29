@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
@@ -102,13 +102,13 @@ namespace geodesy
         /**
          * Reference frame this point is defined within.
          */
-        std::optional<ReferenceFrame> referenceFrame();
+        [[nodiscard]] std::optional<ReferenceFrame> referenceFrame() const;
 
 
         /**
          * Point’s observed epoch.
          */
-        std::optional<float> epoch();
+        std::optional<std::string> epoch();
 
 
         /**

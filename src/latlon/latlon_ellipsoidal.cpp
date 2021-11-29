@@ -31,6 +31,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <utility>
 
 using namespace geodesy;
 
@@ -44,18 +45,17 @@ LatLonEllipsoidal::LatLonEllipsoidal()
 {
 }
 
-LatLonEllipsoidal::~LatLonEllipsoidal()
-= default;
-
 LatLonEllipsoidal::LatLonEllipsoidal(double lat, double lon, double height,
-                                     std::optional<Datum> datum, std::optional<ReferenceFrame> reference, std::optional<float> epoch)
-    : m_epoch(epoch)
-    , m_datum(datum)
-    , m_referenceFrame(reference)
-    , m_lat(lat)
-    , m_lon(lon)
-    , m_height(height)
-{
+   std::optional<Datum> datum, 
+   std::optional<ReferenceFrame> reference, 
+   std::optional<std::string> epoch)
+   : m_epoch(std::move(epoch))
+   , m_datum(datum)
+   , m_referenceFrame(std::move(reference))
+   , m_lat(lat)
+   , m_lon(lon)
+   , m_height(height)
+ {
 }
 
 void LatLonEllipsoidal::setHeight(double height)
@@ -151,20 +151,20 @@ Cartesian LatLonEllipsoidal::toCartesian() const
                      ? m_datum->ellipsoid
                      : m_referenceFrame ? m_referenceFrame->ellipsoid : ellipsoids().WGS84;
 
-   const auto φ = toRadians(m_lat);
-   const auto λ = toRadians(m_lon);
+   const auto phi = toRadians(m_lat);
+   const auto lambda = toRadians(m_lon);
    const auto h = m_height;
    const auto a = ellipsoid.a, f = ellipsoid.f;
 
-   const auto sinφ = std::sin(φ), cosφ = std::cos(φ);
-   const auto sinλ = std::sin(λ), cosλ = std::cos(λ);
+   const auto sinphi = std::sin(phi), cosphi = std::cos(phi);
+   const auto sinlambda = std::sin(lambda), coslambda = std::cos(lambda);
 
    const auto eSq = 2*f - f*f;                      // 1st eccentricity squared ≡ (a²-b²)/a²
-   const auto ν = a / std::sqrt(1 - eSq*sinφ*sinφ); // radius of curvature in prime vertical
+   const auto nu = a / std::sqrt(1 - eSq*sinphi*sinphi); // radius of curvature in prime vertical
 
-   const auto x = (ν+h) * cosφ * cosλ;
-   const auto y = (ν+h) * cosφ * sinλ;
-   const auto z = (ν*(1-eSq)+h) * sinφ;
+   const auto x = (nu+h) * cosphi * coslambda;
+   const auto y = (nu+h) * cosphi * sinlambda;
+   const auto z = (nu*(1-eSq)+h) * sinphi;
 
    return { x, y, z };
 }
@@ -186,8 +186,8 @@ std::string LatLonEllipsoidal::toString(Dms::eFormat format, std::optional<int> 
       return llwss.str();
    }
 
-   llwss << Dms::toLatitude(m_lat, format) << ", ";
-   llwss << Dms::toLatitude(m_lon, format);
+   llwss << Dms::toLat(m_lat, format) << ", ";
+   llwss << Dms::toLat(m_lon, format);
    llwss << (bool(dph) ? "" : hwss.str());
 
    return llwss.str();

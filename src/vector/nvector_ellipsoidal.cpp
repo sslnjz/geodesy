@@ -1,4 +1,4 @@
-
+﻿
 /**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
@@ -69,7 +69,7 @@ LatLonNvectorEllipsoidal NvectorEllipsoidal::toLatLon()
 {
     // tanφ = z / √(x²+y²), tanλ = y / x (same as spherical calculation)
 
-    const auto φ = std::atan2(z(), std::sqrt(x()*x() + y()*y()));
-    const auto λ = std::atan2(y(), x());
-    return LatLonNvectorEllipsoidal(toDegrees(φ), toDegrees(λ), m_h, m_datum);
+    const auto phi = std::atan2(z(), std::sqrt(x()*x() + y()*y()));
+    const auto lambda = std::atan2(y(), x());
+    return LatLonNvectorEllipsoidal(toDegrees(phi), toDegrees(lambda), m_h, m_datum);
 }

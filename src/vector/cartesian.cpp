@@ -23,27 +23,27 @@ LatLonEllipsoidal Cartesian::toLatLon(Ellipsoid ellipsoid) const
    auto [a, b, f] = ellipsoid;
 
    const double e2 = 2 * f - f * f; // 1st eccentricity squared ≡ (a²−b²)/a²
-   const double ε2 = e2 / (1 - e2); // 2nd eccentricity squared ≡ (a²−b²)/b²
+   const double epsilon2 = e2 / (1 - e2); // 2nd eccentricity squared ≡ (a²−b²)/b²
    const double p = std::sqrt(x() * x() + y() * y()); // distance from minor axis
    const double R = std::sqrt(p * p + z() * z()); // polar radius
 
    // parametric latitude (Bowring eqn.17, replacing tanβ = z·a / p·b)
-   const double tanβ = (b * z()) / (a * p) * (1 + ε2 * b / R);
-   const double sinβ = tanβ / std::sqrt(1 + tanβ * tanβ);
-   const double cosβ = sinβ / tanβ;
+   const double tanbeta = (b * z()) / (a * p) * (1 + epsilon2 * b / R);
+   const double sinbeta = tanbeta / std::sqrt(1 + tanbeta * tanbeta);
+   const double cosbeta = sinbeta / tanbeta;
 
    // geodetic latitude (Bowring eqn.18: tanφ = z+ε²⋅b⋅sin³β / p−e²⋅cos³β)
-   const double φ = std::isnan(cosβ)
+   const double phi = std::isnan(cosbeta)
       ? 0
-      : std::atan2(z() + ε2 * b * sinβ * sinβ * sinβ, p - e2 * a * cosβ * cosβ * cosβ);
+      : std::atan2(z() + epsilon2 * b * sinbeta * sinbeta * sinbeta, p - e2 * a * cosbeta * cosbeta * cosbeta);
 
    // longitude
-   const double λ = std::atan2(y(), x());
+   const double lambda = std::atan2(y(), x());
 
    // height above ellipsoid (Bowring eqn.7)
-   const double sinφ = std::sin(φ), cosφ = std::cos(φ);
-   const double ν = a / std::sqrt(1 - e2 * sinφ * sinφ); // length of the normal terminated by the minor axis
-   const double h = p * cosφ + z() * sinφ - (a * a / ν);
+   const double sinphi = std::sin(phi), cosphi = std::cos(phi);
+   const double nu = a / std::sqrt(1 - e2 * sinphi * sinphi); // length of the normal terminated by the minor axis
+   const double h = p * cosphi + z() * sinphi - (a * a / nu);
 
-   return { toDegrees(φ), toDegrees(λ), h };
+   return { toDegrees(phi), toDegrees(lambda), h };
 }

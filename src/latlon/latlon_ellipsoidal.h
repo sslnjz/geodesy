@@ -49,8 +49,6 @@
  *
  * This module is used for both trigonometric geodesy (eg latlon-ellipsoidal-vincenty) and n-vector
  * geodesy (eg latlon-nvector-ellipsoidal), and also for UTM/MGRS mapping.
- *
- * @module latlon-ellipsoidal
  */
 namespace geodesy
 {
@@ -69,9 +67,9 @@ namespace geodesy
        /**
         * Creates a geodetic latitude/longitude point on a (WGS84) ellipsoidal model earth.
         *
-        * @param  {number} lat - Latitude (in degrees).
-        * @param  {number} lon - Longitude (in degrees).
-        * @param  {number} [height=0] - Height above ellipsoid in metres.
+        * @param lat - Latitude (in degrees).
+        * @param lon - Longitude (in degrees).
+        * @param [height=0] - Height above ellipsoid in metres.
         *
         * @example
         *   const auto p = new LatLonEllipsoidal(51.47788, -0.00147, 17);
@@ -79,8 +77,8 @@ namespace geodesy
        LatLonEllipsoidal(double lat, double lon, double height = 0.0,
                          std::optional<Datum> datum = std::nullopt,
                          std::optional<ReferenceFrame> reference = std::nullopt,
-                         std::optional<float> epoch = std::nullopt);
-       virtual ~LatLonEllipsoidal();
+                         std::optional<std::string> epoch = std::nullopt);
+       virtual ~LatLonEllipsoidal() = default;
 
        /**
         * Latitude in degrees north from equator (including aliases lat, latitude): can be set as
@@ -98,15 +96,15 @@ namespace geodesy
        [[nodiscard]] double lon() const;
        [[nodiscard]] double lng() const;
        [[nodiscard]] double longitude() const;
-       void setLon(const double lon);
-       void setLng(const double lon);
-       void setLongitude(const double lon);
+       void setLon(double lon);
+       void setLng(double lon);
+       void setLongitude(double lon);
 
        /**
         * Height in metres above ellipsoid.
         */
        [[nodiscard]] double height() const;
-       void setHeight(const double height);
+       void setHeight(double height);
 
        /**
         * Datum.
@@ -168,7 +166,7 @@ namespace geodesy
        /**
         * Checks if another point is equal to ‘this’ point.
         *
-        * @param   {LatLon} point - Point to be compared against this point.
+        * @param   {LatLonEllipsoidal} point - Point to be compared against this point.
         * @returns {bool} True if points have identical latitude, longitude, height, and datum/referenceFrame.
         * @throws  {TypeError} Invalid point.
         *
@@ -182,7 +180,7 @@ namespace geodesy
        /**
         * Checks if another point is equal to ‘this’ point.
         *
-        * @param   {LatLon} point - Point to be compared against this point.
+        * @param   {LatLonEllipsoidal} point - Point to be compared against this point.
         * @returns {bool} True if points have identical latitude, longitude, height, and datum/referenceFrame.
         *
         * @example
@@ -193,11 +191,11 @@ namespace geodesy
        inline bool operator==(const LatLonEllipsoidal& point) const;
 
     protected:
-        std::optional<float>  m_epoch;
-        std::optional<Datum>  m_datum;
-        std::optional<ReferenceFrame> m_referenceFrame;
+        std::optional<std::string>     m_epoch;
+        std::optional<Datum>           m_datum;
+        std::optional<ReferenceFrame>  m_referenceFrame;
 
-    private:
+     private:
         double m_lat;
         double m_lon;
         double m_height;
@@ -208,7 +206,7 @@ namespace geodesy
        if (std::fabs(m_lat - point.m_lat) > std::numeric_limits<double>::epsilon()) return false;
        if (std::fabs(m_lon - point.m_lon) > std::numeric_limits<double>::epsilon()) return false;
        if (std::fabs(m_height - point.m_height) > std::numeric_limits<double>::epsilon()) return false;
-       if (std::fabs(*m_epoch - *point.m_epoch) > std::numeric_limits<double>::epsilon()) return false;
+       if (*m_epoch == *point.m_epoch) return false;
        if (*m_datum != *point.m_datum) return false;
        if (*m_referenceFrame!= *point.m_referenceFrame) return false;
 

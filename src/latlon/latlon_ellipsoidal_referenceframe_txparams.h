@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -37,9 +37,9 @@ namespace geodesy
     /* Helmert transform parameters */
     struct Helmert
     {
-        std::string epoch;
-        double params[7];
-        double rates[7];
+        std::string  epoch;
+        double       params[7];
+        double       rates[7];
     };
 
     static std::map<std::string, Helmert> s_txParams = {

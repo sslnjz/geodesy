@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
@@ -33,17 +33,18 @@ using namespace geodesy;
 
 CartesianReferenceFrame::CartesianReferenceFrame(double x, double y, double z,
     std::optional<ReferenceFrame> referenceFrame,
-    std::optional<float> epoch)
+    std::optional<std::string> epoch)
     : Cartesian(x, y, z)
 {
     if (referenceFrame.has_value() && !referenceFrame.value().epoch.has_value())
         throw std::invalid_argument("unrecognised reference frame");
 
-    if (epoch.has_value() && std::isnan(epoch.value()))
+    if (!epoch.has_value())
         throw std::invalid_argument("invalid epoch");
 
+
+    _epoch = epoch.value();
     if (referenceFrame.has_value())
         _referenceFrame = referenceFrame.value();
-    if (epoch.has_value())
-        _epoch = epoch.value();
+
 }

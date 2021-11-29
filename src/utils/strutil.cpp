@@ -105,14 +105,14 @@ std::string strutil::strip(const std::string& str)
 
 		while (st <= ed)
 		{
-			if (!isspace(*st))
+			if (!std::isspace(static_cast<unsigned char>(*st)))
 				break;
 			st++;
 		}
 
 		while (ed >= st)
 		{
-			if (!isspace(*ed))
+			if (!std::isspace(static_cast<unsigned char>(*ed)))
 				break;
 			ed--;
 		}
