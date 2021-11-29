@@ -65,8 +65,6 @@ set(memcheck_command ${CMAKE_MEMORYCHECK_COMMAND} ${CMAKE_MEMORYCHECK_COMMAND_OP
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
-
-
 if (WIN32)
 		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /MP /wd4200")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4200 /std:c++17")
@@ -77,7 +75,8 @@ endif ()
 
 
 set(TEST_LIST
-	dms_unittest
+		latlon_unittest
+		dms_unittest
 )
 
 set(GEODESY_LIB geodesy)
@@ -86,7 +85,6 @@ set(GTEST_LIB gtest gtest_main)
 foreach(src ${TEST_LIST})
 	add_executable(${src} EXCLUDE_FROM_ALL ${src}.cpp)
 	target_link_libraries(${src} ${GEODESY_LIB} ${GTEST_LIB})
-	#target_compile_features(${src} PRIVATE cxx_std_17)
 	add_test(${src} ${src})
 	add_dependencies(check ${src})
 endforeach()

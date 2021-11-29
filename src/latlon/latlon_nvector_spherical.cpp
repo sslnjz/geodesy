@@ -397,10 +397,10 @@ bool LatLonNvectorSpherical::isEnclosedBy(std::vector<LatLonNvectorSpherical>& p
    vectorToVertex.push_back(vectorToVertex[0]);
 
    // sum subtended angles of each edge (using vector p to determine sign)
-   double Σtheta = 0.0;
+   double SIGMAtheta = 0.0;
    for (size_t v = 0; v < nVertices; ++v) 
    {
-      Σtheta += vectorToVertex[v].angleTo(vectorToVertex[v + 1], p);
+      SIGMAtheta += vectorToVertex[v].angleTo(vectorToVertex[v + 1], p);
    }
 
    if (!closed)
@@ -408,7 +408,7 @@ bool LatLonNvectorSpherical::isEnclosedBy(std::vector<LatLonNvectorSpherical>& p
       polygon.pop_back(); // restore polygon to pristine condition
    }
 
-   return std::abs(Σtheta) > pi;
+   return std::abs(SIGMAtheta) > pi;
 }
 
 bool LatLonNvectorSpherical::equals(const LatLonNvectorSpherical& point) const
@@ -465,17 +465,17 @@ double LatLonNvectorSpherical::areaOf(std::vector<LatLonNvectorSpherical> &polyg
     // (cannot use Σ(π−|α|) as concave polygons would fail); use vector to 1st point as plane
     // normal for sign of α
     const auto n1 = polygon[0].toNvector();
-    double Σalpha = 0.0;
+    double SIGMAalpha = 0.0;
     for (size_t v=0; v<n; v++) {
-        Σalpha += c[v].angleTo(c[v+1], n1);
+        SIGMAalpha += c[v].angleTo(c[v+1], n1);
     }
-    const auto Σtheta = n*pi - std::abs(Σalpha);
+    const auto SIGMAtheta = n*pi - std::abs(SIGMAalpha);
 
     // note: angle between two sides of a spherical triangle is acos(c₁·c₂) where cₙ is the
     // plane normal vector to the great circle representing the triangle side - use this instead
     // of angleTo()?
 
-    const auto E = (Σtheta - (n-2)*pi); // spherical excess (in steradians)
+    const auto E = (SIGMAtheta - (n-2)*pi); // spherical excess (in steradians)
     const auto A = E * radius*radius;        // area in units of R²
 
     if (!closed)

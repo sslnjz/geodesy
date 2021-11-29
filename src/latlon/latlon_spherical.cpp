@@ -34,71 +34,9 @@
 using namespace geodesy;
 
 LatLonSpherical::LatLonSpherical(double lat, double lon)
-   : m_lat(Dms::wrap90(lat))
-   , m_lon(Dms::wrap180(lon))
+   : LatLon(lat, lon)
 {
 
-}
-
-double LatLonSpherical::lat() const
-{
-   return m_lat;
-}
-
-double LatLonSpherical::latitude() const
-{
-   return m_lat;
-}
-
-double LatLonSpherical::lon() const
-{
-   return m_lon;
-}
-
-double LatLonSpherical::lng() const
-{
-   return m_lon;
-}
-
-double LatLonSpherical::longitude() const
-{
-   return m_lon;
-}
-
-bool geodesy::operator==(const LatLonSpherical& p1, const LatLonSpherical& p2)
-{
-   return std::fabs(p1.m_lat - p2.m_lat) < std::numeric_limits<double>::epsilon() &&
-      std::fabs(p1.m_lon - p2.m_lon) < std::numeric_limits<double>::epsilon();
-}
-
-bool geodesy::operator!=(const LatLonSpherical& p1, const LatLonSpherical& p2)
-{
-   return (!(p1 == p2));
-}
-
-void LatLonSpherical::setLat(double lat)
-{
-   m_lat = Dms::wrap90(lat);
-}
-
-void LatLonSpherical::setLatitude(double lat)
-{
-   m_lat = Dms::wrap90(lat);
-}
-
-void LatLonSpherical::setLon(double lon)
-{
-   m_lon = Dms::wrap180(lon);
-}
-
-void LatLonSpherical::setLng(double lon)
-{
-   m_lon = Dms::wrap180(lon);
-}
-
-void LatLonSpherical::setLongitude(double lon)
-{
-   m_lon = Dms::wrap180(lon);
 }
 
 double LatLonSpherical::distanceTo(const LatLonSpherical& point, double radius) const
@@ -339,8 +277,8 @@ double LatLonSpherical::rhumbBearingTo(const LatLonSpherical& point) const
    // if dLon over 180° take shorter rhumb line across the anti-meridian:
    if (std::abs(DELTAlambda) > pi)
       DELTAlambda = DELTAlambda > 0 ? -(2 * pi - DELTAlambda) : (2 * pi + DELTAlambda);
-   const auto DELTAψ = std::log(std::tan(phi2 / 2 + pi / 4) / std::tan(phi1 / 2 + pi / 4));
-   const auto theta = std::atan2(DELTAlambda, DELTAψ);
+   const auto DELTApsi = std::log(std::tan(phi2 / 2 + pi / 4) / std::tan(phi1 / 2 + pi / 4));
+   const auto theta = std::atan2(DELTAlambda, DELTApsi);
    const auto bearing = toDegrees(theta);
    return Dms::wrap360(bearing);
 }
@@ -414,20 +352,20 @@ double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double rad
    if (auto isPoleEnclosedBy = 
       [](const std::vector<LatLonSpherical>& p){
          //TODO: any better test than this
-         double ΣDELTA = 0.0;
+         double SIGMADELTA = 0.0;
          double prevBrng = p[0].initialBearingTo(p[1]);
          for (size_t v = 0; v < p.size() - 1; v++)
          {
             const auto initBrng = p[v].initialBearingTo(p[v + 1]);
             const auto finalBrng = p[v].finalBearingTo(p[v + 1]);
-            ΣDELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
-            ΣDELTA += std::fmod((finalBrng - initBrng + 540), 360) - 180;
+            SIGMADELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
+            SIGMADELTA += std::fmod((finalBrng - initBrng + 540), 360) - 180;
             prevBrng = finalBrng;
          }
          const auto initBrng = p[0].initialBearingTo(p[1]);
-         ΣDELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
+         SIGMADELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
          // TODO: fix (intermittant) edge crossing pole - eg (85,90), (85,0), (85,-90)
-         return (std::abs(ΣDELTA) < 90);
+         return (std::abs(SIGMADELTA) < 90);
       }; isPoleEnclosedBy(polygon)) 
    {
       S = std::fabs(S) - 2 * pi;
@@ -439,19 +377,4 @@ double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double rad
       polygon.pop_back(); // restore polygon to pristine condition
    }
    return A;
-}
-
-std::string LatLonSpherical::toString(Dms::eFormat e) const
-{
-   // note: explicitly set dp to undefined for passing through to toLat/toLon
-   const std::string lat = Dms::toLat(m_lat, e);
-   const std::string lon = Dms::toLon(m_lon, e);
-   return lat + "," + lon;
-}
-
-std::string LatLonSpherical::toGeoJSON() const
-{
-   return std::string("{ type: \"Point\", coordinates : [")
-      + std::to_string(m_lon) + std::string(",")
-      + std::to_string(m_lat) + std::string("] }");
 }

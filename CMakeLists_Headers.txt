@@ -32,6 +32,7 @@ set(INCLUDE_HEADERS
 	"src/dms/dms.h"
 	"src/utils/strutil.h"
 	"src/utils/algorithm.h"
+	"src/latlon/latlon.h"
 	"src/latlon/ellipsoids.h"
 	"src/latlon/latlon_spherical.h"
 	"src/latlon/latlon_ellipsoidal.h"

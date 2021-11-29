@@ -31,7 +31,7 @@
 
 #include <string>
 
-#include "dms.h"
+#include "latlon.h"
 
 namespace geodesy
 {
@@ -42,28 +42,10 @@ namespace geodesy
      * Latitude/longitude points on a spherical model earth, and methods for calculating distances,
      * bearings, destinations, etc on (orthorhombic) great-circle paths and (loxodromic) rhumb lines.
      */
-   class LatLonSpherical
+   class LatLonSpherical : public LatLon
    {
    public:
       LatLonSpherical(double lat, double lon);
-
-      [[nodiscard]] double lat() const;
-      [[nodiscard]] double latitude() const;
-
-      void setLat(double lat);
-      void setLatitude(double lat);
-
-      /**
-       * Longitude in degrees east from international reference meridian (including aliases lon, lng,
-       * longitude): can be set as numeric or hexadecimal (deg-min-sec); returned as numeric.
-       */
-      [[nodiscard]] double lon() const;
-      [[nodiscard]] double lng() const;
-      [[nodiscard]] double longitude() const;
-
-      void setLon(double lon);
-      void setLng(double lon);
-      void setLongitude(double lon);
 
       /**
        * Returns the distance along the surface of the earth from ‘this’ point to destination point.
@@ -310,54 +292,6 @@ namespace geodesy
      *   const area = LatLon.areaOf(polygon); // 6.18e9 m²
      */
       static double areaOf(std::vector<LatLonSpherical>& polygon, double radius = 6371e3);
-
-      /**
-       * Returns a string representation of ‘this’ point, formatted as degrees, degrees+minutes, or
-       * degrees+minutes+seconds.
-       *
-       * @param   {enum} [eFormat=D] - Format point as 'D', 'DM', 'DMS', or 'N' for signed numeric.
-       * @returns {string} Comma-separated formatted latitude/longitude.
-       *
-       * @example
-       *   const greenwich = new LatLon(51.47788, -0.00147);
-       *   const d = greenwich.toString();                        // 51.4779°N, 000.0015°W
-       *   const dms = greenwich.toString('dms', 2);              // 51°28′40.37″N, 000°00′05.29″W
-       *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4779, -0.0015
-       */
-      [[nodiscard]] std::string toString(Dms::eFormat e = Dms::D) const;
-
-      /**
-       * Converts ‘this’ point to a GeoJSON object string.
-       *
-       * @returns {string} this point as a GeoJSON ‘Point’ string.
-       *    { type: "Point", coordinates: [ lon, lat ] }
-       */
-      [[nodiscard]] std::string toGeoJSON() const;
-
-
-      /**
-       * Checks if another point is equal to ‘this’ point.
-       *
-       * @param   {LatLon} p1 - Point to be compared against p2.
-       * @param   {LatLon} p2 - Point to be compared against p1.
-       * @returns {bool}   True if points have identical latitude and longitude values.
-       *
-       */
-      friend inline bool operator==(const LatLonSpherical& p1, const LatLonSpherical& p2);
-
-      /**
-       * Checks if another point is NOT equal to ‘this’ point.
-       *
-       * @param   {LatLon} p1 - Point to be compared against p2.
-       * @param   {LatLon} p2 - Point to be compared against p1.
-       * @returns {bool}   True if points have different latitude or longitude values.
-       *
-       */
-      friend inline bool operator!=(const LatLonSpherical& p1, const LatLonSpherical& p2);
-
-   private:
-      double m_lat; // Latitude in degrees north from equator
-      double m_lon; // Longitude in degrees east from international reference meridian
    };
 }
 
