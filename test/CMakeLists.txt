@@ -76,6 +76,7 @@ endif ()
 
 set(TEST_LIST
 		latlon_unittest
+		latlon_spherical_unittest
 		dms_unittest
 )
 

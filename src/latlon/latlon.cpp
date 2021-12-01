@@ -29,6 +29,7 @@
 
 #include "latlon.h"
 #include "dms.h"
+#include "strutil.h"
 
 #include <cmath>
 #include <sstream>
@@ -36,11 +37,68 @@
 
 using namespace geodesy;
 
-LatLon::LatLon(double lat, double lon)
-   : m_lat(Dms::wrap90(lat))
-   , m_lon(Dms::wrap180(lon))
+LatLon::LatLon() noexcept
+   : m_lat(0), m_lon(0)
 {
+}
 
+LatLon::LatLon(double lat, double lon)
+{
+   if (std::isnan(lat)) throw std::invalid_argument("invalid lat’");
+   if (std::isnan(lon)) throw std::invalid_argument("invalid lon’");
+
+   m_lat = Dms::wrap90(lat);
+   m_lon = Dms::wrap180(lon);
+}
+
+LatLon::LatLon(const std::string& lat, const std::string& lon)
+{
+   if (std::isnan(Dms::parse(lat))) throw std::invalid_argument("invalid lat’");
+   if (std::isnan(Dms::parse(lon))) throw std::invalid_argument("invalid lon’");
+
+   m_lat = Dms::wrap90(Dms::parse(lat));
+   m_lon = Dms::wrap180(Dms::parse(lon));
+}
+
+LatLon::LatLon(const LatLon& rhs) noexcept
+{
+   if(this != &rhs)
+   {
+      m_lat = rhs.m_lat;
+      m_lon = rhs.m_lon;
+   }
+}
+LatLon::LatLon(LatLon&& rhs) noexcept
+{
+   if (this != &rhs)
+   {
+      m_lat = std::exchange(rhs.m_lat, 0);
+      m_lon = std::exchange(rhs.m_lon, 0);
+   }
+}
+
+LatLon::~LatLon() = default;
+
+
+LatLon& LatLon::operator=(const LatLon& rhs) noexcept
+{
+   if (this != &rhs)
+   {
+      m_lat = rhs.m_lat;
+      m_lon = rhs.m_lon;
+   }
+
+   return *this;
+}
+LatLon& LatLon::operator=(LatLon&& rhs) noexcept
+{
+   if (this != &rhs)
+   {
+      m_lat = std::exchange(rhs.m_lat, 0);
+      m_lon = std::exchange(rhs.m_lon, 0);
+   }
+
+   return *this;
 }
 
 double LatLon::lat() const
@@ -79,36 +137,38 @@ bool geodesy::operator!=(const LatLon& p1, const LatLon& p2)
    return (!(p1 == p2));
 }
 
-void LatLon::setLat(double lat)
+LatLon LatLon::parse(double lat, double lon)
 {
-   m_lat = Dms::wrap90(lat);
+   return { lat, lon };
 }
 
-void LatLon::setLatitude(double lat)
+LatLon LatLon::parse(const std::string& dms)
 {
-   m_lat = Dms::wrap90(lat);
+   if(const auto parts = strutil::split(dms, ','); parts.size() == 2)
+   {
+      return { parts[0], parts[1] };
+   }
+
+   throw std::invalid_argument("invalid point");
 }
 
-void LatLon::setLon(double lon)
+LatLon LatLon::parse(const std::string& lat, const std::string& lon)
 {
-   m_lon = Dms::wrap180(lon);
-}
-
-void LatLon::setLng(double lon)
-{
-   m_lon = Dms::wrap180(lon);
-}
-
-void LatLon::setLongitude(double lon)
-{
-   m_lon = Dms::wrap180(lon);
+   return { lat, lon };
 }
 
 std::string LatLon::toString(Dms::eFormat e,  std::optional<int> dp) const
 {
    // note: explicitly set dp to undefined for passing through to toLat/toLon
-   if(Dms::N == e && std::nullopt == dp)
-      dp = 4;
+   if (e == Dms::N) 
+   { // signed numeric degrees
+      if (dp == std::nullopt) dp = 4;
+      std::stringstream ss;
+      ss << std::fixed << std::setprecision(*dp);
+      ss << m_lat << "," << m_lon;
+      return ss.str();
+   }
+
    return Dms::toLat(m_lat, e, dp) + ", " + Dms::toLon(m_lon, e, dp);
 }
 
@@ -117,9 +177,7 @@ std::string LatLon::toGeoJSON() const
    std::stringstream ss;
    ss << std::setprecision(9);
    ss << "{ type: \"Point\", coordinates : [";
-   ss << m_lon;
-   ss << ",";
-   ss << m_lat;
+   ss << m_lon << ", " << m_lat;
    ss << "] }";
 
    return ss.str();

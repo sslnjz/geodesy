@@ -33,12 +33,11 @@
 #include <cmath>
 #include <locale>
 
-#include "strutil.h"
 #include "vector3d.h"
 
 using namespace geodesy;
 
-std::string& Dms::_separator = *new std::string("\u202f");
+std::string& Dms::_separator = *new std::string("");
 
 std::string Dms::get_separator()
 {
@@ -48,68 +47,6 @@ std::string Dms::get_separator()
 void Dms::set_separator(const std::string& sep)
 {
    _separator = sep;
-}
-
-double Dms::parse(const std::string& dms)
-{
-   // check for signed decimal degrees without NSEW, if so return it directly
-   if (std::regex_search(strutil::strip(dms), std::regex("^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$")))
-   {
-      return std::stod(dms);
-   }
-
-   // strip off any sign or compass dir'n & split out separate d/m/s
-   const std::string trim_dms = strutil::strip(dms);
-   std::vector<std::string> dms_parts = strutil::split_regex(
-      std::regex_replace(trim_dms,std::regex("(^-)|([NSEW]$)",
-                             std::regex_constants::icase), ""),
-      "[^0-9.,]+");
-
-   if (dms_parts[dms_parts.size() - 1].empty()) 
-   {
-      dms_parts.erase(dms_parts.begin() + (dms_parts.size() - 1));
-   }
-
-   if (dms_parts.empty())
-       return NAN;
-
-   std::vector<double> dms_parts_d{};
-   for (auto elem: dms_parts)
-   {
-      try
-      {
-         const double d = std::stod(elem);
-         dms_parts_d.emplace_back(d);
-      }
-      catch (...)
-      {
-         return NAN;
-      }
-   }
-
-   // and convert to decimal degrees...
-   double deg = NAN;
-   switch (dms_parts.size())
-   {
-   case 3:
-      deg = dms_parts_d[0]/1.000 + dms_parts_d[1]/60.000 + dms_parts_d[2]/3600.000;
-      break;
-   case 2:
-      deg = dms_parts_d[0] / 1.000 + dms_parts_d[1] / 60.000;
-      break;
-   case 1:
-      deg = dms_parts_d[0] / 1.000;
-      break;
-   default:
-      return NAN;
-   }
-
-   if (std::regex_search(dms, std::regex("(^-)|([SW]$)")))
-   {
-      deg = -deg; // take '-', west and south as -ve
-   }
-
-   return deg;
 }
 
 std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)

@@ -36,11 +36,10 @@
 using namespace geodesy;
 
 LatLonEllipsoidal::LatLonEllipsoidal()
-    : m_epoch(std::nullopt)
+    : LatLon()
+    , m_epoch(std::nullopt)
     , m_datum(std::nullopt)
     , m_referenceFrame(std::nullopt)
-    , m_lat(0.0)
-    , m_lon(0.0)
     , m_height(0.0)
 {
 }
@@ -49,13 +48,12 @@ LatLonEllipsoidal::LatLonEllipsoidal(double lat, double lon, double height,
    std::optional<Datum> datum, 
    std::optional<ReferenceFrame> reference, 
    std::optional<std::string> epoch)
-   : m_epoch(std::move(epoch))
+   : LatLon(lat, lon)
+   , m_epoch(std::move(epoch))
    , m_datum(datum)
    , m_referenceFrame(std::move(reference))
-   , m_lat(lat)
-   , m_lon(lon)
    , m_height(height)
- {
+{
 }
 
 void LatLonEllipsoidal::setHeight(double height)
@@ -66,56 +64,6 @@ void LatLonEllipsoidal::setHeight(double height)
 void LatLonEllipsoidal::setDatum(const Datum &datum)
 {
     m_datum = { datum.ellipsoid, datum.transforms };
-}
-
-double LatLonEllipsoidal::lat() const
-{
-   return m_lat;
-}
-
-double LatLonEllipsoidal::latitude() const
-{
-   return m_lat;
-}
-
-void LatLonEllipsoidal::setLat(double lat)
-{
-   m_lat = Dms::wrap90(lat);
-}
-
-void LatLonEllipsoidal::setLatitude(double lat)
-{
-   m_lat = Dms::wrap90(lat);
-}
-
-double LatLonEllipsoidal::lon() const
-{
-   return m_lon;
-}
-
-double LatLonEllipsoidal::lng() const
-{
-   return m_lon;
-}
-
-double LatLonEllipsoidal::longitude() const
-{
-   return m_lon;
-}
-
-void LatLonEllipsoidal::setLon(const double lon)
-{
-   m_lon = Dms::wrap180(lon);
-}
-
-void LatLonEllipsoidal::setLng(const double lon)
-{
-   m_lon = Dms::wrap180(lon);
-}
-
-void LatLonEllipsoidal::setLongitude(const double lon)
-{
-   m_lon = Dms::wrap180(lon);
 }
 
 double LatLonEllipsoidal::height() const
@@ -169,27 +117,14 @@ Cartesian LatLonEllipsoidal::toCartesian() const
    return { x, y, z };
 }
 
-std::string LatLonEllipsoidal::toString(Dms::eFormat format, std::optional<int> dph) const
+bool LatLonEllipsoidal::operator==(const LatLonEllipsoidal& point) const
 {
-   std::stringstream hwss;
-   hwss << (m_height >= 0 ? L" +" : L" ");
-   hwss << std::fixed << std::setprecision(dph.value_or(0)) << m_height << L"m";
+   if (std::fabs(m_lat - point.m_lat) > std::numeric_limits<double>::epsilon()) return false;
+   if (std::fabs(m_lon - point.m_lon) > std::numeric_limits<double>::epsilon()) return false;
+   if (std::fabs(m_height - point.m_height) > std::numeric_limits<double>::epsilon()) return false;
+   if (*m_epoch == *point.m_epoch) return false;
+   if (*m_datum != *point.m_datum) return false;
+   if (*m_referenceFrame != *point.m_referenceFrame) return false;
 
-   std::stringstream llwss;
-   if (format == Dms::N)
-   {
-      // signed numeric degrees
-      llwss << std::fixed << std::setprecision(4);
-      llwss << m_lat << ",";
-      llwss << m_lon;
-      llwss << hwss.str();
-      return llwss.str();
-   }
-
-   llwss << Dms::toLat(m_lat, format) << ", ";
-   llwss << Dms::toLat(m_lon, format);
-   llwss << (bool(dph) ? "" : hwss.str());
-
-   return llwss.str();
+   return true;
 }
-

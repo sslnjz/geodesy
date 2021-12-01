@@ -32,6 +32,9 @@
 #include <string>
 #include <regex>
 #include <optional>
+#include <cmath>
+
+#include "strutil.h"
 
 namespace geodesy
 {
@@ -84,7 +87,11 @@ namespace geodesy
        *   const double lat = Dms.parse('51° 28′ 40.37″ N');
        *   const double lon = Dms.parse('000° 00′ 05.29″ W');
        */
-      static double parse(const std::string& dms);
+
+      template<class T>
+      using ENABLE = std::enable_if_t<std::is_arithmetic_v<T> || std::is_convertible_v<T, std::string>>;
+      template<class T, typename = ENABLE<T>>
+      static double parse(const T& dms);
 
       /**
        * Converts decimal degrees to deg/min/sec format
@@ -211,6 +218,73 @@ namespace geodesy
        /* Degree-minutes-seconds (& cardinal directions) separator character */
        static std::string& _separator; // U+202F = 'narrow no-break space'
    };
+
+   template <class T, typename>
+   double Dms::parse(const T& dms)
+   {
+      if constexpr (std::is_convertible_v<T, double>)
+      {
+         return dms;
+      }
+
+      // check for signed decimal degrees without NSEW, if so return it directly
+      if (std::regex_search(strutil::strip(dms), std::regex("^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$")))
+      {
+         return std::stod(dms);
+      }
+
+      // strip off any sign or compass dir'n & split out separate d/m/s
+      const std::string trim_dms = strutil::strip(dms);
+      std::vector<std::string> dms_parts = strutil::split_regex(
+         std::regex_replace(trim_dms, std::regex("(^-)|([NSEW]$)", std::regex_constants::icase), ""),
+         "[^0-9.,]+");
+
+      if (dms_parts[dms_parts.size() - 1].empty())
+      {
+         dms_parts.erase(dms_parts.begin() + (dms_parts.size() - 1));
+      }
+
+      if (dms_parts.empty())
+         return NAN;
+
+      std::vector<double> dms_parts_d{};
+      for (auto elem : dms_parts)
+      {
+         try
+         {
+            const double d = std::stod(elem);
+            dms_parts_d.emplace_back(d);
+         }
+         catch (...)
+         {
+            return NAN;
+         }
+      }
+
+      // and convert to decimal degrees...
+      double deg = NAN;
+      switch (dms_parts.size())
+      {
+      case 3:
+         deg = dms_parts_d[0] / 1.000 + dms_parts_d[1] / 60.000 + dms_parts_d[2] / 3600.000;
+         break;
+      case 2:
+         deg = dms_parts_d[0] / 1.000 + dms_parts_d[1] / 60.000;
+         break;
+      case 1:
+         deg = dms_parts_d[0] / 1.000;
+         break;
+      default:
+         return NAN;
+      }
+
+      if (std::regex_search(dms, std::regex("(^-)|([SW]$)")))
+      {
+         deg = -deg; // take '-', west and south as -ve
+      }
+
+      return deg;
+   }
 }
 
 

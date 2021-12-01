@@ -28,15 +28,27 @@
 ***********************************************************************************/
 #include "latlon_spherical.h"
 
+#include <algorithm.h>
+
 #include "vector3d.h"
 #include "algorithm.h"
 
 using namespace geodesy;
 
+LatLonSpherical::LatLonSpherical()
+   : LatLon()
+{
+}
+
 LatLonSpherical::LatLonSpherical(double lat, double lon)
    : LatLon(lat, lon)
 {
 
+}
+
+LatLonSpherical::LatLonSpherical(const std::string& lat, const std::string& lon)
+   : LatLon(lat, lon)
+{
 }
 
 double LatLonSpherical::distanceTo(const LatLonSpherical& point, double radius) const
@@ -62,8 +74,8 @@ double LatLonSpherical::initialBearingTo(const LatLonSpherical& point) const
    // tanθ = sinΔλ⋅cosφ2 / cosφ1⋅sinφ2 − sinφ1⋅cosφ2⋅cosΔλ
    // see mathforum.org/library/drmath/view/55417.html for derivation
    const auto phi1 = toRadians(m_lat);
-   const auto phi2 = toRadians(point.m_lat);
-   const auto DELTAlambda = toRadians(point.m_lon - m_lon);
+   const auto phi2 = toRadians(point.lat());
+   const auto DELTAlambda = toRadians(point.lon() - m_lon);
    const auto x = std::cos(phi1) * std::sin(phi2) - std::sin(phi1) * std::cos(phi2) * std::cos(DELTAlambda);
    const auto y = std::sin(DELTAlambda) * std::cos(phi2);
    const auto theta = std::atan2(y, x);
@@ -73,7 +85,8 @@ double LatLonSpherical::initialBearingTo(const LatLonSpherical& point) const
 
 double LatLonSpherical::finalBearingTo(const LatLonSpherical& point) const
 {
-   // get initial bearing from destination point to this point & reverse it by adding 180°
+   //TODO: check
+   // get initial bearing from this point to destination point
    const double bearing = point.initialBearingTo(*this) + 180;
    return Dms::wrap360(bearing);
 }
@@ -85,8 +98,8 @@ LatLonSpherical LatLonSpherical::midpointTo(const LatLonSpherical& point) const
    // midpoint is sum of vectors to two points: mathforum.org/library/drmath/view/51822.html
    const auto phi1 = toRadians(m_lat);
    const auto lambda1 = toRadians(m_lon);
-   const auto phi2 = toRadians(point.m_lat);
-   const auto DELTAlambda = toRadians((point.m_lon - m_lon));
+   const auto phi2 = toRadians(point.lat());
+   const auto DELTAlambda = toRadians((point.lon() - m_lon));
 
    // get cartesian coordinates for the two points
    const vector3d A = {std::cos(phi1), 0, std::sin(phi1)}; // place point A on prime meridian y=0
@@ -107,7 +120,7 @@ LatLonSpherical LatLonSpherical::intermediatePointTo(const LatLonSpherical& poin
       return {m_lat, m_lon}; // coincident points
    }
    const auto phi1 = toRadians(m_lat), lambda1 = toRadians(m_lon);
-   const auto phi2 = toRadians(point.m_lat), lambda2 = toRadians(point.m_lon);
+   const auto phi2 = toRadians(point.lat()), lambda2 = toRadians(point.lon());
    // distance between points
    const auto DELTAphi = phi2 - phi1;
    const auto DELTAlambda = lambda2 - lambda1;
@@ -165,8 +178,7 @@ LatLonSpherical LatLonSpherical::intersection(const LatLonSpherical& p1, double 
    const auto alpha1 = theta13 - theta12; // angle 2-1-3
    const auto alpha2 = theta21 - theta23; // angle 1-2-3
 
-   if (std::sin(alpha1) < std::numeric_limits<double>::epsilon()
-      && std::sin(alpha2) < std::numeric_limits<double>::epsilon()) 
+   if (std::sin(alpha1) == 0 && std::sin(alpha2) == 0) 
    {
       throw std::runtime_error("infinite intersections"); // infinite intersections
    }
@@ -178,33 +190,10 @@ LatLonSpherical LatLonSpherical::intersection(const LatLonSpherical& p1, double 
 
    const auto cosalpha3 = -std::cos(alpha1) * std::cos(alpha2) + std::sin(alpha1) * std::sin(alpha2) * std::cos(delta12);
    const auto delta13 = std::atan2(std::sin(delta12) * std::sin(alpha1) * std::sin(alpha2), std::cos(alpha2) + std::cos(alpha1) * cosalpha3);
-   const auto phi3 = std::asin(std::sin(phi1) * std::cos(delta13) + std::cos(phi1) * std::sin(delta13) * std::cos(theta13));
+   const auto phi3 = std::asin(std::min<double>(std::max<double>(std::sin(phi1) * std::cos(delta13) + std::cos(phi1) * std::sin(delta13) * std::cos(theta13), -1), 1));
    const auto DELTAlambda13 = std::atan2(std::sin(theta13) * std::sin(delta13) * std::cos(phi1), std::cos(delta13) - std::sin(phi1) * std::sin(phi3));
    const auto lambda3 = lambda1 + DELTAlambda13;
    return { toDegrees(phi3), toDegrees(lambda3) };
-}
-
-double LatLonSpherical::crossTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
-                                             double radius) const
-{
-   const auto R = radius;
-   const auto delta13 = pathStart.distanceTo(*this, R) / R;
-   const auto theta13 = toRadians(pathStart.initialBearingTo(*this));
-   const auto theta12 = toRadians(pathStart.initialBearingTo(pathEnd));
-   const auto deltaxt = std::asin(std::sin(delta13) * std::sin(theta13 - theta12));
-   return deltaxt * R;
-}
-
-double LatLonSpherical::alongTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
-                                             double radius) const
-{
-   const auto R = radius;
-   const auto delta13 = pathStart.distanceTo(*this, R) / R;
-   const auto theta13 = toRadians(pathStart.initialBearingTo(*this));
-   const auto theta12 = toRadians(pathStart.initialBearingTo(pathEnd));
-   const auto deltaxt = std::asin(std::sin(delta13) * std::sin(theta13 - theta12));
-   const auto deltaat = std::acos(std::cos(delta13) / std::abs(std::cos(deltaxt)));
-   return deltaat * sign(std::cos(theta12 - theta13)) * R;
 }
 
 double LatLonSpherical::maxLatitude(double bearing) const
@@ -215,8 +204,7 @@ double LatLonSpherical::maxLatitude(double bearing) const
    return toDegrees(phiMax);
 }
 
-std::pair<double, double> LatLonSpherical::crossingParallels(const LatLonSpherical& point1,
-                                                             const LatLonSpherical& point2, double latitude)
+std::pair<double, double> LatLonSpherical::crossingParallels(const LatLonSpherical& point1, const LatLonSpherical& point2, double latitude)
 {
    if (point1 == (point2)) 
    {
@@ -323,6 +311,28 @@ LatLonSpherical LatLonSpherical::rhumbMidpointTo(const LatLonSpherical& point) c
    return {lat, lon};
 }
 
+
+double LatLonSpherical::crossTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd, double radius) const
+{
+   const auto R = radius;
+   const auto delta13 = pathStart.distanceTo(*this, R) / R;
+   const auto theta13 = toRadians(pathStart.initialBearingTo(*this));
+   const auto theta12 = toRadians(pathStart.initialBearingTo(pathEnd));
+   const auto deltaxt = std::asin(std::sin(delta13) * std::sin(theta13 - theta12));
+   return deltaxt * R;
+}
+
+double LatLonSpherical::alongTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd, double radius) const
+{
+   const auto R = radius;
+   const auto delta13 = pathStart.distanceTo(*this, R) / R;
+   const auto theta13 = toRadians(pathStart.initialBearingTo(*this));
+   const auto theta12 = toRadians(pathStart.initialBearingTo(pathEnd));
+   const auto deltaxt = std::asin(std::sin(delta13) * std::sin(theta13 - theta12));
+   const auto deltaat = std::acos(std::cos(delta13) / std::abs(std::cos(deltaxt)));
+   return deltaat * sign(std::cos(theta12 - theta13)) * R;
+}
+
 double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double radius)
 {
    if (polygon.empty()) 
@@ -349,8 +359,7 @@ double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double rad
       S += E;
    }
 
-   if (auto isPoleEnclosedBy = 
-      [](const std::vector<LatLonSpherical>& p){
+   if (auto isPoleEnclosedBy =  [](const std::vector<LatLonSpherical>& p){
          //TODO: any better test than this
          double SIGMADELTA = 0.0;
          double prevBrng = p[0].initialBearingTo(p[1]);

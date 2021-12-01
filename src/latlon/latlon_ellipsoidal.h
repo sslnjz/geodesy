@@ -35,6 +35,7 @@
 
 #include "ellipsoids.h"
 #include "dms.h"
+#include "latlon.h"
 
 /**
  * A latitude/longitude point defines a geographic location on or above/below the earth’s surface,
@@ -60,16 +61,17 @@ namespace geodesy
      * This is the core class, which will usually be used via LatLonEllipsoidal_Datum or
      * LatLonEllipsoidal_ReferenceFrame.
      */
-    class LatLonEllipsoidal
+    class LatLonEllipsoidal : public LatLon
     {
     public:
         LatLonEllipsoidal();
        /**
         * Creates a geodetic latitude/longitude point on a (WGS84) ellipsoidal model earth.
         *
-        * @param lat - Latitude (in degrees).
-        * @param lon - Longitude (in degrees).
-        * @param [height=0] - Height above ellipsoid in metres.
+        * @param {number} lat - Latitude (in degrees).
+        * @param {number} lon - Longitude (in degrees).
+        * @param {Datum}  datum - optional datum
+        * @param {number} [height=0] - Height above ellipsoid in metres.
         *
         * @example
         *   const auto p = new LatLonEllipsoidal(51.47788, -0.00147, 17);
@@ -78,27 +80,7 @@ namespace geodesy
                          std::optional<Datum> datum = std::nullopt,
                          std::optional<ReferenceFrame> reference = std::nullopt,
                          std::optional<std::string> epoch = std::nullopt);
-       virtual ~LatLonEllipsoidal() = default;
-
-       /**
-        * Latitude in degrees north from equator (including aliases lat, latitude): can be set as
-        * numeric or hexagesimal (deg-min-sec); returned as numeric.
-        */
-       [[nodiscard]] double lat() const;
-       [[nodiscard]] double latitude() const;
-       void setLat(double lat);
-       void setLatitude(double lat);
-
-       /**
-        * Longitude in degrees east from international reference meridian (including aliases lon, lng,
-        * longitude): can be set as numeric or hexagesimal (deg-min-sec); returned as numeric.
-        */
-       [[nodiscard]] double lon() const;
-       [[nodiscard]] double lng() const;
-       [[nodiscard]] double longitude() const;
-       void setLon(double lon);
-       void setLng(double lon);
-       void setLongitude(double lon);
+       ~LatLonEllipsoidal() override = default;
 
        /**
         * Height in metres above ellipsoid.
@@ -146,24 +128,6 @@ namespace geodesy
        [[nodiscard]] Cartesian toCartesian() const;
 
        /**
-        * Returns a string representation of ‘this’ point, formatted as degrees, degrees+minutes, or
-        * degrees+minutes+seconds.
-        *
-        * @param   {string} [format=d] - Format point as 'd', 'dm', 'dms', or 'n' for signed numeric.
-        * @param   {number} [dpHeight=null] - Number of decimal places to use for height; default is no height display.
-        * @returns {string} Comma-separated formatted latitude/longitude.
-        * @throws  {RangeError} Invalid format.
-        *
-        * @example
-        *   const auto greenwich = new LatLon(51.47788, -0.00147, 46);
-        *   const auto d = greenwich.toString();                        // 51.4779°N, 000.0015°W
-        *   const auto dms = greenwich.toString('dms', 2);              // 51°28′40″N, 000°00′05″W
-        *   const auto latlon = greenwich.toString('n').split(',');     // 51.4779, -0.0015
-        *   const auto dmsh = greenwich.toString('dms', 0, 0);          // 51°28′40″N, 000°00′06″W +46m
-        */
-       [[nodiscard]] std::string toString(Dms::eFormat format = Dms::D, std::optional<int> dph = std::nullopt) const;
-
-       /**
         * Checks if another point is equal to ‘this’ point.
         *
         * @param   {LatLonEllipsoidal} point - Point to be compared against this point.
@@ -188,7 +152,7 @@ namespace geodesy
         *   const auto p2 = new LatLon(52.205, 0.119);
         *   const auto equal = p1.equals(p2); // true
         */
-       inline bool operator==(const LatLonEllipsoidal& point) const;
+       bool operator==(const LatLonEllipsoidal& point) const;
 
     protected:
         std::optional<std::string>     m_epoch;
@@ -196,22 +160,10 @@ namespace geodesy
         std::optional<ReferenceFrame>  m_referenceFrame;
 
      private:
-        double m_lat;
-        double m_lon;
         double m_height;
     };
 
-    inline bool LatLonEllipsoidal::operator==(const LatLonEllipsoidal& point) const
-    {
-       if (std::fabs(m_lat - point.m_lat) > std::numeric_limits<double>::epsilon()) return false;
-       if (std::fabs(m_lon - point.m_lon) > std::numeric_limits<double>::epsilon()) return false;
-       if (std::fabs(m_height - point.m_height) > std::numeric_limits<double>::epsilon()) return false;
-       if (*m_epoch == *point.m_epoch) return false;
-       if (*m_datum != *point.m_datum) return false;
-       if (*m_referenceFrame!= *point.m_referenceFrame) return false;
-
-       return true;
-    }
+   
 }
 
 #endif //GEODESY_LATLON_ELLIPSOIDAL_H

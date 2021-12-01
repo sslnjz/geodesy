@@ -155,14 +155,32 @@ namespace geodesy
          *   const pEtrf = new LatLon(51.47788000, -0.00147000, 0, LatLon.referenceFrames.ITRF2000);
          *   const pItrf = pEtrf.convertReferenceFrame(LatLon.referenceFrames.ETRF2000); // 51.47787826°N, 000.00147125°W
          */
-//        convertReferenceFrame(toReferenceFrame) {
-//                if (!toReferenceFrame || toReferenceFrame.epoch == undefined) throw new TypeError('unrecognised reference frame');
+//        LatLonEllipsoidalReferenceFrame convertReferenceFrame(const ReferenceFrame& to)
+//        {
+//                if (to.epoch == std::nullopt)
+//                   throw new std::invalid_argument("unrecognised reference frame");
 //
-//                const oldCartesian = this.toCartesian();                                   // convert geodetic to cartesian
+//                const auto oldCartesian = toCartesian();                                   // convert geodetic to cartesian
 //                const newCartesian = oldCartesian.convertReferenceFrame(toReferenceFrame); // convert TRF
 //                const newLatLon = newCartesian.toLatLon();                                 // convert cartesian back to to geodetic
 //
 //                return newLatLon;
+//        }
+
+        /**
+        * Converts ‘this’ point from (geodetic) latitude/longitude coordinates to (geocentric) cartesian
+        * (x/y/z) coordinates, based on same reference frame.
+        *
+        * Shadow of LatLonEllipsoidal.toCartesian(), returning Cartesian augmented with
+        * LatLonEllipsoidal_ReferenceFrame methods/properties.
+        *
+        * @returns {Cartesian} Cartesian point equivalent to lat/lon point, with x, y, z in metres from
+        *   earth centre, augmented with reference frame conversion methods and properties.
+        */
+//        toCartesian() {
+//           const cartesian = super.toCartesian();
+//           const cartesianReferenceFrame = new Cartesian_ReferenceFrame(cartesian.x, cartesian.y, cartesian.z, this.referenceFrame, this.epoch);
+//           return cartesianReferenceFrame;
 //        }
     };
 

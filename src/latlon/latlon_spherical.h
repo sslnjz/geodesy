@@ -45,21 +45,23 @@ namespace geodesy
    class LatLonSpherical : public LatLon
    {
    public:
+      LatLonSpherical();
       LatLonSpherical(double lat, double lon);
+      LatLonSpherical(const std::string& lat, const std::string& lon);
 
       /**
        * Returns the distance along the surface of the earth from ‘this’ point to destination point.
        *
        * Uses haversine formula: a = sin²(Δφ/2) + cosφ1·cosφ2 · sin²(Δλ/2); d = 2 · atan2(√a, √(a-1)).
        *
-       * @param   {LatLon} point - Latitude/longitude of destination point.
+       * @param   {LatLonSpherical} point - Latitude/longitude of destination point.
        * @param   {number} [radius=6371e3] - Radius of earth (defaults to mean radius in meters).
        * @returns {number} Distance between this point and destination point, in same units as radius.
        * @throws  {TypeError} Invalid radius.
        *
        * @example
-       *   const double p1 = new LatLon(52.205, 0.119);
-       *   const double p2 = new LatLon(48.857, 2.351);
+       *   const double p1 = new LatLonSpherical(52.205, 0.119);
+       *   const double p2 = new LatLonSpherical(48.857, 2.351);
        *   const double d = p1.distanceTo(p2);       // 404.3×10³ m
        *   const double m = p1.distanceTo(p2, 3959); // 251.2 miles
        */
@@ -69,7 +71,7 @@ namespace geodesy
       /**
        * Returns the initial bearing from ‘this’ point to destination point.
        *
-       * @param   {LatLon} point - Latitude/longitude of destination point.
+       * @param   {LatLonSpherical} point - Latitude/longitude of destination point.
        * @returns {number} Initial bearing in degrees from north (0°..360°).
        *
        * @example
@@ -84,7 +86,7 @@ namespace geodesy
        * Returns final bearing arriving at destination point from ‘this’ point; the final bearing will
        * differ from the initial bearing by varying degrees according to distance and latitude.
        *
-       * @param   {LatLon} point - Latitude/longitude of destination point.
+       * @param   {LatLonSpherical} point - Latitude/longitude of destination point.
        * @returns {number} Final bearing in degrees from north (0°..360°).
        *
        * @example
@@ -107,7 +109,6 @@ namespace geodesy
        */
       [[nodiscard]] LatLonSpherical midpointTo(const LatLonSpherical& point) const;
 
-
       /**
        * Returns the point at given fraction between ‘this’ point and given point.
        *
@@ -116,8 +117,8 @@ namespace geodesy
        * @returns {LatLonSpherical} Intermediate point between this point and destination point.
        *
        * @example
-       *   const p1 = new LatLon(52.205, 0.119);
-       *   const p2 = new LatLon(48.857, 2.351);
+       *   const p1 = new LatLonSpherical(52.205, 0.119);
+       *   const p2 = new LatLonSpherical(48.857, 2.351);
        *   const pInt = p1.intermediatePointTo(p2, 0.25); // 51.3721°N, 000.7073°E
        */
       [[nodiscard]] LatLonSpherical intermediatePointTo(const LatLonSpherical& point, double fraction) const;
@@ -140,20 +141,102 @@ namespace geodesy
       /**
        * Returns the point of intersection of two paths defined by point and bearing.
        *
-       * @param   {LatLon}      p1 - First point.
+       * @param   {LatLonSpherical}      p1 - First point.
        * @param   {number}      brng1 - Initial bearing from first point.
-       * @param   {LatLon}      p2 - Second point.
+       * @param   {LatLonSpherical}      p2 - Second point.
        * @param   {number}      brng2 - Initial bearing from second point.
-       * @returns {LatLon}      Destination point (exception if no unique intersection defined).
+       * @returns {LatLonSpherical}      Destination point (exception if no unique intersection defined).
        * @throws  {runtime_error} no unique intersection defined.
        *
        * @example
        *   const p1 = new LatLonSpherical(51.8853, 0.2545), brng1 = 108.547;
        *   const p2 = new LatLonSpherical(49.0034, 2.5735), brng2 =  32.435;
-       *   const pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9078°N, 004.5084°E
+       *   const pInt = LatLonSpherical.intersection(p1, brng1, p2, brng2); // 50.9078°N, 004.5084°E
        */
-      static LatLonSpherical intersection(const LatLonSpherical& p1, double brng1, const LatLonSpherical& p2,
-                                          double brng2);
+      static LatLonSpherical intersection(const LatLonSpherical& p1, double brng1, const LatLonSpherical& p2, double brng2);
+
+      /**
+       * Returns maximum latitude reached when travelling on a great circle on given bearing from
+       * ‘this’ point (‘Clairaut’s formula’). Negate the result for the minimum latitude (in the
+       * southern hemisphere).
+       *
+       * The maximum latitude is independent of longitude; it will be the same for all points on a
+       * given latitude.
+       *
+       * @param   {number} bearing - Initial bearing.
+       * @returns {number} Maximum latitude reached.
+       */
+      [[nodiscard]] double maxLatitude(double bearing) const;
+
+      /**
+       * Returns the pair of meridians at which a great circle defined by two points crosses the given
+       * latitude. If the great circle doesn't reach the given latitude, null is returned.
+       *
+       * @param   {LatLonSpherical}      point1 - First point defining great circle.
+       * @param   {LatLonSpherical}      point2 - Second point defining great circle.
+       * @param   {number}      latitude - Latitude crossings are to be determined for.
+       * @returns {Object|null} Object containing { lon1, lon2 } or null if given latitude not reached.
+       */
+      static std::pair<double, double> crossingParallels(const LatLonSpherical& point1, const LatLonSpherical& point2,
+                                                         double latitude);
+
+
+      /* Rhumb - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+      /**
+       * Returns the distance travelling from ‘this’ point to destination point along a rhumb line.
+       *
+       * @param   {LatLonSpherical} point - Latitude/longitude of destination point.
+       * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
+       * @returns {number} Distance in km between this point and destination point (same units as radius).
+       *
+       * @example
+       *   const p1 = new LatLonSpherical(51.127, 1.338);
+       *   const p2 = new LatLonSpherical(50.964, 1.853);
+       *   const d = p1.distanceTo(p2); //  40.31 km
+       */
+      [[nodiscard]] double rhumbDistanceTo(const LatLonSpherical& point, double radius = 6371e3) const;
+
+      /**
+       * Returns the bearing from ‘this’ point to destination point along a rhumb line.
+       *
+       * @param   {LatLonSpherical}    point - Latitude/longitude of destination point.
+       * @returns {number}    Bearing in degrees from north.
+       *
+       * @example
+       *   const p1 = new LatLonSpherical(51.127, 1.338);
+       *   const p2 = new LatLonSpherical(50.964, 1.853);
+       *   const d = p1.rhumbBearingTo(p2); // 116.7°
+       */
+      [[nodiscard]] double rhumbBearingTo(const LatLonSpherical& point) const;
+
+
+      /**
+       * Returns the destination point having travelled along a rhumb line from ‘this’ point the given
+       * distance on the given bearing.
+       *
+       * @param   {number} distance - Distance travelled, in same units as earth radius (default: metres).
+       * @param   {number} bearing - Bearing in degrees from north.
+       * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
+       * @returns {LatLonSpherical} Destination point.
+       *
+       * @example
+       *   const p1 = new LatLonSpherical(51.127, 1.338);
+       *   const p2 = p1.rhumbDestinationPoint(40300, 116.7); // 50.9642°N, 001.8530°E
+       */
+      [[nodiscard]] LatLonSpherical rhumbDestinationPoint(double distance, double bearing, double radius = 6371e3) const;
+
+      /**
+       * Returns the loxodromic midpoint (along a rhumb line) between ‘this’ point and second point.
+       *
+       * @param   {LatLonSpherical} point - Latitude/longitude of second point.
+       * @returns {LatLonSpherical} Midpoint between this point and second point.
+       *
+       * @example
+       *   const p1 = new LatLonSpherical(51.127, 1.338);
+       *   const p2 = new LatLonSpherical(50.964, 1.853);
+       *   const pMid = p1.rhumbMidpointTo(p2); // 51.0455°N, 001.5957°E
+       */
+      [[nodiscard]] LatLonSpherical rhumbMidpointTo(const LatLonSpherical& point) const;
 
       /**
        * Returns (signed) distance from ‘this’ point to great circle defined by start-point and
@@ -171,7 +254,7 @@ namespace geodesy
        *   const double d = pCurrent.crossTrackDistanceTo(p1, p2);  // -307.5 m
        */
       [[nodiscard]] double crossTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
-                                  double radius = 6371e3) const;
+         double radius = 6371e3) const;
 
 
       /**
@@ -192,105 +275,21 @@ namespace geodesy
        *   const auto d = pCurrent.alongTrackDistanceTo(p1, p2);  // 62.331 km
        */
       [[nodiscard]] double alongTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd,
-                                  double radius = 6371e3) const;
-
-
-      /**
-       * Returns maximum latitude reached when travelling on a great circle on given bearing from
-       * ‘this’ point (‘Clairaut’s formula’). Negate the result for the minimum latitude (in the
-       * southern hemisphere).
-       *
-       * The maximum latitude is independent of longitude; it will be the same for all points on a
-       * given latitude.
-       *
-       * @param   {number} bearing - Initial bearing.
-       * @returns {number} Maximum latitude reached.
-       */
-      [[nodiscard]] double maxLatitude(double bearing) const;
-
-      /**
-       * Returns the pair of meridians at which a great circle defined by two points crosses the given
-       * latitude. If the great circle doesn't reach the given latitude, null is returned.
-       *
-       * @param   {LatLon}      point1 - First point defining great circle.
-       * @param   {LatLon}      point2 - Second point defining great circle.
-       * @param   {number}      latitude - Latitude crossings are to be determined for.
-       * @returns {Object|null} Object containing { lon1, lon2 } or null if given latitude not reached.
-       */
-      static std::pair<double, double> crossingParallels(const LatLonSpherical& point1, const LatLonSpherical& point2,
-                                                         double latitude);
-
-
-      /* Rhumb - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-      /**
-       * Returns the distance travelling from ‘this’ point to destination point along a rhumb line.
-       *
-       * @param   {LatLon} point - Latitude/longitude of destination point.
-       * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
-       * @returns {number} Distance in km between this point and destination point (same units as radius).
-       *
-       * @example
-       *   const p1 = new LatLon(51.127, 1.338);
-       *   const p2 = new LatLon(50.964, 1.853);
-       *   const d = p1.distanceTo(p2); //  40.31 km
-       */
-      [[nodiscard]] double rhumbDistanceTo(const LatLonSpherical& point, double radius = 6371e3) const;
-
-      /**
-       * Returns the bearing from ‘this’ point to destination point along a rhumb line.
-       *
-       * @param   {LatLon}    point - Latitude/longitude of destination point.
-       * @returns {number}    Bearing in degrees from north.
-       *
-       * @example
-       *   const p1 = new LatLon(51.127, 1.338);
-       *   const p2 = new LatLon(50.964, 1.853);
-       *   const d = p1.rhumbBearingTo(p2); // 116.7°
-       */
-      [[nodiscard]] double rhumbBearingTo(const LatLonSpherical& point) const;
-
-
-      /**
-       * Returns the destination point having travelled along a rhumb line from ‘this’ point the given
-       * distance on the given bearing.
-       *
-       * @param   {number} distance - Distance travelled, in same units as earth radius (default: metres).
-       * @param   {number} bearing - Bearing in degrees from north.
-       * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
-       * @returns {LatLon} Destination point.
-       *
-       * @example
-       *   const p1 = new LatLon(51.127, 1.338);
-       *   const p2 = p1.rhumbDestinationPoint(40300, 116.7); // 50.9642°N, 001.8530°E
-       */
-      [[nodiscard]] LatLonSpherical rhumbDestinationPoint(double distance, double bearing, double radius = 6371e3) const;
-
-      /**
-       * Returns the loxodromic midpoint (along a rhumb line) between ‘this’ point and second point.
-       *
-       * @param   {LatLon} point - Latitude/longitude of second point.
-       * @returns {LatLon} Midpoint between this point and second point.
-       *
-       * @example
-       *   const p1 = new LatLon(51.127, 1.338);
-       *   const p2 = new LatLon(50.964, 1.853);
-       *   const pMid = p1.rhumbMidpointTo(p2); // 51.0455°N, 001.5957°E
-       */
-      [[nodiscard]] LatLonSpherical rhumbMidpointTo(const LatLonSpherical& point) const;
+         double radius = 6371e3) const;
 
       /* Area - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-    /**
-     * Calculates the area of a spherical polygon where the sides of the polygon are great circle
-     * arcs joining the vertices.
-     *
-     * @param   {LatLon[]} polygon - Array of points defining vertices of the polygon.
-     * @param   {number}   [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
-     * @returns {number}   The area of the polygon in the same units as radius.
-     *
-     * @example
-     *   const polygon = [new LatLon(0,0), new LatLon(1,0), new LatLon(0,1)];
-     *   const area = LatLon.areaOf(polygon); // 6.18e9 m²
-     */
+      /**
+       * Calculates the area of a spherical polygon where the sides of the polygon are great circle
+       * arcs joining the vertices.
+       *
+       * @param   {LatLonSpherical[]} polygon - Array of points defining vertices of the polygon.
+       * @param   {number}   [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
+       * @returns {number}   The area of the polygon in the same units as radius.
+       *
+       * @example
+       *   const polygon = [new LatLonSpherical(0,0), new LatLonSpherical(1,0), new LatLonSpherical(0,1)];
+       *   const area = LatLonSpherical.areaOf(polygon); // 6.18e9 m²
+       */
       static double areaOf(std::vector<LatLonSpherical>& polygon, double radius = 6371e3);
    };
 }
