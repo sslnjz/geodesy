@@ -27,45 +27,49 @@
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
 
-#include "nvector_cartesian.h"
-#include "ellipsoids.h"
-#include "latlon_ellipsoidal.h"
-#include "nvector_ellipsoidal.h"
+#include <gtest/gtest.h>
 
-using namespace geodesy;
+#include "geodesy/vector3d.h"
 
-NvectorCartesian::NvectorCartesian()
-= default;
-
-NvectorCartesian::NvectorCartesian(double x, double y, double z)
-    : Cartesian(x, y, z)
+TEST(vector3d_unittest, Constructor)
 {
-
+   const geodesy::vector3d v3d(0.267, 0.535, 0.802);
+   EXPECT_DOUBLE_EQ(v3d.x(), 0.267);
+   EXPECT_DOUBLE_EQ(v3d.y(), 0.535);
+   EXPECT_DOUBLE_EQ(v3d.z(), 0.802);
 }
 
-NvectorEllipsoidal NvectorCartesian::toNvector(Datum datum) const
+TEST(vector3d_unittest, methods)
 {
-    const auto [ a, b, f ] = datum.ellipsoid;
+   const auto v123 = geodesy::vector3d(1, 2, 3);
+   const auto v321 = geodesy::vector3d(3, 2, 1);
+   EXPECT_EQ(v123.plus(v321), geodesy::vector3d(4, 4, 4));
+   EXPECT_EQ(v123.minus(v321), geodesy::vector3d(-2, 0, 2));
+   EXPECT_EQ(v123.times(2), geodesy::vector3d(2, 4, 6));
+   EXPECT_EQ(v123.dividedBy(2), geodesy::vector3d(0.5, 1, 1.5));
+   EXPECT_EQ(v123.dot(v321), 10);
+   EXPECT_EQ(v123.cross(v321), geodesy::vector3d(-4, 8, -4));
+   EXPECT_EQ(v123.negate(), geodesy::vector3d(-1, -2, -3));
+   EXPECT_EQ(v123.length(), 3.7416573867739413);
+   EXPECT_EQ(v123.unit().toString(), "[0.267,0.535,0.802]");
+   EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321)), 3), "44.415");
+   EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321, v123.cross(v321))), 3), "44.415");
+   EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321, v321.cross(v123))), 3), "-44.415");
+   EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321, v123)), 3), "44.415");
+   EXPECT_EQ(v123.rotateAround(geodesy::vector3d(0, 0, 1), 90).toString(), "[-0.535,0.267,0.802]");
+   EXPECT_EQ(v123.toString(), "[1.000,2.000,3.000]");
+   EXPECT_EQ(v123.toString(6), "[1.000000,2.000000,3.000000]");
+}
 
-    const auto e2 = 2*f - f*f; // e² = 1st eccentricity squared ≡ (a²-b²)/a²
-    const auto e4 = e2*e2;     // e⁴
-
-    const auto p = (x()*x() + y()*y()) / (a*a);
-    const auto q = z()*z() * (1-e2) / (a*a);
-    const auto r = (p + q - e4) / 6;
-    const auto s = (e4*p*q) / (4*r*r*r);
-    const auto t = std::cbrt(1 + s + std::sqrt(2*s+s*s));
-    const auto u = r * (1 + t + 1/t);
-    const auto v = std::sqrt(u*u + e4*q);
-    const auto w = e2 * (u + v - q) / (2*v);
-    const auto k = std::sqrt(u + v + w*w) - w;
-    const auto d = k * std::sqrt(x()*x() + y()*y()) / (k + e2);
-
-    const auto tmp = 1 / std::sqrt(d*d + z()*z());
-    const auto xʹ = tmp * k/(k+e2) * x();
-    const auto yʹ = tmp * k/(k+e2) * y();
-    const auto zʹ = tmp * z();
-    const auto h = (k + e2 - 1)/k * std::sqrt(d*d + z()*z());
-
-    return NvectorEllipsoidal(xʹ, yʹ, zʹ, h, datum);
+TEST(vector3d_unittest, operators)
+{
+   auto v123 = geodesy::vector3d(1, 2, 3);
+   const auto v321 = geodesy::vector3d(3, 2, 1);
+   EXPECT_EQ((v123 += v321), geodesy::vector3d(4, 4, 4));
+   v123 = geodesy::vector3d(1, 2, 3);
+   EXPECT_EQ(v123 -= v321, geodesy::vector3d(-2, 0, 2));
+   v123 = geodesy::vector3d(1, 2, 3);
+   EXPECT_EQ(v123 *= 2,    geodesy::vector3d(2, 4, 6));
+   v123 = geodesy::vector3d(1, 2, 3);
+   EXPECT_EQ(v123 /= 2,    geodesy::vector3d(0.5, 1, 1.5));
 }

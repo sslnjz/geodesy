@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
@@ -66,7 +66,7 @@ ReferenceFrames LatLonEllipsoidalReferenceFrame::referenceFrames()
     return g_reference_frames;
 }
 
-std::map<std::string, Helmert> LatLonEllipsoidalReferenceFrame::transformParameters()
+std::vector<HelmertTransforms> LatLonEllipsoidalReferenceFrame::transformParameters()
 {
     return s_txParams;
 }

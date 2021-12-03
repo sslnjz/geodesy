@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -122,7 +122,7 @@ namespace geodesy
        *   const dms = greenwich.toString('dms', 2);              // 51°28′40.37″N, 000°00′05.29″W
        *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4779, -0.0015
        */
-      [[nodiscard]] std::string toString(Dms::eFormat e = Dms::D, std::optional<int> dp = std::nullopt) const;
+      [[nodiscard]] virtual std::string toString(Dms::eFormat e = Dms::D, std::optional<int> dp = std::nullopt) const;
 
       /**
        * Converts ‘this’ point to a GeoJSON object string.
@@ -130,7 +130,20 @@ namespace geodesy
        * @returns {string} this point as a GeoJSON ‘Point’ string.
        *    { type: "Point", coordinates: [ lon, lat ] }
        */
-      [[nodiscard]] std::string toGeoJSON() const;
+      [[nodiscard]] virtual std::string toGeoJSON() const;
+
+      /**
+       * Checks if another point is equal to ‘this’ point.
+       *
+       * @param   {LatLon}    point - Point to be compared against this point.
+       * @returns {bool}      True if points have identical latitude and longitude values.
+       *
+       * @example
+       *   const auto p1 = new LatLon(52.205, 0.119);
+       *   const auto p2 = new LatLon(52.205, 0.119);
+       *   const auto equal = p1.equals(p2); // true
+       */
+      [[nodiscard]] virtual bool equals(const LatLon& point) const;
 
       /**
        * Checks if another point is equal to ‘this’ point.

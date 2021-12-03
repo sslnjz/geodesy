@@ -1,7 +1,7 @@
 ﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                       *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -33,16 +33,13 @@
 
 using namespace geodesy;
 
-CartesianReferenceFrame::CartesianReferenceFrame() {
-
-}
-
+CartesianReferenceFrame::CartesianReferenceFrame() = default;
 CartesianReferenceFrame::CartesianReferenceFrame(double x, double y, double z,
                                                  std::optional<ReferenceFrame> referenceFrame,
                                                  std::optional<std::string> epoch)
       : Cartesian(x, y, z) {
    if (referenceFrame.has_value() && !referenceFrame.value().epoch.has_value())
-      throw std::invalid_argument("unrecognised reference frame");
+      throw std::invalid_argument("recognized reference frame");
 
    if (!epoch.has_value())
       throw std::invalid_argument("invalid epoch");
@@ -52,6 +49,33 @@ CartesianReferenceFrame::CartesianReferenceFrame(double x, double y, double z,
    if (referenceFrame.has_value())
       _referenceFrame = referenceFrame.value();
 
+}
+
+std::optional<ReferenceFrame> CartesianReferenceFrame::referenceFrame() const
+{
+   return _referenceFrame;
+}
+
+void CartesianReferenceFrame::setReferenceFrame(const ReferenceFrame& referenceFrame)
+{
+   if (!referenceFrame.epoch.has_value())
+      throw std::invalid_argument("unrecognized reference frame");
+   _referenceFrame = referenceFrame;
+}
+
+std::optional<std::string> CartesianReferenceFrame::epoch()
+{
+   return _epoch ? *_epoch : _referenceFrame ? _referenceFrame->epoch : std::nullopt;
+}
+
+void CartesianReferenceFrame::setEpoch(std::string epoch)
+{
+   if (_referenceFrame.has_value() &&
+      _referenceFrame->epoch.has_value() &&
+      _epoch != (*_referenceFrame).epoch.value())
+   {
+      _epoch = epoch;
+   }
 }
 
 LatLonEllipsoidalReferenceFrame CartesianReferenceFrame::toLatLon() {
@@ -69,7 +93,7 @@ LatLonEllipsoidalReferenceFrame CartesianReferenceFrame::toLatLon() {
 CartesianReferenceFrame CartesianReferenceFrame::convertReferenceFrame(const ReferenceFrame &to)
 {
    if (to.epoch == std::nullopt)
-      throw std::invalid_argument("unrecognised reference frame");
+      throw std::invalid_argument("unrecognized reference frame");
    if (!_referenceFrame)
       throw std::runtime_error("cartesian coordinate has no reference frame");
 
@@ -77,20 +101,21 @@ CartesianReferenceFrame CartesianReferenceFrame::convertReferenceFrame(const Ref
       return *this; // no-op!
 
 
-   const auto oldTrf = _referenceFrame;
+   const auto oldTrf = *_referenceFrame;
    const auto newTrf = to;
 
    // WGS84(G730/G873/G1150) are coincident with ITRF at 10-centimetre level; WGS84(G1674) and
    // ITRF20014 / ITRF2008 ‘are likely to agree at the centimeter level’ (QPS)
-   if (strutil::start_with(oldTrf->name, "ITRF") && strutil::start_with(newTrf.name, "WGS84")) return *this;
-   if (strutil::start_with(oldTrf->name, "WGS84") && strutil::start_with(newTrf.name, "ITRF")) return *this;
+   if (strutil::start_with(oldTrf.name, "ITRF") && strutil::start_with(newTrf.name, "WGS84")) return *this;
+   if (strutil::start_with(oldTrf.name, "WGS84") && strutil::start_with(newTrf.name, "ITRF")) return *this;
 
    const CartesianReferenceFrame oldC = *this;
    CartesianReferenceFrame newC;
 
-   // is requested transformation available in single step?
-   const auto txFwd = s_txParams.find(oldTrf->name+"→"+newTrf.name);
-   const auto txRev = s_txParams.find(newTrf.name+"→"+oldTrf->name);
+   const auto txFwd = std::find_if(s_txParams.begin(), s_txParams.end(), 
+      [&](const auto& item) { return (item.from == oldTrf.name && item.to == newTrf.name);});
+   const auto txRev = std::find_if(s_txParams.begin(), s_txParams.end(),
+      [&](const auto& item){ return (item.from == newTrf.name && item.to == oldTrf.name);});
 
    auto reverseTransform = [](const Helmert& tx) -> Helmert
    {
@@ -102,52 +127,113 @@ CartesianReferenceFrame CartesianReferenceFrame::convertReferenceFrame(const Ref
       return helmert;
    };
 
-//   if (txFwd != s_txParams.end() || txRev != s_txParams.end())
-//   {
-//      // yes, single step available (either forward or reverse)
-//      const auto tx = txFwd != s_txParams.end() ? *txFwd : reverseTransform(*txRev);
-//      const t = this.epoch || this.referenceFrame.epoch;
-//      const t0 = tx.epoch;//epoch || newTrf.epoch;
-//      newC = oldC.applyTransform(tx.params, tx.rates, t - t0); // ...apply transform...
-//   }
-//   else
-//   {
-//      // find intermediate transform common to old & new to chain though; this is pretty yucky,
-//      // but since with current transform params we can transform in no more than 2 steps, it works!
-//      // TODO: find cleaner method!
-//      const auto txAvailFromOld = Object.keys(txParams).filter(tx = > tx.split('→')[0] == oldTrf.name).map(tx = >
-//                                                                                                  tx.split(
-//                                                                                                        '→')[1]);
-//      const txAvailToNew = Object.keys(txParams).filter(tx = > tx.split('→')[1] == newTrf.name).map(tx = >
-//                                                                                                tx.split(
-//                                                                                                      '→')[0]);
-//      const txIntermediateFwd = txAvailFromOld.filter(tx = > txAvailToNew.includes(tx))[0];
-//      const txAvailFromNew = Object.keys(txParams).filter(tx = > tx.split('→')[0] == newTrf.name).map(tx = >
-//                                                                                                  tx.split(
-//                                                                                                        '→')[1]);
-//      const txAvailToOld = Object.keys(txParams).filter(tx = > tx.split('→')[1] == oldTrf.name).map(tx = >
-//                                                                                                tx.split(
-//                                                                                                      '→')[0]);
-//      const txIntermediateRev = txAvailFromNew.filter(tx = > txAvailToOld.includes(tx))[0];
-//      const txFwd1 = txParams[oldTrf.name + '→' + txIntermediateFwd];
-//      const txFwd2 = txParams[txIntermediateFwd + '→' + newTrf.name];
-//      const txRev1 = txParams[newTrf.name + '→' + txIntermediateRev];
-//      const txRev2 = txParams[txIntermediateRev + '→' + oldTrf.name];
-//      const tx1 = txIntermediateFwd ? txFwd1 : reverseTransform(txRev2);
-//      const tx2 = txIntermediateFwd ? txFwd2 : reverseTransform(txRev1);
-//      const t = this.epoch || this.referenceFrame.epoch;
-//      newC = oldC.applyTransform(tx1.params, tx1.rates, t - tx1.epoch); // ...apply transform 1...
-//      newC = newC.applyTransform(tx2.params, tx2.rates, t - tx2.epoch); // ...apply transform 2...
-//   }
-//
-//   newC.referenceFrame = toReferenceFrame;
-//   newC.epoch = oldC.epoch;
-//
-//   return newC;
-//
-//   function reverseTransform(tx) {
-//      return {epoch: tx.epoch, params: tx.params.map(p = > -p), rates: tx.rates.map(r => -r)};
-//   }
+   if (txFwd != s_txParams.end() || txRev != s_txParams.end())
+   {
+      // yes, single step available (either forward or reverse)
+      const auto tx = txFwd != s_txParams.end() ? txFwd->helmert : reverseTransform(txRev->helmert);
+      const auto t = _epoch ? _epoch : _referenceFrame->epoch;
+      const auto t0 = tx.epoch;//epoch || newTrf.epoch;
+      newC = oldC.applyTransform(tx.params, tx.rates, std::stoi(*t) - std::stoi(t0)); // ...apply transform...
+   }
+   else
+   {
+      // find intermediate transform common to old & new to chain though; this is pretty yucky,
+      // but since with current transform params we can transform in no more than 2 steps, it works!
+
+      std::vector<HelmertTransforms> txAvailFromOld, txAvailToNew;
+      std::for_each(s_txParams.begin(), s_txParams.end(), 
+         [&](const HelmertTransforms& item)
+         {
+            if (item.from == oldTrf.name)
+            {
+               txAvailFromOld.emplace_back(item);
+            }
+
+            if (item.to == newTrf.name)
+            {
+               txAvailToNew.emplace_back(item);
+            }
+         });
+
+      // search a suitable intermediate transform
+      std::optional<std::pair<HelmertTransforms, HelmertTransforms>> intermediateTxFwd = std::nullopt, intermediateTxRev = std::nullopt;
+      for (auto p = s_txParams.begin(); p != s_txParams.end(); ++p)
+      {
+         for (auto q = s_txParams.end() - 1; q != s_txParams.begin() && p != q; --q)
+         {
+            if(p->from == oldTrf.name && q->to == newTrf.name && p->to == q->from)
+            {
+               intermediateTxFwd->first = *p;
+               intermediateTxFwd->second = *q;
+            }
+
+            if (p->from == newTrf.name && q->to == oldTrf.name && p->to == q->from)
+            {
+               intermediateTxRev->first = *p;
+               intermediateTxRev->second = *q;
+            }
+         }
+      }
+
+      if(intermediateTxRev)
+      {
+         const auto tx1 = intermediateTxFwd ? intermediateTxFwd->first.helmert : reverseTransform(intermediateTxRev->second.helmert);
+         const auto tx2 = intermediateTxFwd ? intermediateTxFwd->second.helmert : reverseTransform(intermediateTxRev->first.helmert);
+
+
+         const auto t = _epoch ?  _epoch : _referenceFrame->epoch;
+         newC = oldC.applyTransform(tx1.params, tx1.rates, std::stoi(*t) - std::stoi(tx1.epoch)); // ...apply transform 1...
+         newC = newC.applyTransform(tx2.params, tx2.rates, std::stoi(*t) - std::stoi(tx2.epoch)); // ...app
+      }
+   }
+
+   newC._referenceFrame = to;
+   newC._epoch = oldC._epoch;
+
+   return newC;
+}
+
+CartesianReferenceFrame CartesianReferenceFrame::applyTransform(const double params[7], const double rates[7], double deltat) const
+{
+   // this point
+   const auto x1 = x(), y1 = y(), z1 = z();
+
+   // base parameters
+   const auto tx = params[0] / 1000; // x-shift: normalise millimetres to metres
+   const auto ty = params[1] / 1000; // y-shift: normalise millimetres to metres
+   const auto tz = params[2] / 1000; // z-shift: normalise millimetres to metres
+   const auto s = params[3] / 1e9; // scale: normalise parts-per-billion
+   const auto rx = toRadians((params[4] / 3600 / 1000)); // x-rotation: normalise milliarcseconds to radians
+   const auto ry = toRadians((params[5] / 3600 / 1000)); // y-rotation: normalise milliarcseconds to radians
+   const auto rz = toRadians((params[6] / 3600 / 1000)); // z-rotation: normalise milliarcseconds to radians
+
+   // rate parameters
+   const auto x_shift = rates[0] / 1000; // x-shift: normalise millimetres to metres
+   const auto y_shift = rates[1] / 1000; // y-shift: normalise millimetres to metres
+   const auto z_shift = rates[2] / 1000; // z-shift: normalise millimetres to metres
+   const auto scale = rates[3] / 1e9; // scale: normalise parts-per-billion
+   const auto x_rotation = toRadians((rates[4] / 3600 / 1000)); // x-rotation: normalise milliarcseconds to radians
+   const auto y_rotation = toRadians((rates[5] / 3600 / 1000)); // y-rotation: normalise milliarcseconds to radians
+   const auto z_rotation = toRadians((rates[6] / 3600 / 1000)); // z-rotation: normalise milliarcseconds to radians
+
+   // combined (normalised) parameters
+   const double T[] = {tx + x_shift * deltat, ty + y_shift * deltat, tz + z_shift * deltat};
+   const double R[] = {rx + x_rotation * deltat, ry + y_rotation * deltat, rz + z_rotation * deltat};
+   const auto S = 1 + s + scale * deltat;
+
+   // apply transform (shift, scale, rotate)
+   const auto x2 = T[0] + x1 * S - y1 * R[2] + z1 * R[1];
+   const auto y2 = T[1] + x1 * R[2] + y1 * S - z1 * R[0];
+   const auto z2 = T[2] - x1 * R[1] + y1 * R[0] + z1 * S;
+
+   return CartesianReferenceFrame(x2, y2, z2);
+}
+
+std::string CartesianReferenceFrame::toString(int dp) const
+{
+   const auto epoch = _referenceFrame && _epoch != _referenceFrame->epoch ? *_epoch : "";
+   const auto trf = _referenceFrame ? "(" + _referenceFrame->name + ((!epoch.empty()) ? ("@" + epoch) : epoch) : "";
+   return Cartesian::toString(dp) + trf ;
 }
 
 

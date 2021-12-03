@@ -65,6 +65,8 @@ namespace geodesy
       constexpr vector3d() noexcept;
       constexpr vector3d(double x, double y, double z) noexcept;
 
+      virtual ~vector3d() = default;
+
       [[nodiscard]] constexpr inline double x() const noexcept;
       [[nodiscard]] constexpr inline double y() const noexcept;
       [[nodiscard]] constexpr inline double z() const noexcept;
@@ -80,6 +82,53 @@ namespace geodesy
        */
       [[nodiscard]] inline double length() const;
 
+      /**
+       * Adds supplied vector to ‘this’ vector.
+       *
+       * @param   {Vector3d} v - Vector to be added to this vector.
+       * @returns {Vector3d} Vector representing sum of this and v.
+       */
+      [[nodiscard]] vector3d plus(const vector3d& v) const
+      {
+         return vector3d(vx + v.x(), vy + v.y(), vz + v.z());
+      }
+
+      /**
+       * Subtracts supplied vector from ‘this’ vector.
+       *
+       * @param   {Vector3d} v - Vector to be subtracted from this vector.
+       * @returns {Vector3d} Vector representing difference between this and v.
+       */
+      [[nodiscard]] vector3d minus(const vector3d& v) const
+      {
+         return vector3d(vx - v.x(), vy - v.y(), vz - v.z());
+      }
+
+      /**
+       * Multiplies ‘this’ vector by a scalar value.
+       *
+       * @param   {number}   x - Factor to multiply this vector by.
+       * @returns {Vector3d} Vector scaled by x.
+       */
+      [[nodiscard]] vector3d times(double x) const
+      {
+         if (std::isnan(x)) throw std::invalid_argument("invalid scalar value");
+         return vector3d(vx * x, vy * x, vz * x);
+      }
+
+      /**
+       * Divides ‘this’ vector by a scalar value.
+       *
+       * @param   {number}   x - Factor to divide this vector by.
+       * @returns {Vector3d} Vector divided by x.
+       */
+      [[nodiscard]] vector3d dividedBy(double x) const
+      {
+         if (std::isnan(x) || essentiallyEqual(x, 0.0))
+            throw std::invalid_argument("invalid scalar value");
+
+         return vector3d(vx / x, vy / x, vz / x);
+      }
 
       /**
        * Multiplies ‘this’ vector by the supplied vector using dot (scalar) product.
@@ -200,20 +249,15 @@ namespace geodesy
        * @param   {number} [dp=3] - Number of decimal places to be used.
        * @returns {string} Vector represented as [x,y,z].
        */
-      [[nodiscard]] std::string toString(int dp = 3) const
+      [[nodiscard]] virtual std::string toString(int dp = 3) const
       {
          std::stringstream ss;
-         ss << std::setprecision(dp);
-         ss << "[";
-         ss << vx << ", ";
-         ss << vy << ", ";
-         ss << vz;
-         ss << "]";
+         ss << std::fixed << std::setprecision(dp) << "[" << vx << "," << vy << "," << vz << "]";
          return ss.str();
       }
 
       /**
-       * Adds supplied vector to ‘this’ vector.
+       * Adds supplied vector to ‘this’ vector, same as add(v).
        *
        * @param   {Vector3d} v - Vector to be added to this vector.
        * @returns {Vector3d} Vector representing sum of this and v.
@@ -227,7 +271,7 @@ namespace geodesy
       }
 
       /**
-       * Subtracts supplied vector from ‘this’ vector.
+       * Subtracts supplied vector from ‘this’ vector, same as minus(v).
        *
        * @param   {Vector3d} v - Vector to be subtracted from this vector.
        * @returns {Vector3d} Vector representing difference between this and v.
@@ -241,7 +285,7 @@ namespace geodesy
       }
 
       /**
-       * Multiplies ‘this’ vector by a scalar value.
+       * Multiplies ‘this’ vector by a scalar value, same as time(x).
        *
        * @param   {number}   x - Factor to multiply this vector by.
        * @returns {Vector3d} Vector scaled by x.
@@ -255,7 +299,7 @@ namespace geodesy
       }
 
       /**
-       * Multiplies ‘this’ vector by a scalar value.
+       * Multiplies ‘this’ vector by a scalar value, same as dividedBy(x).
        *
        * @param   {number}   x - Factor to multiply this vector by.
        * @returns {Vector3d} Vector scaled by x.
@@ -268,15 +312,27 @@ namespace geodesy
          return *this;
       }
 
-      friend constexpr inline vector3d operator+(const vector3d& v1, const vector3d& v2)
+      constexpr inline bool operator==(const vector3d& v) const
+      {
+         if (this != &v)
+         {
+            return essentiallyEqual(vx, v.vx) &&
+               essentiallyEqual(vy, v.vy) &&
+               essentiallyEqual(vz, v.vz);
+         }
+         return true;
+      }
+
+
+      friend inline vector3d operator+(const vector3d& v1, const vector3d& v2)
       { return vector3d(v1.vx + v2.vx, v1.vy + v2.vy, v1.vz + v2.vz);}
-      friend constexpr inline vector3d operator-(const vector3d& v1, const vector3d& v2)
+      friend inline vector3d operator-(const vector3d& v1, const vector3d& v2)
       { return vector3d(v1.vx - v2.vx, v1.vy - v2.vy, v1.vz - v2.vz);}
-      friend constexpr inline vector3d operator*(const vector3d& v, double x)
+      friend inline vector3d operator*(const vector3d& v, double x)
       { return vector3d(v.vx * x, v.vy * x, v.vz * x);}
-      friend constexpr inline vector3d operator*(double x, const vector3d& v)
+      friend inline vector3d operator*(double x, const vector3d& v)
       { return vector3d(v.vx * x, v.vy * x, v.vz * x);}
-      friend constexpr vector3d operator/(const vector3d& v, double x)
+      friend vector3d operator/(const vector3d& v, double x)
       { return vector3d(v.vx / x, v.vy / x, v.vz / x);}
       friend inline vector3d operator+(const vector3d& v)
       { return v;}

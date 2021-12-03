@@ -70,7 +70,7 @@ double LatLonSpherical::distanceTo(const LatLonSpherical& point, double radius) 
 double LatLonSpherical::initialBearingTo(const LatLonSpherical& point) const
 {
    if (point == *this)
-      return std::numeric_limits<double>::infinity() * 0.0; // coincident points
+      return NAN; // coincident points
    // tanθ = sinΔλ⋅cosφ2 / cosφ1⋅sinφ2 − sinφ1⋅cosφ2⋅cosΔλ
    // see mathforum.org/library/drmath/view/55417.html for derivation
    const auto phi1 = toRadians(m_lat);
@@ -314,6 +314,9 @@ LatLonSpherical LatLonSpherical::rhumbMidpointTo(const LatLonSpherical& point) c
 
 double LatLonSpherical::crossTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd, double radius) const
 {
+   if (*this == pathStart) 
+      return 0;
+
    const auto R = radius;
    const auto delta13 = pathStart.distanceTo(*this, R) / R;
    const auto theta13 = toRadians(pathStart.initialBearingTo(*this));
@@ -324,6 +327,9 @@ double LatLonSpherical::crossTrackDistanceTo(const LatLonSpherical& pathStart, c
 
 double LatLonSpherical::alongTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd, double radius) const
 {
+   if (*this == pathStart)
+      return 0;
+
    const auto R = radius;
    const auto delta13 = pathStart.distanceTo(*this, R) / R;
    const auto theta13 = toRadians(pathStart.initialBearingTo(*this));

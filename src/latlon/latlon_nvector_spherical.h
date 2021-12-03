@@ -29,38 +29,18 @@
 #ifndef LATLON_NVECTOR_SPHERICAL_H
 #define LATLON_NVECTOR_SPHERICAL_H
 
-#include "algorithm.h"
 #include "dms.h"
+#include "latlon.h"
 
 namespace geodesy
 {
    class vector3d;
    class NvectorSpherical;
-   class LatLonNvectorSpherical
+   class LatLonNvectorSpherical : public LatLon
    {
    public:
       LatLonNvectorSpherical();
       LatLonNvectorSpherical(double lat, double lon);
-
-      /**
-       * Latitude in degrees north from equator (including aliases lat, latitude): can be set as
-       * numeric or hexagesimal (deg-min-sec); returned as numeric.
-       */
-      [[nodiscard]] double lat() const { return m_lat; }
-      [[nodiscard]] double latitude() const { return m_lat; }
-      void setLat(double lat) { m_lat = Dms::wrap90(lat); }
-      void setLatitude(double lat) { m_lat = Dms::wrap90(lat); }
-
-      /**
-       * Longitude in degrees east from international reference meridian (including aliases lon, lng,
-       * longitude): can be set as numeric or hexagesimal (deg-min-sec); returned as numeric.
-       */
-      [[nodiscard]] double lon() const { return m_lon; }
-      [[nodiscard]] double lng() const { return m_lon; }
-      [[nodiscard]] double longitude() const { return m_lon; }
-      void setLon(double lon) { m_lon = Dms::wrap180(lon); }
-      void setLng(double lon) { m_lon = Dms::wrap180(lon); }
-      void setLongitude(double lon) { m_lon = Dms::wrap180(lon); }
 
 
       /**
@@ -263,7 +243,7 @@ namespace geodesy
        *
        * @param   {LatLon}        pathStart - Start point of great circle path.
        * @param   {number}        pathBrngEnd - initial bearing from great circle start point.
-       * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
+       * @param   {number}       [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
        * @returns {number}        Distance to great circle (-ve if to left, +ve if to right of path).
        * @throws  {TypeError}     Invalid parameter.
        *
@@ -285,10 +265,10 @@ namespace geodesy
        * along-track distance is the distance from the start point to where the perpendicular crosses the
        * path.
        *
-       * @param   {LatLon}        pathStart - Start point of great circle path.
-       * @param   {LatLon}        pathBrngEnd - End point of great circle path.
-       * @param   {number}        [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
-       * @returns {number}        Distance along great circle to point nearest ‘this’ point.
+       * @param   {LatLon} pathStart - Start point of great circle path.
+       * @param   {LatLon} pathBrngEnd - End point of great circle path.
+       * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
+       * @returns {number} Distance along great circle to point nearest ‘this’ point.
        *
        * @example
        *   const pCurrent = new LatLon(53.2611, -0.7972);
@@ -410,35 +390,6 @@ namespace geodesy
       */
       static LatLonNvectorSpherical meanOf(const std::vector<LatLonNvectorSpherical>& points);
 
-      /**
-       * Returns a string representation of ‘this’ point, formatted as degrees, degrees+minutes, or
-       * degrees+minutes+seconds.
-       *
-       * @param   {string} [format=d] - Format point as 'd', 'dm', 'dms', or 'n' for signed numeric.
-       * @param   {number} [dp=4|2|0] - Number of decimal places to use: default 4 for d, 2 for dm, 0 for dms.
-       * @returns {string} Comma-separated formatted latitude/longitude.
-       *
-       * @example
-       *   const greenwich = new LatLon(51.47788, -0.00147);
-       *   const d = greenwich.toString();                        // 51.4778°N, 000.0015°W
-       *   const dms = greenwich.toString('dms', 2);              // 51°28′40.37″N, 000°00′05.29″W
-       *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4778, -0.0015
-       */
-      [[nodiscard]] std::string toString(Dms::eFormat format = Dms::D);
-
-      /**
-       * Checks if another point is equal to ‘this’ point.
-       *
-       * @param   {LatLon}    point - Point to be compared against this point.
-       * @returns {bool}      True if points have identical latitude and longitude values.
-       *
-       * @example
-       *   const auto p1 = new LatLon(52.205, 0.119);
-       *   const auto p2 = new LatLon(52.205, 0.119);
-       *   const auto equal = p1.equals(p2); // true
-       */
-      [[nodiscard]] bool equals(const LatLonNvectorSpherical& point) const;
-
    private:
 
       /**
@@ -471,10 +422,6 @@ namespace geodesy
         *   const inside = p.isEnclosedBy(bounds); // true
         */
       [[nodiscard]] bool isEnclosedBy(std::vector<LatLonNvectorSpherical>& polygon) const;
-
-   private:
-      double m_lat;
-      double m_lon;
    };
 }
 #endif // LATLON_NVECTOR_SPHERICAL_H

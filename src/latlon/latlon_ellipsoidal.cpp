@@ -86,10 +86,62 @@ Datums LatLonEllipsoidal::datums()
    return g_datums;
 }
 
+LatLonEllipsoidal LatLonEllipsoidal::parse(double lat, double lon, double height)
+{
+   const auto latlon = LatLon::parse(lat, lon);
+   return LatLonEllipsoidal(latlon.lat(), latlon.lon(), height);
+}
+
+LatLonEllipsoidal LatLonEllipsoidal::parse(const std::string& dms, double height)
+{
+   const auto latlon = LatLon::parse(dms);
+   return LatLonEllipsoidal(latlon.lat(), latlon.lon(), height);
+}
+
+LatLonEllipsoidal LatLonEllipsoidal::parse(const std::string& lat, const std::string& lon, double height)
+{
+   const auto latlon = LatLon::parse(lat, lon);
+   return LatLonEllipsoidal(latlon.lat(), latlon.lon(), height);
+}
+
+LatLonEllipsoidal LatLonEllipsoidal::parse(const std::string& lat, const std::string& lon, std::string height)
+{
+   const auto latlon = LatLon::parse(lat, lon);
+
+   double h = 0;
+   try
+   {
+      h = std::stod(height);
+   }
+   catch (const std::exception& e)
+   {
+      throw e;
+   }
+
+   return LatLonEllipsoidal(latlon.lat(), latlon.lon(), h);
+}
+
 bool LatLonEllipsoidal::equals(const LatLonEllipsoidal& point) const
 {
    return *this == point;
 }
+
+std::string LatLonEllipsoidal::toString(Dms::eFormat format, std::optional<int> dp, std::optional<int> dph) const
+{
+   std::string height;
+   if (dph != std::nullopt) {
+      height = (m_height >= 0 ? " +" : " ") + toFixed(m_height, *dph) + "m";
+   }
+
+   if (format == Dms::N) 
+   { // signed numeric degrees
+      if (dp == std::nullopt) dp = 4;
+      return toFixed(m_lat, *dp) + ", " + toFixed(m_lon, *dp) + (dph ? height : "");
+   }
+   return Dms::toLat(m_lat, format, dp) + ", " + Dms::toLon(m_lon, format, dp) + (dph ? height : "");
+}
+
+
 
 Cartesian LatLonEllipsoidal::toCartesian() const
 {

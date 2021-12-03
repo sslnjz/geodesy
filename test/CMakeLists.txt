@@ -75,9 +75,11 @@ endif ()
 
 
 set(TEST_LIST
+		dms_unittest
 		latlon_unittest
 		latlon_spherical_unittest
-		dms_unittest
+		latlon_ellipsoidal_unittest
+		vector3d_unittest
 )
 
 set(GEODESY_LIB geodesy)

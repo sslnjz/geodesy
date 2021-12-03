@@ -142,7 +142,7 @@ namespace geodesy
          * Many conversions are direct; for NAD83, successive ITRF transformations are chained back to
          * ITRF2000.
          */
-        static std::map<std::string, Helmert> transformParameters();
+        static std::vector<HelmertTransforms> transformParameters();
 
         /**
          * Converts ‘this’ lat/lon coordinate to new coordinate system.

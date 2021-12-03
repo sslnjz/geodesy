@@ -31,6 +31,9 @@
 
 #include <limits>
 #include <cmath>
+#include <iomanip>
+#include <string>
+#include <sstream>
 // π
 constexpr auto pi = (3.141592653589793116);
 constexpr auto epsilon = std::numeric_limits<double>::epsilon();
@@ -69,7 +72,7 @@ namespace geodesy
     * @return true if two float number almost equal with ulp
    */
    template<class T>
-   typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+   [[maybe_unused]] typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
       almost_equal(T x, T y, int ulp)
    {
       // the machine epsilon has to be scaled to the magnitude of the values used
@@ -79,8 +82,39 @@ namespace geodesy
          || std::fabs(x - y) < std::numeric_limits<T>::min();
    }
 
+   template<class T>
+   using ENABLE = std::enable_if_t<std::is_same_v<T, float> || std::is_same_v<T, double>>;
+
+   template<class T, typename = ENABLE<T>>
+   [[maybe_unused]] static bool approximatelyEqual(T a, T b)
+   {
+      return std::fabs(a - b) <= ((std::fabs(a) < std::fabs(b) ?
+         std::fabs(b) : std::fabs(a)) * std::numeric_limits<T>::epsilon());
+   }
+
+   template<class T, typename = ENABLE<T>>
+   [[maybe_unused]] static bool essentiallyEqual(T a, T b)
+   {
+      return std::fabs(a - b) <= ((std::fabs(a) > std::fabs(b) ?
+         std::fabs(b) : std::fabs(a)) * std::numeric_limits<T>::epsilon());
+   }
+
+   template<class T, typename = ENABLE<T>>
+   [[maybe_unused]] static bool definitelyGreaterThan(T a, T b)
+   {
+      return (a - b) > ((std::fabs(a) < std::fabs(b) ? std::fabs(b) :
+         std::fabs(a)) * std::numeric_limits<T>::epsilon());
+   }
+
+   template<class T, typename = ENABLE<T>>
+   [[maybe_unused]] static bool definitelyLessThan(T a, T b)
+   {
+      return (b - a) > ((std::fabs(a) < std::fabs(b) ? std::fabs(b) :
+         std::fabs(a)) * std::numeric_limits<T>::epsilon());
+   }
+
    template <class T>
-   inline int sign(const T& z)
+   [[maybe_unused]] int sign(const T& z)
    {
       return (z == 0) ? 0 : std::signbit(z) ? -1 : 1;
    }
@@ -89,19 +123,41 @@ namespace geodesy
     * Conversion factor metres to kilometres.
     * Conversion factors; 1000 * LatLon.metresToKm gives 1.
     */
-   static inline double getMetresToKm()
+   [[maybe_unused]] static double getMetresToKm()
    {
       return 1.000 / 1000.000;
    }
 
-   static inline double getMetresToMiles()
+   [[maybe_unused]] static double getMetresToMiles()
    {
       return 1.000 / 1609.344;
    }
 
-   static inline double getMetresToNauticalMiles()
+   [[maybe_unused]] static double getMetresToNauticalMiles()
    {
       return 1.000 / 1852.000;
+   }
+
+   [[maybe_unused]] static std::string toFixed(double value, int p = 0)
+   {
+      std::stringstream ss;
+      ss << std::fixed << std::setprecision(p) << value;
+      return ss.str();
+   }
+
+   [[maybe_unused]] static std::string toPrecision(double value, int p = 0)
+   {
+      std::stringstream ss;
+      ss << std::setprecision(p) << value;
+      return ss.str();
+   }
+
+
+   [[maybe_unused]] static std::string toExponential(double value, int p = 0)
+   {
+      std::stringstream ss;
+      ss << std::setprecision(p) << std::scientific << value;
+      return ss.str();
    }
 
 }

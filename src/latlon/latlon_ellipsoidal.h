@@ -119,6 +119,40 @@ namespace geodesy
        static Datums datums();
 
        /**
+        * Parses a latitude/longitude point from a variety of formats.
+        *
+        * Latitude & longitude (in degrees) can be supplied as two separate parameters, as a single
+        * comma-separated lat/lon string, or as a single object with { lat, lon } or GeoJSON properties.
+        *
+        * The latitude/longitude values may be numeric or strings; they may be signed decimal or
+        * deg-min-sec (hexagesimal) suffixed by compass direction (NSEW); a variety of separators are
+        * accepted. Examples -3.62, '3 37 12W', '3°37′12″W'.
+        *
+        * Thousands/decimal separators must be comma/dot; use Dms.fromLocale to convert locale-specific
+        * thousands/decimal separators.
+        *
+        * @param   {number|string|Object} lat|latlon - Latitude (in degrees) or comma-separated lat/lon or lat/lon object.
+        * @param   {number|string}        [lon]      - Longitude (in degrees).
+        * @returns {LatLon} Latitude/longitude point.
+        * @throws  {TypeError} Invalid point.
+        *
+        * @example
+        *   const p1 = LatLon.parse(52.205, 0.119);                                    // numeric pair (≡ new LatLon)
+        *   const p2 = LatLon.parse('52.205', '0.119');                                // numeric string pair (≡ new LatLon)
+        *   const p3 = LatLon.parse('52.205, 0.119');                                  // single string numerics
+        *   const p4 = LatLon.parse('52°12′18.0″N', '000°07′08.4″E');                  // DMS pair
+        *   const p5 = LatLon.parse('52°12′18.0″N, 000°07′08.4″E');                    // single string DMS
+        *   const p6 = LatLon.parse({ lat: 52.205, lon: 0.119 });                      // { lat, lon } object numeric
+        *   const p7 = LatLon.parse({ lat: '52°12′18.0″N', lng: '000°07′08.4″E' });    // { lat, lng } object DMS
+        *   const p8 = LatLon.parse({ type: 'Point', coordinates: [ 0.119, 52.205] }); // GeoJSON
+        */
+       static LatLonEllipsoidal parse(double lat, double lon, double height = 0);
+       static LatLonEllipsoidal parse(const std::string& dms, double height = 0);
+       static LatLonEllipsoidal parse(const std::string& lat, const std::string& lon, double height);
+       static LatLonEllipsoidal parse(const std::string& lat, const std::string& lon, std::string height);
+
+
+       /**
         * Converts ‘this’ point from (geodetic) latitude/longitude coordinates to (geocentric)
         * cartesian (x/y/z) coordinates.
         *
@@ -140,6 +174,26 @@ namespace geodesy
         *   const equal = p1.equals(p2); // true
         */
        [[nodiscard]] bool equals(const LatLonEllipsoidal& point) const;
+
+       /**
+        * Returns a string representation of ‘this’ point, formatted as degrees, degrees+minutes, or
+        * degrees+minutes+seconds.
+        *
+        * @param   {string} [format=d] - Format point as 'd', 'dm', 'dms', or 'n' for signed numeric.
+        * @param   {number} [dp=4|2|0] - Number of decimal places to use: default 4 for d, 2 for dm, 0 for dms.
+        * @param   {number} [dpHeight=null] - Number of decimal places to use for height; default is no height display.
+        * @returns {string} Comma-separated formatted latitude/longitude.
+        * @throws  {RangeError} Invalid format.
+        *
+        * @example
+        *   const greenwich = new LatLon(51.47788, -0.00147, 46);
+        *   const d = greenwich.toString();                        // 51.4779°N, 000.0015°W
+        *   const dms = greenwich.toString('dms', 2);              // 51°28′40″N, 000°00′05″W
+        *   const [lat, lon] = greenwich.toString('n').split(','); // 51.4779, -0.0015
+        *   const dmsh = greenwich.toString('dms', 0, 0);          // 51°28′40″N, 000°00′06″W +46m
+        */
+       [[nodiscard]] std::string toString(Dms::eFormat format = Dms::D, std::optional<int> dp = std::nullopt,
+                                    std::optional<int> dph = std::nullopt) const;
 
        /**
         * Checks if another point is equal to ‘this’ point.

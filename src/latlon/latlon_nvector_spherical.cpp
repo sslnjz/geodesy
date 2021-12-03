@@ -31,11 +31,13 @@
 
 using namespace geodesy;
 
-LatLonNvectorSpherical::LatLonNvectorSpherical() : m_lat(0.0), m_lon(0.0)
+LatLonNvectorSpherical::LatLonNvectorSpherical()
+   : LatLon()
 {
 }
 
-LatLonNvectorSpherical::LatLonNvectorSpherical(double lat, double lon) : m_lat(lat), m_lon(lon)
+LatLonNvectorSpherical::LatLonNvectorSpherical(double lat, double lon)
+   : LatLon(lat, lon)
 {
 }
 
@@ -411,14 +413,6 @@ bool LatLonNvectorSpherical::isEnclosedBy(std::vector<LatLonNvectorSpherical>& p
    return std::abs(SIGMAtheta) > pi;
 }
 
-bool LatLonNvectorSpherical::equals(const LatLonNvectorSpherical& point) const
-{
-   if (std::abs(m_lat - point.lat()) > std::numeric_limits<double>::epsilon()) return false;
-   if (std::abs(m_lon - point.lon()) > std::numeric_limits<double>::epsilon()) return false;
-
-   return true;
-}
-
 bool LatLonNvectorSpherical::isWithinExtent(const LatLonNvectorSpherical& point1,
                                             const LatLonNvectorSpherical& point2) const
 {
@@ -495,19 +489,4 @@ LatLonNvectorSpherical LatLonNvectorSpherical::meanOf(const std::vector<LatLonNv
     }
     // m is now geographic mean
     return NvectorSpherical(m.x(), m.y(), m.z()).toLatLon();
-}
-
-std::string LatLonNvectorSpherical::toString(Dms::eFormat format)
-{
-    std::stringstream ss;
-    if (format == Dms::N)
-    { // signed numeric degrees
-        ss << std::fixed << std::setprecision(4) << m_lat << "," << m_lon;
-        return ss.str();
-    }
-    const auto lat = Dms::toLat(m_lat, format);
-    const auto lon = Dms::toLon(m_lon, format);
-
-    ss << Dms::toLat(m_lat, format) << ", " << Dms::toLon(m_lon, format);
-    return ss.str();
 }

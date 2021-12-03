@@ -58,7 +58,7 @@ std::vector<std::string> strutil::split_filter_empty(const std::string& str, wch
 {
 	std::vector<std::string> res;
 	std::string::const_iterator start = str.begin();
-	std::string::const_iterator end = str.end();
+   const std::string::const_iterator end = str.end();
 	std::string::const_iterator next = find(start, end, sep);
 
 	while (next != end)

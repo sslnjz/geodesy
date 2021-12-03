@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -128,8 +128,9 @@ double LatLon::longitude() const
 
 bool geodesy::operator==(const LatLon& p1, const LatLon& p2)
 {
-   return std::fabs(p1.m_lat - p2.m_lat) <= std::numeric_limits<double>::epsilon() &&
-          std::fabs(p1.m_lon - p2.m_lon) <= std::numeric_limits<double>::epsilon();
+   if (std::fabs(p1.m_lat - p2.m_lat) > std::numeric_limits<double>::epsilon()) return false;
+   if (std::fabs(p1.m_lon - p2.m_lon) > std::numeric_limits<double>::epsilon()) return false;
+   return true;
 }
 
 bool geodesy::operator!=(const LatLon& p1, const LatLon& p2)
@@ -144,7 +145,7 @@ LatLon LatLon::parse(double lat, double lon)
 
 LatLon LatLon::parse(const std::string& dms)
 {
-   if(const auto parts = strutil::split(dms, ','); parts.size() == 2)
+   if(const auto parts = strutil::split(dms, L','); parts.size() == 2)
    {
       return { parts[0], parts[1] };
    }
@@ -181,4 +182,9 @@ std::string LatLon::toGeoJSON() const
    ss << "] }";
 
    return ss.str();
+}
+
+bool LatLon::equals(const LatLon& point) const
+{
+   return *this == point;
 }
