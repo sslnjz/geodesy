@@ -78,7 +78,8 @@ void CartesianReferenceFrame::setEpoch(std::string epoch)
    }
 }
 
-LatLonEllipsoidalReferenceFrame CartesianReferenceFrame::toLatLon() {
+LatLonEllipsoidalReferenceFrame CartesianReferenceFrame::toLatLon() const
+{
    if (_referenceFrame == std::nullopt)
       throw std::runtime_error("cartesian reference frame not defined");
 
@@ -90,7 +91,7 @@ LatLonEllipsoidalReferenceFrame CartesianReferenceFrame::toLatLon() {
    return point;
 }
 
-CartesianReferenceFrame CartesianReferenceFrame::convertReferenceFrame(const ReferenceFrame &to)
+CartesianReferenceFrame CartesianReferenceFrame::convertReferenceFrame(const ReferenceFrame &to) const
 {
    if (to.epoch == std::nullopt)
       throw std::invalid_argument("unrecognized reference frame");

@@ -28,10 +28,12 @@
 ***********************************************************************************/
 
 #include "latlon_ellipsoidal_referenceframe.h"
+#include "cartesian_referenceFrame.h"
 
 using namespace geodesy;
+using LatLonERF = LatLonEllipsoidalReferenceFrame;
 
-LatLonEllipsoidalReferenceFrame::LatLonEllipsoidalReferenceFrame(
+LatLonERF::LatLonEllipsoidalReferenceFrame(
     double lat, double lon, double height,
     std::optional<ReferenceFrame> referenceFrame,
     std::optional<std::string> epoch)
@@ -46,27 +48,91 @@ LatLonEllipsoidalReferenceFrame::LatLonEllipsoidalReferenceFrame(
     m_epoch = epoch.value();
 }
 
-std::optional<ReferenceFrame> LatLonEllipsoidalReferenceFrame::referenceFrame() const
+std::optional<ReferenceFrame> LatLonERF::referenceFrame() const
 {
     return m_referenceFrame;
 }
 
-std::optional<std::string> LatLonEllipsoidalReferenceFrame::epoch()
+std::optional<std::string> LatLonERF::epoch()
 {
     return m_epoch ? *m_epoch : m_referenceFrame.value().epoch;
 }
 
-Ellipsoids LatLonEllipsoidalReferenceFrame::ellipsoids()
+Ellipsoids LatLonERF::ellipsoids()
 {
     return g_ellipsoids;
 }
 
-ReferenceFrames LatLonEllipsoidalReferenceFrame::referenceFrames()
+ReferenceFrames LatLonERF::referenceFrames()
 {
     return g_reference_frames;
 }
 
-std::vector<HelmertTransforms> LatLonEllipsoidalReferenceFrame::transformParameters()
+std::vector<HelmertTransforms> LatLonERF::transformParameters()
 {
     return s_txParams;
+}
+
+LatLonEllipsoidalReferenceFrame LatLonERF::convertReferenceFrame(const ReferenceFrame &to) const
+{
+   if (to.epoch == std::nullopt)
+      throw new std::invalid_argument("unrecognised reference frame");
+
+   auto oldCartesian = toCartesian();                                   // convert geodetic to cartesian
+   const auto newCartesian = oldCartesian.convertReferenceFrame(to); // convert TRF
+   const auto newLatLon = newCartesian.toLatLon();                                 // convert cartesian back to to geodetic
+
+   return newLatLon;
+}
+
+CartesianReferenceFrame LatLonERF::toCartesian() const
+{
+   const auto cartesian = LatLonEllipsoidal::toCartesian();
+   const auto cartesianReferenceFrame = CartesianReferenceFrame(cartesian.x(), cartesian.y(), cartesian.z(),
+                                 m_referenceFrame, m_epoch);
+   return cartesianReferenceFrame;
+}
+
+LatLonERF LatLonERF::parse(double lat, double lon, double height,
+                           std::optional<ReferenceFrame> referenceFrame,
+                           std::optional<std::string> epoch)
+{
+   if (!referenceFrame || referenceFrame->epoch== std::nullopt)
+      throw std::invalid_argument("unrecognised reference frame");
+
+   const auto p = LatLonEllipsoidal::parse(lat, lon, height);
+   return LatLonERF(p.lat(), p.lon(), p.height(), referenceFrame, epoch);
+}
+
+LatLonERF LatLonERF::parse(const std::string &dms, double height,
+                           std::optional<ReferenceFrame> referenceFrame,
+                           std::optional<std::string> epoch)
+{
+   if (!referenceFrame || referenceFrame->epoch== std::nullopt)
+      throw std::invalid_argument("unrecognised reference frame");
+
+   const auto p = LatLonEllipsoidal::parse(dms, height);
+   return LatLonERF(p.lat(), p.lon(), p.height(), referenceFrame, epoch);
+}
+
+LatLonERF LatLonERF::parse(const std::string &lat, const std::string &lon, double height,
+                           std::optional<ReferenceFrame> referenceFrame,
+                           std::optional<std::string> epoch)
+{
+   if (!referenceFrame || referenceFrame->epoch== std::nullopt)
+      throw std::invalid_argument("unrecognised reference frame");
+
+   const auto p = LatLonEllipsoidal::parse(lat, lon, height);
+   return LatLonERF(p.lat(), p.lon(), p.height(), referenceFrame, epoch);
+}
+
+LatLonERF LatLonERF::parse(const std::string &lat, const std::string &lon, std::string height,
+                           std::optional<ReferenceFrame> referenceFrame,
+                           std::optional<std::string> epoch)
+{
+   if (!referenceFrame || referenceFrame->epoch== std::nullopt)
+      throw std::invalid_argument("unrecognised reference frame");
+
+   const auto p = LatLonEllipsoidal::parse(lat, lon, height);
+   return LatLonERF(p.lat(), p.lon(), p.height(), referenceFrame, epoch);
 }

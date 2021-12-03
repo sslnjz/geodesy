@@ -90,8 +90,7 @@ namespace geodesy {
        *   const c = new Cartesian(4027893.924, 307041.993, 4919474.294, LatLon.referenceFrames.ITRF2000);
        *   const p = c.toLatLon(); // 50.7978°N, 004.3592°E
        */
-      [[nodiscard]] LatLonEllipsoidalReferenceFrame toLatLon();
-
+      [[nodiscard]] LatLonEllipsoidalReferenceFrame toLatLon() const;
 
       /**
        * Converts ‘this’ cartesian coordinate to new reference frame using Helmert 14-parameter
@@ -108,8 +107,7 @@ namespace geodesy {
        *   const c = new Cartesian(3980574.247, -102.127, 4966830.065, LatLon.referenceFrames.ITRF2000);
        *   c.convertReferenceFrame(LatLon.referenceFrames.ETRF2000); // [3980574.395,-102.214,4966829.941](ETRF2000@1997.0)
        */
-      [[nodiscard]] CartesianReferenceFrame convertReferenceFrame(const ReferenceFrame& to);
-
+      [[nodiscard]] CartesianReferenceFrame convertReferenceFrame(const ReferenceFrame& to) const;
 
       /**
        * Applies Helmert 14-parameter transformation to ‘this’ coordinate using supplied transform
