@@ -39,12 +39,12 @@ using namespace geodesy;
 
 std::string& Dms::_separator = *new std::string("");
 
-std::string Dms::get_separator()
+std::string Dms::separator()
 {
    return _separator;
 }
 
-void Dms::set_separator(const std::string& sep)
+void Dms::setSeparator(const std::string& sep)
 {
    _separator = sep;
 }

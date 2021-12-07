@@ -88,7 +88,7 @@ TEST(dms_unittest, parse_out_of_range)
 
 TEST(dms_unittest, output_variations)
 {
-   geodesy::Dms::set_separator("");
+   geodesy::Dms::setSeparator("");
    EXPECT_EQ(geodesy::Dms::toDms(9.1525),                         "009.1525°");
    EXPECT_EQ(geodesy::Dms::toDms(9.1525, geodesy::Dms::D),        "009.1525°");
    EXPECT_EQ(geodesy::Dms::toDms(9.1525, geodesy::Dms::DM),       "009°09.15′");
@@ -124,7 +124,7 @@ TEST(dms_unittest, compass_points)
 TEST(dms_unittest, misc)
 {
    //needs to align separator
-   geodesy::Dms::set_separator("");
+   geodesy::Dms::setSeparator("");
    EXPECT_EQ(geodesy::Dms::toLat(51.2, geodesy::Dms::DMS),              "51°12′00″N");
    EXPECT_EQ(geodesy::Dms::toLat(51.19999999999999, geodesy::Dms::DM),  "51°12.00′N");
    EXPECT_EQ(geodesy::Dms::toLat(51.19999999999999, geodesy::Dms::DMS), "51°12′00″N");

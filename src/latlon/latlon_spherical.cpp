@@ -29,6 +29,7 @@
 #include "latlon_spherical.h"
 
 #include <algorithm.h>
+#include <iostream>
 
 #include "vector3d.h"
 #include "algorithm.h"
@@ -163,7 +164,7 @@ LatLonSpherical LatLonSpherical::intersection(const LatLonSpherical& p1, double 
    // angular distance p1-p2
    const auto delta12 = 2 * std::asin(std::sqrt(std::sin(DELTAphi / 2) * std::sin(DELTAphi / 2)
       + std::cos(phi1) * std::cos(phi2) * std::sin(DELTAlambda / 2) * std::sin(DELTAlambda / 2)));
-   if (std::abs(delta12) < std::numeric_limits<double>::epsilon()) 
+   if (std::abs(delta12) < std::numeric_limits<double>::epsilon())
    {
       return { p1.lat(), p1.lon() }; // coincident points
    }

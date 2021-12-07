@@ -34,11 +34,13 @@ add_subdirectory(dms)
 add_subdirectory(utils)
 add_subdirectory(latlon)
 add_subdirectory(vector)
+add_subdirectory(utm)
 
 add_dependencies(dms LINK_HEADERS)
 add_dependencies(utils LINK_HEADERS)
 add_dependencies(latlon LINK_HEADERS)
 add_dependencies(vector LINK_HEADERS)
+add_dependencies(utm LINK_HEADERS)
 
 add_library(
 	${PROJECT_NAME} STATIC
@@ -46,6 +48,7 @@ add_library(
 	$<TARGET_OBJECTS:utils>
 	$<TARGET_OBJECTS:latlon>
 	$<TARGET_OBJECTS:vector>
+	$<TARGET_OBJECTS:utm>
 )
 
 install(

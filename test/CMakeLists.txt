@@ -79,6 +79,7 @@ set(TEST_LIST
 		latlon_unittest
 		latlon_spherical_unittest
 		latlon_ellipsoidal_unittest
+		latlon_ellipsoidal_datum_unittest
 		vector3d_unittest
 )
 

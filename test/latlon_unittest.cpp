@@ -35,7 +35,7 @@
 
 TEST(latlon_unittest, examples)
 {
-   geodesy::Dms::set_separator(""); // tests are easier without any DMS separator
+   geodesy::Dms::setSeparator(""); // tests are easier without any DMS separator
 
    EXPECT_EQ(geodesy::LatLon(52.205, 0.119).toString(),                          "52.2050°N, 000.1190°E");
    EXPECT_EQ(geodesy::LatLon::parse(52.205, 0.119).toString(),                   "52.2050°N, 000.1190°E");

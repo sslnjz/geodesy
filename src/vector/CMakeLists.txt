@@ -32,6 +32,7 @@ project(vector)
 set(SRC
 		"ned.cpp"
 		"cartesian.cpp"
+		"cartesian_datum.cpp"
 		"nvector_ellipsoidal.cpp"
 		"nvector_spherical.cpp"
 		"nvector_cartesian.cpp"

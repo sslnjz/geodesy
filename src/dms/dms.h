@@ -67,8 +67,8 @@ namespace geodesy
        *   Dms.separator = '';                                // no separator
        *   const pʹ = new LatLon(51.2, 0.33).toString('dms'); // 51°12′00″N, 000°19′48″E
        */
-      static std::string get_separator();
-      static void set_separator(const std::string& sep);
+      static std::string separator();
+      static void setSeparator(const std::string& sep);
 
       /**
        * Parses string representing degrees/minutes/seconds into numeric degrees.

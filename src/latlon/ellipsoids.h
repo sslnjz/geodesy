@@ -35,6 +35,8 @@
 #include <string>
 #include <optional>
 
+#include "algorithm.h"
+
 namespace geodesy
 {
    /*
@@ -42,21 +44,26 @@ namespace geodesy
    */
    struct Ellipsoid
    {
-      double a{ 0.0 };
-      double b{ 0.0 };
-      double f{ 0.0 };
+      double a{ epsilon };
+      double b{ epsilon };
+      double f{ epsilon };
 
       inline bool operator==(const Ellipsoid& rhs) const
       {
-          return std::fabs(a- rhs.a) <= std::numeric_limits<double>::epsilon() &&
-            std::fabs(b- rhs.b) <= std::numeric_limits<double>::epsilon() &&
-            std::fabs(f- rhs.f) <= std::numeric_limits<double>::epsilon();
+          return std::fabs(a- rhs.a) <= epsilon &&
+            std::fabs(b- rhs.b) <= epsilon &&
+            std::fabs(f- rhs.f) <= epsilon;
       }
 
-       inline bool operator!=(const Ellipsoid& rhs) const
-       {
-          return !(*this == rhs);
-       }
+      inline bool operator!=(const Ellipsoid& rhs) const
+      {
+      	return !(*this == rhs);
+      }
+
+      operator bool() const
+      {
+         return !essentiallyEqual(a, epsilon) && !essentiallyEqual(b, epsilon) && !essentiallyEqual(f, epsilon);
+      }
    };
 
    /*
@@ -114,6 +121,17 @@ namespace geodesy
 
          return *this;
       }
+
+      operator bool() const
+      {
+         return !essentiallyEqual(tx, epsilon) &&
+                !essentiallyEqual(ty, epsilon) &&
+                !essentiallyEqual(tz, epsilon) &&
+                !essentiallyEqual(s , epsilon) &&
+                !essentiallyEqual(rx, epsilon) &&
+                !essentiallyEqual(ry, epsilon) &&
+                !essentiallyEqual(rz, epsilon);
+      }
    };
    struct Datum
    {
@@ -129,6 +147,11 @@ namespace geodesy
       {
          return !(*this == d);
       }
+
+      operator bool() const
+      {
+         return ellipsoid && transforms;
+      }
    };
 
    /*
@@ -138,7 +161,7 @@ namespace geodesy
    {
       Datum ED50       { g_ellipsoids.Intl1924,      {   89.5,    93.8,    123.1,    -1.2,     0.0,      0.0,      0.156    } };
       Datum ETRS89     { g_ellipsoids.GRS80,         {    0,       0,        0,       0,       0,        0,        0        } };
-      Datum rl1975     { g_ellipsoids.AiryModified,  { -482.530, 130.596, -564.557,  -8.150,   1.042,    0.214,    0.631    } };
+      Datum Irl1975     { g_ellipsoids.AiryModified,  { -482.530, 130.596, -564.557,  -8.150,   1.042,    0.214,    0.631    } };
       Datum NAD27      { g_ellipsoids.Clarke1866,    {    8,    -160,     -176,       0,       0,        0,        0        } };
       Datum NAD83      { g_ellipsoids.GRS80,         {    0.9956, -1.9103,  -0.5215, -0.00062, 0.025915, 0.009426, 0.011599 } };
       Datum NTF        { g_ellipsoids.Clarke1880IGN, {  168,      60,     -320,       0,       0,        0,        0        } };

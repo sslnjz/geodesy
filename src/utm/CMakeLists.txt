@@ -1,4 +1,4 @@
-﻿# /**********************************************************************************
+# /**********************************************************************************
 # *  MIT License                                                                    *
 # *                                                                                 *
 # *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -27,18 +27,12 @@
 # *  SOFTWARE.                                                                      *
 # ***********************************************************************************/
 cmake_minimum_required(VERSION 3.20)
-project(latlon)
+project(utm)
 
 set(SRC
-		"latlon.cpp"
-		"latlon_utm.cpp"
-		"latlon_spherical.cpp"
-		"latlon_ellipsoidal.cpp"
-		"latlon_nvector_spherical.cpp"
-		"latlon_nvector_ellipsoidal.cpp"
-		"latlon_ellipsoidal_vincenty.cpp"
-		"latlon_ellipsoidal_referenceframe.cpp"
-		"latlon_ellipsoidal_datum.cpp"
+		"utm.cpp"
+		"mgrs.cpp"
+		"utm_mgrs.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})

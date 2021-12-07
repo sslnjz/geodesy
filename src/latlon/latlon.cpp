@@ -28,12 +28,14 @@
 ***********************************************************************************/
 
 #include "latlon.h"
-#include "dms.h"
-#include "strutil.h"
 
 #include <cmath>
 #include <sstream>
 #include <iomanip>
+
+#include "dms.h"
+#include "strutil.h"
+
 
 using namespace geodesy;
 

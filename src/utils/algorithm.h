@@ -35,7 +35,7 @@
 #include <string>
 #include <sstream>
 // π
-constexpr auto pi = (3.141592653589793116);
+constexpr auto pi = (3.1415926535897931);
 constexpr auto epsilon = std::numeric_limits<double>::epsilon();
 
 namespace geodesy
@@ -60,7 +60,7 @@ namespace geodesy
     */
    [[maybe_unused]] static double toDegrees(double radians)
    {
-       return radians * 180 / pi;
+       return radians * 180.000 / pi;
    }
 
    /**
