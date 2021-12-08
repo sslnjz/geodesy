@@ -102,6 +102,13 @@ namespace geodesy
        */
       CartesianDatum applyTransform(Transform t) const;
 
+      /**
+       * String representation of vector.
+       *
+       * @param   {number} [dp=3] - Number of decimal places to be used.
+       * @returns {string} Vector represented as [x,y,z].
+       */
+      [[nodiscard]] std::string toString(int dp = 0) const override;
 
    private:
       Datum m_datum;

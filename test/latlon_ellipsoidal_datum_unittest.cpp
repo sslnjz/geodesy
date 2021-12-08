@@ -60,34 +60,34 @@ TEST(latlon_ellipsoidal_datum_unittest, convert_datum_Greenwich)
    EXPECT_EQ(greenwichOSGB36.convertDatum(LEDatum::datums().WGS84).toString(geodesy::Dms::D, 5), "51.47788°N, 000.00147°W");
 }
 
-//TEST(latlon_ellipsoidal_datum_unittest, convert_datum_Petroleum_Operations_Notices)
-//{
-//   // https://www.gov.uk/guidance/oil-and-gas-petroleum-operations-notices#test-point-using-osgb-petroleum-transformation-parameters
-//   EXPECT_EQ(LEDatum(53, 1, 50).convertDatum(LEDatum::datums().OSGB36).toString(geodesy::Dms::DMS, 3, 2), "52°59′58.719″N, 001°00′06.490″E +3.99m");
-//   // https://www.gov.uk/guidance/oil-and-gas-petroleum-operations-notices#test-point-using-common-offshore-transformation-parameters
-//   EXPECT_EQ(LEDatum(53, 1, 50).convertDatum(LEDatum::datums().ED50).toString(geodesy::Dms::DMS, 3, 2), "53°00′02.887″N, 001°00′05.101″E +2.72m");
-//   EXPECT_EQ(LEDatum(53, 1, 50).convertDatum(LEDatum::datums().OSGB36)
-//      .convertDatum(LEDatum::datums().ED50)
-//      .convertDatum(LEDatum::datums().WGS84).toString(geodesy::Dms::D, 4, 1), "53.0000°N, 001.0000°E +50.0m");
-//}
-//
-//TEST(latlon_ellipsoidal_datum_unittest, equals)
-//{
-//   const auto p1 = LEDatum(51.47788, -0.00147, 1, LEDatum::datums().WGS84);
-//   const auto p2 = LEDatum(51.47788, -0.00147, 1, LEDatum::datums().WGS84);
-//   EXPECT_TRUE(p1 == p2);
-//   EXPECT_TRUE(p1.equals(p2));
-//   EXPECT_FALSE(p1.equals(LEDatum(0, -0.00147, 1, LEDatum::datums().WGS84)));
-//   EXPECT_FALSE(p1.equals(LEDatum(51.47788, 0, 1, LEDatum::datums().WGS84)));
-//   EXPECT_FALSE(p1.equals(LEDatum(51.47788, -0.00147, 99, LEDatum::datums().WGS84)));
-//   EXPECT_FALSE(p1.equals(LEDatum(51.47788, -0.00147, 1, LEDatum::datums().Irl1975)));
-//}
+TEST(latlon_ellipsoidal_datum_unittest, convert_datum_Petroleum_Operations_Notices)
+{
+   // https://www.gov.uk/guidance/oil-and-gas-petroleum-operations-notices#test-point-using-osgb-petroleum-transformation-parameters
+   EXPECT_EQ(LEDatum(53, 1, 50).convertDatum(LEDatum::datums().OSGB36).toString(geodesy::Dms::DMS, 3, 2), "52°59′58.719″N, 001°00′06.490″E +3.99m");
+   // https://www.gov.uk/guidance/oil-and-gas-petroleum-operations-notices#test-point-using-common-offshore-transformation-parameters
+   EXPECT_EQ(LEDatum(53, 1, 50).convertDatum(LEDatum::datums().ED50).toString(geodesy::Dms::DMS, 3, 2), "53°00′02.887″N, 001°00′05.101″E +2.72m");
+   EXPECT_EQ(LEDatum(53, 1, 50).convertDatum(LEDatum::datums().OSGB36)
+      .convertDatum(LEDatum::datums().ED50)
+      .convertDatum(LEDatum::datums().WGS84).toString(geodesy::Dms::D, 4, 1), "53.0000°N, 001.0000°E +50.0m");
+}
 
-//   describe('cartesian', function() {
-//      const p = LatLon.parse('45N, 45E');
-//      test('toCartesian', () => p.toCartesian().toString().should.equal('[3194419,3194419,4487348]'));
-//      const c = new Cartesian(3194419, 3194419, 4487348);
-//      test('toLatLon', () => c.toLatLon().toString().should.equal('45.0000°N, 045.0000°E'));
-//      test('toLatLon fail', () => should.Throw(function() { c.toLatLon('xx'); }, TypeError, 'unrecognised datum ‘xx’'));
-//   });
+TEST(latlon_ellipsoidal_datum_unittest, equals)
+{
+   const auto p1 = LEDatum(51.47788, -0.00147, 1, LEDatum::datums().WGS84);
+   const auto p2 = LEDatum(51.47788, -0.00147, 1, LEDatum::datums().WGS84);
+   EXPECT_TRUE(p1 == p2);
+   EXPECT_TRUE(p1.equals(p2));
+   EXPECT_FALSE(p1.equals(LEDatum(0, -0.00147, 1, LEDatum::datums().WGS84)));
+   EXPECT_FALSE(p1.equals(LEDatum(51.47788, 0, 1, LEDatum::datums().WGS84)));
+   EXPECT_FALSE(p1.equals(LEDatum(51.47788, -0.00147, 99, LEDatum::datums().WGS84)));
+   EXPECT_FALSE(p1.equals(LEDatum(51.47788, -0.00147, 1, LEDatum::datums().Irl1975)));
+}
+
+TEST(latlon_ellipsoidal_datum_unittest, cartesian)
+{
+   const auto p = LEDatum::parse("45N, 45E");
+   EXPECT_EQ(p.toCartesian().toString(), "[3194419,3194419,4487348]");
+   auto c = geodesy::CartesianDatum(3194419, 3194419, 4487348);
+   EXPECT_EQ(c.toLatLon().toString(), "45.0000°N, 045.0000°E");
+}
 

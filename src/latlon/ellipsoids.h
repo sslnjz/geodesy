@@ -85,13 +85,13 @@ namespace geodesy
 
    struct Transform
    {
-      double tx{ 0.0 };
-      double ty{ 0.0 };
-      double tz{ 0.0 };
-      double s { 0.0 };
-      double rx{ 0.0 };
-      double ry{ 0.0 };
-      double rz{ 0.0 };
+      double tx{ epsilon };
+      double ty{ epsilon };
+      double tz{ epsilon };
+      double s { epsilon };
+      double rx{ epsilon };
+      double ry{ epsilon };
+      double rz{ epsilon };
 
       inline bool operator==(const Transform& rhs) const
       {

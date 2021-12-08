@@ -73,7 +73,7 @@ CartesianDatum CartesianDatum::convertDatum(Datum toDatum)
    if (!m_datum)
       throw std::runtime_error("cartesian coordinate has no datum");
 
-   CartesianDatum* oldCartesian;
+   CartesianDatum* oldCartesian = nullptr;
    Transform transform;
 
    if (m_datum == g_datums.WGS84)
@@ -121,6 +121,11 @@ CartesianDatum CartesianDatum::applyTransform(Transform t) const
    const auto z2 = tz - x1*ry + y1*rx + z1*s;
 
    return CartesianDatum(x2, y2, z2);
+}
+
+std::string CartesianDatum::toString(int dp) const
+{
+   return vector3d::toString(dp);
 }
 
 
