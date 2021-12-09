@@ -168,7 +168,7 @@ std::string LatLon::toString(Dms::eFormat e,  std::optional<int> dp) const
       if (dp == std::nullopt) dp = 4;
       std::stringstream ss;
       ss << std::fixed << std::setprecision(*dp);
-      ss << m_lat << "," << m_lon;
+      ss << m_lat << ", " << m_lon;
       return ss.str();
    }
 
@@ -179,7 +179,7 @@ std::string LatLon::toGeoJSON() const
 {
    std::stringstream ss;
    ss << std::setprecision(9);
-   ss << "{ type: \"Point\", coordinates : [";
+   ss << "{ type: \"Point\", coordinates: [";
    ss << m_lon << ", " << m_lat;
    ss << "] }";
 

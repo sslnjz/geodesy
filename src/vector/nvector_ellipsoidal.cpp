@@ -45,7 +45,7 @@ std::string NvectorEllipsoidal::toString(int dp, std::optional<int> dph)
         ssh << "+" << std::setprecision(dph.value_or(0)) << m_h << "m";
     }
     std::stringstream ss;
-    ss << "[" << std::setprecision(dp) << x() << "," << y() << "," << z() << "]"
+    ss << "[" << std::setprecision(dp) << x() << ", " << y() << ", " << z() << "]"
         << (bool(dph) ? ssh.str() : "");
     return ss.str();
 }

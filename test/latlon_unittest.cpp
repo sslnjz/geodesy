@@ -49,7 +49,7 @@ TEST(latlon_unittest, examples)
    const auto greenwich = geodesy::LatLon(51.47788, -0.00147);
    EXPECT_EQ(greenwich.toString(),                       "51.4779°N, 000.0015°W");
    EXPECT_EQ(greenwich.toString(geodesy::Dms::DMS, 2),   "51°28′40.37″N, 000°00′05.29″W");
-   EXPECT_EQ(greenwich.toString(geodesy::Dms::N),        "51.4779,-0.0015");
+   EXPECT_EQ(greenwich.toString(geodesy::Dms::N),        "51.4779, -0.0015");
 }
 
 TEST(latlon_unittest, constructor_with_strings)
@@ -109,13 +109,13 @@ TEST(latlon_unittest, toString)
    EXPECT_EQ(btTower.toString(geodesy::Dms::D, 6),    "51.521470°N, 000.138833°W");
    EXPECT_EQ(btTower.toString(geodesy::Dms::DM, 4),   "51°31.2882′N, 000°08.3300′W");
    EXPECT_EQ(btTower.toString(geodesy::Dms::DMS, 2),  "51°31′17.29″N, 000°08′19.80″W");
-   EXPECT_EQ(btTower.toString(geodesy::Dms::N),       "51.5215,-0.1388");
-   EXPECT_EQ(btTower.toString(geodesy::Dms::N, 6),    "51.521470,-0.138833");
+   EXPECT_EQ(btTower.toString(geodesy::Dms::N),       "51.5215, -0.1388");
+   EXPECT_EQ(btTower.toString(geodesy::Dms::N, 6),    "51.521470, -0.138833");
 }
 
 TEST(latlon_unittest, misc)
 {
    EXPECT_TRUE(geodesy::LatLon(52.205, 0.119) == geodesy::LatLon(52.205, 0.119));
    EXPECT_FALSE(geodesy::LatLon(52.206, 0.119) == geodesy::LatLon(52.205, 0.119));
-   EXPECT_EQ(geodesy::LatLon(52.205, 0.119).toGeoJSON(), "{ type: \"Point\", coordinates : [0.119, 52.205] }");
+   EXPECT_EQ(geodesy::LatLon(52.205, 0.119).toGeoJSON(), "{ type: \"Point\", coordinates: [0.119, 52.205] }");
 };

@@ -86,7 +86,7 @@ TEST(latlon_ellipsoidal_datum_unittest, equals)
 TEST(latlon_ellipsoidal_datum_unittest, cartesian)
 {
    const auto p = LEDatum::parse("45N, 45E");
-   EXPECT_EQ(p.toCartesian().toString(), "[3194419,3194419,4487348]");
+   EXPECT_EQ(p.toCartesian().toString(), "[3194419, 3194419, 4487348]");
    auto c = geodesy::CartesianDatum(3194419, 3194419, 4487348);
    EXPECT_EQ(c.toLatLon().toString(), "45.0000°N, 045.0000°E");
 }
