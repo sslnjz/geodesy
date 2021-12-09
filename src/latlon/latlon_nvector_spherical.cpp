@@ -41,6 +41,11 @@ LatLonNvectorSpherical::LatLonNvectorSpherical(double lat, double lon)
 {
 }
 
+LatLonNvectorSpherical::LatLonNvectorSpherical(const std::string& lat, const std::string& lon)
+   : LatLon(lat, lon)
+{
+}
+
 NvectorSpherical LatLonNvectorSpherical::toNvector() const
 {
    const auto phi = toRadians(m_lat);
@@ -75,7 +80,7 @@ double LatLonNvectorSpherical::distanceTo(const LatLonNvectorSpherical& point, d
    const auto R = radius;
 
    const auto n1 = toNvector();
-   const auto n2 = toNvector();
+   const auto n2 = point.toNvector();
 
    const auto sintheta = n1.cross(n2).length();
    const auto costheta = n1.dot(n2);
@@ -145,7 +150,7 @@ LatLonNvectorSpherical LatLonNvectorSpherical::intermediatePointOnChordTo(const 
 {
    const auto n1 = toNvector();
    const auto n2 = point.toNvector();
-   const auto inter = (n1 + (n2 -n1)) * fraction; // n₁ + (n₂−n₁)·f ≡ n₁·(1-f) + n₂·f
+   const auto inter = (n1 + (n2 -n1) * fraction) ; // n₁ + (n₂−n₁)·f ≡ n₁·(1-f) + n₂·f
 
    return NvectorSpherical(inter.x(), inter.y(), inter.z()).toLatLon();
 }
@@ -174,13 +179,45 @@ LatLonNvectorSpherical LatLonNvectorSpherical::destinationPoint(double distance,
    return NvectorSpherical(n2.x(), n2.y(), n2.z()).toLatLon();
 }
 
+auto intersection_helper(const NvectorSpherical& p1, const NvectorSpherical& p2, const vector3d& c1, const vector3d& c2)
+{
+   // c1 & c2 are vectors defining great circles through start & end points; p × c gives initial bearing vector
+   const auto i1 = c1.cross(c2);
+   const auto i2 = c2.cross(c1);
+
+   // if c×p⋅i1 is +ve, the initial bearing is towards i1, otherwise towards antipodal i2
+   const auto dir1 = sign(c1.cross(p1).dot(i1)); // c1×p1⋅i1 +ve means p1 bearing points to i1
+   const auto dir2 = sign(c2.cross(p2).dot(i1)); // c2×p2⋅i1 +ve means p2 bearing points to i1
+
+   vector3d intersection{};
+   switch (dir1 + dir2)
+   {
+   case  2: // dir1, dir2 both +ve, 1 & 2 both pointing to i1
+      intersection = i1;
+      break;
+   case -2: // dir1, dir2 both -ve, 1 & 2 both pointing to i2
+      intersection = i2;
+      break;
+   case  0: // dir1, dir2 opposite; intersection is at further-away intersection point
+       // take opposite intersection from mid-point of p1 & p2 [is this always true?]
+      intersection = (p1 + p2).dot(i1) > 0 ? i2 : i1;
+      break;
+   default:
+      break;
+   }
+
+   return NvectorSpherical(intersection.x(), intersection.y(), intersection.z()).toLatLon();
+}
+
 LatLonNvectorSpherical LatLonNvectorSpherical::intersection(
    const LatLonNvectorSpherical& path1start,
    const LatLonNvectorSpherical& path1brngEnd,
    const LatLonNvectorSpherical& path2start,
    const LatLonNvectorSpherical& path2brngEnd)
 {
-
+   if (path1start.equals(path2start))
+      return LatLonNvectorSpherical(path1start.lat(), path2start.lon()); // coincident points
+   
    // if c1 & c2 are great circles through start and end points (or defined by start point + bearing),
    // then candidate intersections are simply c1 × c2 & c2 × c1; most of the work is deciding correct
    // intersection point to select! if bearing is given, that determines which intersection, if both
@@ -197,50 +234,66 @@ LatLonNvectorSpherical LatLonNvectorSpherical::intersection(
    const auto i2 = c2.cross(c1);
 
    const auto mid = p1 + p2 + path1brngEnd.toNvector() + path2brngEnd.toNvector(); // eslint-disable-line no-case-declarations
-   const auto intersec = mid.dot(i1) > 0 ? i1 : i2;
-   return NvectorSpherical(intersec.x(), intersec.y(), intersec.z()).toLatLon();
+   const auto intersection = mid.dot(i1) > 0 ? i1 : i2;
+   return NvectorSpherical(intersection .x(), intersection .y(), intersection .z()).toLatLon();
 }
 
 LatLonNvectorSpherical LatLonNvectorSpherical::intersection(const LatLonNvectorSpherical& path1start,
    double path1brngEnd, const LatLonNvectorSpherical& path2start, double path2brngEnd)
 {
+   if (path1start.equals(path2start)) 
+      return LatLonNvectorSpherical(path1start.lat(), path2start.lon()); // coincident points
+
+   if (std::isnan(path1brngEnd) || std::isnan(path2brngEnd))
+      throw std::invalid_argument("invalid pathbrngEnd");
+
    // if c1 & c2 are great circles through start and end points (or defined by start point + bearing),
    // then candidate intersections are simply c1 × c2 & c2 × c1; most of the work is deciding correct
    // intersection point to select! if bearing is given, that determines which intersection, if both
    // paths are defined by start/end points, take closer intersection
-
    const auto p1 = path1start.toNvector();
    const auto p2 = path2start.toNvector();
 
    const vector3d c1 = path1start.greatCircle(path1brngEnd);
    const vector3d c2 = path2start.greatCircle(path2brngEnd);
 
-   // c1 & c2 are vectors defining great circles through start & end points; p × c gives initial bearing vector
-   const auto i1 = c1.cross(c2);
-   const auto i2 = c2.cross(c1);
+   return intersection_helper(p1, p2, c1, c2);
+}
 
-   // if c×p⋅i1 is +ve, the initial bearing is towards i1, otherwise towards antipodal i2
-   const auto dir1 = sign(c1.cross(p1).dot(i1)); // c1×p1⋅i1 +ve means p1 bearing points to i1
-   const auto dir2 = sign(c2.cross(p2).dot(i1)); // c2×p2⋅i1 +ve means p2 bearing points to i1
+LatLonNvectorSpherical LatLonNvectorSpherical::intersection(const LatLonNvectorSpherical& path1start,
+   const LatLonNvectorSpherical& path1brngEnd, const LatLonNvectorSpherical& path2start, double path2brngEnd)
+{
+   if (path1start.equals(path2start))
+      return LatLonNvectorSpherical(path1start.lat(), path2start.lon()); // coincident points
 
-   vector3d intersec{};
-   switch (dir1 + dir2)
-   {
-   case  2: // dir1, dir2 both +ve, 1 & 2 both pointing to i1
-      intersec = i1;
-      break;
-   case -2: // dir1, dir2 both -ve, 1 & 2 both pointing to i2
-      intersec = i2;
-      break;
-   case  0: // dir1, dir2 opposite; intersection is at further-away intersection point
-       // take opposite intersection from mid-point of p1 & p2 [is this always true?]
-      intersec = (p1 + p2).dot(i1) > 0 ? i2 : i1;
-      break;
-   default: 
-      break;
-   }
+   if (std::isnan(path2brngEnd))
+      throw std::invalid_argument("invalid path2brngEnd");
 
-   return NvectorSpherical(intersec.x(), intersec.y(), intersec.z()).toLatLon();
+   const auto p1 = path1start.toNvector();
+   const auto p2 = path2start.toNvector();
+
+   const vector3d c1 = p1.cross(path1brngEnd.toNvector());
+   const vector3d c2 = path2start.greatCircle(path2brngEnd);
+
+   return intersection_helper(p1, p2, c1, c2);
+}
+
+LatLonNvectorSpherical LatLonNvectorSpherical::intersection(const LatLonNvectorSpherical& path1start,
+   double path1brngEnd, const LatLonNvectorSpherical& path2start, const LatLonNvectorSpherical& path2brngEnd)
+{
+   if (path1start.equals(path2start))
+      return LatLonNvectorSpherical(path1start.lat(), path2start.lon()); // coincident points
+
+   if (std::isnan(path1brngEnd))
+      throw std::invalid_argument("invalid path1brngEnd");
+
+   const auto p1 = path1start.toNvector();
+   const auto p2 = path2start.toNvector();
+
+   const vector3d c1 = path1start.greatCircle(path1brngEnd);
+   const vector3d c2 = p2.cross(path2brngEnd.toNvector());
+
+   return intersection_helper(p1, p2, c1, c2);
 }
 
 double LatLonNvectorSpherical::crossTrackDistanceTo(const LatLonNvectorSpherical& pathStart,
@@ -255,8 +308,8 @@ double LatLonNvectorSpherical::crossTrackDistanceTo(const LatLonNvectorSpherical
    return alpha * radius;
 }
 
-double LatLonNvectorSpherical::crossTrackDistanceTo(const LatLonNvectorSpherical& pathStart, double pathBrngEnd,
-   double radius) const
+double LatLonNvectorSpherical::crossTrackDistanceTo(const LatLonNvectorSpherical& pathStart, 
+   double pathBrngEnd,double radius) const
 {
    if (equals(pathStart)) return 0;
 
@@ -392,11 +445,13 @@ bool LatLonNvectorSpherical::isEnclosedBy(std::vector<LatLonNvectorSpherical>& p
 
    // get vectors from p to each vertex
    std::vector<vector3d> vectorToVertex;
-   for (size_t v = 0; v < nVertices; ++v) 
-   {
-      vectorToVertex[v] = (p - polygon[v].toNvector());
-   }
-   vectorToVertex.push_back(vectorToVertex[0]);
+   std::transform(polygon.begin(), polygon.end() - 1, 
+      std::back_inserter(vectorToVertex), 
+      [&p](auto& item)
+      {
+         return p - item.toNvector();
+      });
+   vectorToVertex.emplace_back(vectorToVertex[0]);
 
    // sum subtended angles of each edge (using vector p to determine sign)
    double SIGMAtheta = 0.0;
@@ -450,9 +505,9 @@ double LatLonNvectorSpherical::areaOf(std::vector<LatLonNvectorSpherical> &polyg
     {
         const auto i = polygon[v].toNvector();
         const auto j = polygon[v+1].toNvector();
-        c[v] = i.cross(j); // great circle for segment v..v+1
+        c.emplace_back(i.cross(j)); // great circle for segment v..v+1
     }
-    c.push_back(c[0]);
+    c.emplace_back(c[0]);
 
     // sum interior angles; depending on whether polygon is cw or ccw, angle between edges is
     // π−α or π+α, where α is angle between great-circle vectors; so sum α, then take n·π − |Σα|

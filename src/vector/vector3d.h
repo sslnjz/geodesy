@@ -252,7 +252,7 @@ namespace geodesy
       [[nodiscard]] virtual std::string toString(int dp = 3) const
       {
          std::stringstream ss;
-         ss << std::fixed << std::setprecision(dp) << "[" << vx << "," << vy << "," << vz << "]";
+         ss << std::fixed << std::setprecision(dp) << "[" << vx << ", " << vy << ", " << vz << "]";
          return ss.str();
       }
 

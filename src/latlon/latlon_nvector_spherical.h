@@ -31,6 +31,7 @@
 
 #include "dms.h"
 #include "latlon.h"
+#include "nvector_spherical.h"
 
 namespace geodesy
 {
@@ -41,6 +42,7 @@ namespace geodesy
    public:
       LatLonNvectorSpherical();
       LatLonNvectorSpherical(double lat, double lon);
+      LatLonNvectorSpherical(const std::string& lat, const std::string& lon);
 
 
       /**
@@ -191,30 +193,65 @@ namespace geodesy
        *   const p2 = new LatLon(49.0034, 2.5735), brng2 =  32.44;
        *   const pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9076°N, 004.5086°E
        */
-      static LatLonNvectorSpherical intersection(const LatLonNvectorSpherical& path1start,
-                                                 const LatLonNvectorSpherical& path1brngEnd,
-                                                 const LatLonNvectorSpherical& path2start,
-                                                 const LatLonNvectorSpherical& path2brngEnd);
+      static LatLonNvectorSpherical intersection(const LatLonNvectorSpherical& path1start, const LatLonNvectorSpherical& path1brngEnd,
+         const LatLonNvectorSpherical& path2start, const LatLonNvectorSpherical& path2brngEnd);
+
 
       /**
        * Returns the point of intersection of two paths each defined by point pairs or start point and bearing.
        *
        * @param   {LatLon}        path1start - Start point of first path.
-       * @param   {number}        path1brngEnd - initial bearing from first start point.
+       * @param   {LatLon} path1brngEnd - End point of first path.
        * @param   {LatLon}        path2start - Start point of second path.
-       * @param   {number}        path2brngEnd - initial bearing from second start point.
+       * @param   {LatLon} path2brngEnd - End point of second path.
        * @returns {LatLon}        Destination point (null if no unique intersection defined)
        * @throws  {TypeError}     Invalid parameter.
        *
        * @example
-       *   const auto p1 = new LatLon(51.8853, 108.55);
-       *   const auto p2 = new LatLon(49.0034, 32.44);
-       *   const auto pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9076°N, 004.5086°E
+       *   const p1 = new LatLon(51.8853, 0.2545), brng1 = 108.55;
+       *   const p2 = new LatLon(49.0034, 2.5735), brng2 =  32.44;
+       *   const pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9076°N, 004.5086°E
        */
-      static LatLonNvectorSpherical intersection(const LatLonNvectorSpherical& path1start, 
-                                                 double path1brngEnd,
-                                                 const LatLonNvectorSpherical& path2start,
-                                                 double path2brngEnd);
+      static LatLonNvectorSpherical intersection(const LatLonNvectorSpherical& path1start, double path1brngEnd,
+         const LatLonNvectorSpherical& path2start, double path2brngEnd);
+
+
+      /**
+       * Returns the point of intersection of two paths each defined by point pairs or start point and bearing.
+       *
+       * @param   {LatLon}        path1start - Start point of first path.
+       * @param   {LatLon} path1brngEnd - End point of first path.
+       * @param   {LatLon}        path2start - Start point of second path.
+       * @param   {LatLon} path2brngEnd - End point of second path.
+       * @returns {LatLon}        Destination point (null if no unique intersection defined)
+       * @throws  {TypeError}     Invalid parameter.
+       *
+       * @example
+       *   const p1 = new LatLon(51.8853, 0.2545), brng1 = 108.55;
+       *   const p2 = new LatLon(49.0034, 2.5735), brng2 =  32.44;
+       *   const pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9076°N, 004.5086°E
+       */
+      static LatLonNvectorSpherical intersection(const LatLonNvectorSpherical& path1start, const LatLonNvectorSpherical& path1brngEnd,
+         const LatLonNvectorSpherical& path2start, double path2brngEnd);
+
+
+      /**
+       * Returns the point of intersection of two paths each defined by point pairs or start point and bearing.
+       *
+       * @param   {LatLon}        path1start - Start point of first path.
+       * @param   {LatLon} path1brngEnd - End point of first path.
+       * @param   {LatLon}        path2start - Start point of second path.
+       * @param   {LatLon} path2brngEnd - End point of second path.
+       * @returns {LatLon}        Destination point (null if no unique intersection defined)
+       * @throws  {TypeError}     Invalid parameter.
+       *
+       * @example
+       *   const p1 = new LatLon(51.8853, 0.2545), brng1 = 108.55;
+       *   const p2 = new LatLon(49.0034, 2.5735), brng2 =  32.44;
+       *   const pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9076°N, 004.5086°E
+       */
+      static LatLonNvectorSpherical intersection(const LatLonNvectorSpherical& path1start, double path1brngEnd,
+         const LatLonNvectorSpherical& path2start, const LatLonNvectorSpherical& path2brngEnd);
 
       /**
        * Returns (signed) distance from ‘this’ point to great circle defined by start-point and end-point/bearing.
@@ -389,8 +426,6 @@ namespace geodesy
       *   const p = LatLon.meanOf([ new LatLon(1, 1), new LatLon(4, 2), new LatLon(1, 3) ]); // 02.0001°N, 002.0000°E
       */
       static LatLonNvectorSpherical meanOf(const std::vector<LatLonNvectorSpherical>& points);
-
-   private:
 
       /**
        * Returns whether this point is within the extent of a line segment joining point 1 & point 2.

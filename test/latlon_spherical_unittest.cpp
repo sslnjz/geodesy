@@ -92,29 +92,29 @@ TEST(latlon_spherical_unittest, dist_brng_dest_fails)
 
 TEST(latlon_spherical_unittest, intersection)
 {
-//   const double N = 0, E = 90, S = 180, W = 270;
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 0), E).toString(), "00.9998°N, 001.0000°E");
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), E, geodesy::LatLonSpherical(0, 1), N).toString(), "00.9998°N, 001.0000°E");
-//   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(2, 1), N, geodesy::LatLonSpherical(1, 0), E), std::runtime_error);
-//   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 0), W), std::runtime_error);
-//   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), W, geodesy::LatLonSpherical(0, 1), N), std::runtime_error);
-//   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), S, geodesy::LatLonSpherical(1, 0), E), std::runtime_error);
-//   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), E, geodesy::LatLonSpherical(0, 1), S), std::runtime_error);
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), S, geodesy::LatLonSpherical(1, 0), W).toString(), "00.9998°S, 179.0000°W");
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), W, geodesy::LatLonSpherical(0, 1), S).toString(), "00.9998°S, 179.0000°W");
-//
-//   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 90), E), std::runtime_error);
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 92), E).toString(), "00.0175°N, 179.0000°W");
-//
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 1), N, geodesy::LatLonSpherical(1, 1), E).toString(), "01.0000°N, 001.0000°E");
-//
-//   const auto stn = geodesy::LatLonSpherical(51.8853, 0.2545), cdg = geodesy::LatLonSpherical(49.0034, 2.5735);
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(stn, 108.547, cdg, 32.435).toString(), "50.9078°N, 004.5084°E");
-//
-//   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(51, 0), 120, geodesy::LatLonSpherical(50, 0), 60).toString(), "50.4921°N, 001.3612°E");
+   const double N = 0, E = 90, S = 180, W = 270;
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 0), E).toString(), "00.9998°N, 001.0000°E");
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), E, geodesy::LatLonSpherical(0, 1), N).toString(), "00.9998°N, 001.0000°E");
+   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(2, 1), N, geodesy::LatLonSpherical(1, 0), E), std::runtime_error);
+   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 0), W), std::runtime_error);
+   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), W, geodesy::LatLonSpherical(0, 1), N), std::runtime_error);
+   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), S, geodesy::LatLonSpherical(1, 0), E), std::runtime_error);
+   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), E, geodesy::LatLonSpherical(0, 1), S), std::runtime_error);
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), S, geodesy::LatLonSpherical(1, 0), W).toString(), "00.9998°S, 179.0000°W");
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 0), W, geodesy::LatLonSpherical(0, 1), S).toString(), "00.9998°S, 179.0000°W");
+
+   EXPECT_THROW(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 90), E), std::runtime_error);
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 92), E).toString(), "00.0175°N, 179.0000°W");
+
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(1, 1), N, geodesy::LatLonSpherical(1, 1), E).toString(), "01.0000°N, 001.0000°E");
+
+   const auto stn = geodesy::LatLonSpherical(51.8853, 0.2545), cdg = geodesy::LatLonSpherical(49.0034, 2.5735);
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(stn, 108.547, cdg, 32.435).toString(), "50.9078°N, 004.5084°E");
+
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(51, 0), 120, geodesy::LatLonSpherical(50, 0), 60).toString(), "50.4921°N, 001.3612°E");
 
    //TODO: Windows OK, MAC failed, needs check
-   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.69660413755630000, 18.28125), 179.9999999999999432, geodesy::LatLonSpherical(89, 180), 180).toString(), "90.0000°S, 163.9902°W");
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.6966041375563, 18.28125), 179.99999999999994, geodesy::LatLonSpherical(89, 180), 180).toString(), "90.0000°S, 163.9902°W");
 }
 
 TEST(latlon_spherical_unittest, cross_track_along_track)
