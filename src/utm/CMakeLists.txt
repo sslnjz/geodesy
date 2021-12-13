@@ -33,6 +33,7 @@ set(SRC
 		"utm.cpp"
 		"mgrs.cpp"
 		"utm_mgrs.cpp"
+		"osgridref.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})

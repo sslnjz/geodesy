@@ -51,14 +51,14 @@ TEST(vector3d_unittest, methods)
    EXPECT_EQ(v123.cross(v321), geodesy::vector3d(-4, 8, -4));
    EXPECT_EQ(v123.negate(), geodesy::vector3d(-1, -2, -3));
    EXPECT_EQ(v123.length(), 3.7416573867739413);
-   EXPECT_EQ(v123.unit().toString(), "[0.267,0.535,0.802]");
+   EXPECT_EQ(v123.unit().toString(), "[0.267, 0.535, 0.802]");
    EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321)), 3), "44.415");
    EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321, v123.cross(v321))), 3), "44.415");
    EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321, v321.cross(v123))), 3), "-44.415");
    EXPECT_EQ(geodesy::toFixed(geodesy::toDegrees(v123.angleTo(v321, v123)), 3), "44.415");
-   EXPECT_EQ(v123.rotateAround(geodesy::vector3d(0, 0, 1), 90).toString(), "[-0.535,0.267,0.802]");
-   EXPECT_EQ(v123.toString(), "[1.000,2.000,3.000]");
-   EXPECT_EQ(v123.toString(6), "[1.000000,2.000000,3.000000]");
+   EXPECT_EQ(v123.rotateAround(geodesy::vector3d(0, 0, 1), 90).toString(), "[-0.535, 0.267, 0.802]");
+   EXPECT_EQ(v123.toString(), "[1.000, 2.000, 3.000]");
+   EXPECT_EQ(v123.toString(6), "[1.000000, 2.000000, 3.000000]");
 }
 
 TEST(vector3d_unittest, operators)

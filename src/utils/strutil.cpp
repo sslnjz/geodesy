@@ -94,6 +94,62 @@ std::vector<std::string> strutil::split_regex(const std::string& str, const std:
 	return res;
 }
 
+std::string strutil::padRight(const std::string& data, const size_t& totalWidth, const char& padding)
+{
+   if (data.length() >= totalWidth)
+   {
+      return data;
+   }
+   std::string ret = data;
+   ret.resize(totalWidth, padding);
+   return ret;
+}
+
+std::string strutil::padLeft(const std::string& data, const size_t& totalWidth, const char& padding)
+{
+   if (data.length() >= totalWidth)
+   {
+      return data;
+   }
+   std::string ret = data;
+   ret.insert(0, totalWidth - ret.length(), padding);
+   return ret;
+}
+
+std::string strutil::padRight(const std::string& data, const size_t& totalWidth, const std::string& padding)
+{
+   if (data.length() >= totalWidth)
+   {
+      return data;
+   }
+   size_t modulo = (totalWidth - data.length()) % padding.length();
+   size_t paddingUnits = (totalWidth - data.length()) / padding.length();
+   std::string ret = data;
+   for (size_t i = 0; i < paddingUnits; i++)
+   {
+      ret.append(padding);
+   }
+   ret.append(padding.substr(0, modulo));
+   return ret;
+}
+
+std::string strutil::padLeft(const std::string& data, const size_t& totalWidth, const std::string& padding)
+{
+   if (data.length() >= totalWidth)
+   {
+      return data;
+   }
+   size_t modulo = (totalWidth - data.length()) % padding.length();
+   size_t paddingUnits = (totalWidth - data.length()) / padding.length();
+   std::string ret = data;
+   for (size_t i = 0; i < paddingUnits; i++)
+   {
+      ret.insert(0, padding);
+   }
+   ret.insert(0, padding.substr(0, modulo));
+   return ret;
+}
+
 std::string strutil::strip(const std::string& str)
 {
 	std::string res;

@@ -32,6 +32,7 @@ project(latlon)
 set(SRC
 		"latlon.cpp"
 		"latlon_utm.cpp"
+		"latlon_osgridref.cpp"
 		"latlon_spherical.cpp"
 		"latlon_ellipsoidal.cpp"
 		"latlon_nvector_spherical.cpp"

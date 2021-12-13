@@ -26,31 +26,70 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
-#ifndef STRUTIL_H
-#define STRUTIL_H
+#ifndef LATLON_OSGRIDREF_H
+#define LATLON_OSGRIDREF_H
 
-#include <string>
-#include <vector>
+#include "latlon_ellipsoidal_datum.h"
+#include "ellipsoids.h"
 
 namespace geodesy
 {
-   class strutil
+   static const struct _nationalGrid
+   {
+      inline static const struct _originGrid  // true origin of grid 49°N,2°W on OSGB36 datum
+      {
+         double lat;
+         double lon;
+      } &trueOrigin = *new _originGrid { 49, -2.0 };
+
+      inline static const struct _falseOrign  // easting & northing of false origin, metres from true origin
+      {
+         double easting;
+         double northing;
+      } &falseOrigin = *new _falseOrign {-400e3, 100e3};
+
+      double scaleFactor = 0.9996012717;      // scale factor on central meridian
+      Ellipsoid ellipsoid = LatLonEllipsoidalDatum::ellipsoids().Airy1830;
+
+   } &nationalGrid = *new _nationalGrid;
+   // note Irish National Grid uses t/o 53°30′N, 8°W, f/o 200kmW, 250kmS, scale factor 1.000035, on Airy 1830 Modified ellipsoid
+
+   class OsGridRef;
+   class LatLonOsGridRef : public LatLonEllipsoidalDatum
    {
    public:
-      static std::string strip(const std::string& str);
-      static bool start_with(const std::string& str, const std::string& prefix);
-      static bool ends_with(const std::string& str, const std::string& suffix);
+      /**
+       * Creates a geodetic latitude/longitude point on a (WGS84) ellipsoidal model earth.
+       *
+       * @param {number} lat - Latitude (in degrees).
+       * @param {number} lon - Longitude (in degrees).
+       * @param {Datum}  datum - optional datum
+       * @param {number} [height=0] - Height above ellipsoid in metres.
+       *
+       * @example
+       *   const auto p = new LatLonEllipsoidal(51.47788, -0.00147, 17);
+       */
+      LatLonOsGridRef(double lat, double lon, double height = 0.0,
+         std::optional<Datum> datum = std::nullopt);
+      ~LatLonOsGridRef() override = default;
 
-      static std::vector<std::string> split(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_filter_empty(const std::string& str, wchar_t sep);
-      static std::vector<std::string> split_regex(const std::string& str, const std::string& sep);
+      /**
+       * Converts latitude/longitude to Ordnance Survey grid reference easting/northing coordinate.
+       *
+       * @returns {OsGridRef} OS Grid Reference easting/northing.
+       *
+       * @example
+       *   const grid = new LatLon(52.65798, 1.71605).toOsGrid(); // TG 51409 13177
+       *   // for conversion of (historical) OSGB36 latitude/longitude point:
+       *   const grid = new LatLon(52.65798, 1.71605).toOsGrid(LatLon.datums.OSGB36);
+       */
+      OsGridRef toOsGrid();
 
-      static std::string padLeft(const std::string& data, const size_t& totalWidth, const char& padding);
-      static std::string padLeft(const std::string& data, const size_t& totalWidth, const std::string& padding);
-      static std::string padRight(const std::string& data, const size_t& totalWidth, const char& padding);
-      static std::string padRight(const std::string& data, const size_t& totalWidth, const std::string& padding);
+      /**
+       * Override LatLonEllipsoidal.convertDatum() with version which returns LatLon_OsGridRef.
+       */
+      LatLonOsGridRef convertDatum(const Datum& toDatum) const;
    };
 }
 
-
-#endif // STRUTIL_H
+#endif // LATLON_OSGRIDREF_H
