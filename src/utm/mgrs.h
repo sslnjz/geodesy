@@ -1,4 +1,4 @@
-/**********************************************************************************
+﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -40,10 +40,10 @@ namespace geodesy
    /*
     * Latitude bands C..X 8° each, covering 80°S to 84°N
     */
-   const inline std::string latBands = "CDEFGHJKLMNPQRSTUVWXX"; // X is repeated for 80-84��N
+   const inline std::string latBands = "CDEFGHJKLMNPQRSTUVWXX"; // X is repeated for 80-84°N
 
    /*
-    * 100km grid square column (‘e’) letters repeat every third zone
+    * 100km grid square column ('e') letters repeat every third zone
     */
    const inline std::string e100kLetters[] = 
    {
@@ -53,7 +53,7 @@ namespace geodesy
    };
 
    /*
-    * 100km grid square row (‘n’) letters repeat every other zone
+    * 100km grid square row ('n') letters repeat every other zone
     */
    const inline std::string n100kLetters[2] = {
       "ABCDEFGHJKLMNPQRSTUV",
@@ -66,7 +66,7 @@ namespace geodesy
     * covering the entire globe, based on UTM projections.
     *
     * MGRS references comprise a grid zone designator, a 100km square identification, and an easting
-    * and northing (in metres); e.g. ‘31U DQ 48251 11932’.
+    * and northing (in metres); e.g. '31U DQ 48251 11932'.
     *
     * Depending on requirements, some parts of the reference may be omitted (implied), and
     * eastings/northings may be given to varying resolution.
