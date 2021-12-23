@@ -2,6 +2,7 @@
 
 #include "utm_mgrs.h"
 #include "latlon_utm.h"
+#include "strutil.h"
 
 using namespace geodesy;
 
@@ -68,4 +69,21 @@ UtmMgrs Mgrs::toUtm()
    while (n2M + n100kNum + m_northing < nBand) n2M += 2000e3;
 
    return UtmMgrs(m_zone, hemisphere, e100kNum + m_easting, n2M + n100kNum + m_northing, m_datum);
+}
+
+std::string Mgrs::toString(unsigned int digits)
+{
+   if ( digits > 10 || (digits % 2) + 1 == 2 )
+      throw std::range_error("invalid precision");
+
+   // truncate to required precision
+   const auto eRounded = std::floor(m_easting/std::pow(10, 5-digits/2));
+   const auto nRounded = std::floor(m_northing/std::pow(10, 5-digits/2));
+
+   // ensure leading zeros
+   const auto zPadded = strutil::padLeft(std::to_string(m_zone), 2, '0');
+   const auto ePadded = strutil::padLeft(std::to_string(eRounded), digits/2, '0');
+   const auto nPadded = strutil::padLeft(std::to_string(nRounded), digits/2, '0');
+
+   return zPadded + m_band + " " + m_e100k + m_n100k + " " + ePadded + " " + nPadded;
 }

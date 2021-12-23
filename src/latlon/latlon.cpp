@@ -36,7 +36,6 @@
 #include "dms.h"
 #include "strutil.h"
 
-
 using namespace geodesy;
 
 LatLon::LatLon() noexcept

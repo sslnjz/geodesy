@@ -35,7 +35,25 @@ using LatLonE = geodesy::LatLonEllipsoidal;
 using LEDatum = geodesy::LatLonEllipsoidalDatum;
 using CDatum = geodesy::CartesianDatum;
 
-TEST(latlon_ellipsoidal_datum_unittest, examples)
+class latlon_ellipsoidal_datum_unittest : public testing::Test
+{
+protected:
+   void SetUp() override
+   {
+      geodesy::Dms::setSeparator("");
+
+   }
+
+   void TearDown() override
+   {
+
+   }
+
+   const double R = 6371e3;
+};
+
+
+TEST_F(latlon_ellipsoidal_datum_unittest, examples)
 {
    geodesy::Dms::setSeparator("");
    EXPECT_EQ(LEDatum(53.3444, -6.2577, 17, LatLonE::datums().Irl1975)
@@ -46,12 +64,12 @@ TEST(latlon_ellipsoidal_datum_unittest, examples)
       .convertDatum(LEDatum::datums().OSGB36).toString(), "50.7971°N, 004.3612°E");
 }
 
-TEST(latlon_ellipsoidal_datum_unittest, getter)
+TEST_F(latlon_ellipsoidal_datum_unittest, getter)
 {
    EXPECT_NO_THROW(LEDatum::ellipsoids().WGS84);
 }
 
-TEST(latlon_ellipsoidal_datum_unittest, convert_datum_Greenwich)
+TEST_F(latlon_ellipsoidal_datum_unittest, convert_datum_Greenwich)
 {
    const auto greenwichWGS84 = LEDatum(51.47788, -0.00147); // default WGS84
    const auto greenwichOSGB36 = greenwichWGS84.convertDatum(LEDatum::datums().OSGB36);
@@ -60,7 +78,7 @@ TEST(latlon_ellipsoidal_datum_unittest, convert_datum_Greenwich)
    EXPECT_EQ(greenwichOSGB36.convertDatum(LEDatum::datums().WGS84).toString(geodesy::Dms::D, 5), "51.47788°N, 000.00147°W");
 }
 
-TEST(latlon_ellipsoidal_datum_unittest, convert_datum_Petroleum_Operations_Notices)
+TEST_F(latlon_ellipsoidal_datum_unittest, convert_datum_Petroleum_Operations_Notices)
 {
    // https://www.gov.uk/guidance/oil-and-gas-petroleum-operations-notices#test-point-using-osgb-petroleum-transformation-parameters
    EXPECT_EQ(LEDatum(53, 1, 50).convertDatum(LEDatum::datums().OSGB36).toString(geodesy::Dms::DMS, 3, 2), "52°59′58.719″N, 001°00′06.490″E +3.99m");
@@ -71,7 +89,7 @@ TEST(latlon_ellipsoidal_datum_unittest, convert_datum_Petroleum_Operations_Notic
       .convertDatum(LEDatum::datums().WGS84).toString(geodesy::Dms::D, 4, 1), "53.0000°N, 001.0000°E +50.0m");
 }
 
-TEST(latlon_ellipsoidal_datum_unittest, equals)
+TEST_F(latlon_ellipsoidal_datum_unittest, equals)
 {
    const auto p1 = LEDatum(51.47788, -0.00147, 1, LEDatum::datums().WGS84);
    const auto p2 = LEDatum(51.47788, -0.00147, 1, LEDatum::datums().WGS84);
@@ -83,7 +101,7 @@ TEST(latlon_ellipsoidal_datum_unittest, equals)
    EXPECT_FALSE(p1.equals(LEDatum(51.47788, -0.00147, 1, LEDatum::datums().Irl1975)));
 }
 
-TEST(latlon_ellipsoidal_datum_unittest, cartesian)
+TEST_F(latlon_ellipsoidal_datum_unittest, cartesian)
 {
    const auto p = LEDatum::parse("45N, 45E");
    EXPECT_EQ(p.toCartesian().toString(), "[3194419, 3194419, 4487348]");

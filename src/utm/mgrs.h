@@ -38,12 +38,12 @@
 namespace geodesy
 {
    /*
-    * Latitude bands C..X 8¡ã each, covering 80¡ãS to 84¡ãN
+    * Latitude bands C..X 8Â° each, covering 80Â°S to 84Â°N
     */
-   const inline std::string latBands = "CDEFGHJKLMNPQRSTUVWXX"; // X is repeated for 80-84¡ãN
+   const inline std::string latBands = "CDEFGHJKLMNPQRSTUVWXX"; // X is repeated for 80-84ï¿½ï¿½N
 
    /*
-    * 100km grid square column (¡®e¡¯) letters repeat every third zone
+    * 100km grid square column (â€˜eâ€™) letters repeat every third zone
     */
    const inline std::string e100kLetters[] = 
    {
@@ -53,7 +53,7 @@ namespace geodesy
    };
 
    /*
-    * 100km grid square row (¡®n¡¯) letters repeat every other zone
+    * 100km grid square row (â€˜nâ€™) letters repeat every other zone
     */
    const inline std::string n100kLetters[2] = {
       "ABCDEFGHJKLMNPQRSTUV",
@@ -66,7 +66,7 @@ namespace geodesy
     * covering the entire globe, based on UTM projections.
     *
     * MGRS references comprise a grid zone designator, a 100km square identification, and an easting
-    * and northing (in metres); e.g. ¡®31U DQ 48251 11932¡¯.
+    * and northing (in metres); e.g. â€˜31U DQ 48251 11932â€™.
     *
     * Depending on requirements, some parts of the reference may be omitted (implied), and
     * eastings/northings may be given to varying resolution.
@@ -80,21 +80,21 @@ namespace geodesy
    {
    public:
       /**
-       * Creates an Mgrs grid reference object.
-       *
-       * @param  {number} zone - 6¡ã longitudinal zone (1..60 covering 180¡ãW..180¡ãE).
-       * @param  {string} band - 8¡ã latitudinal band (C..X covering 80¡ãS..84¡ãN).
-       * @param  {string} e100k - First letter (E) of 100km grid square.
-       * @param  {string} n100k - Second letter (N) of 100km grid square.
-       * @param  {number} easting - Easting in metres within 100km grid square.
-       * @param  {number} northing - Northing in metres within 100km grid square.
-       * @param  {LatLon.datums} [datum=WGS84] - Datum UTM coordinate is based on.
-       * @throws {RangeError}  Invalid MGRS grid reference.
-       *
-       * @example
-       *   import Mgrs from '/js/geodesy/mgrs.js';
-       *   const mgrsRef = new Mgrs(31, 'U', 'D', 'Q', 48251, 11932); // 31U DQ 48251 11932
-       */
+        * Creates an Mgrs grid reference object.
+        *
+        * @param  {number} zone - 6Â° longitudinal zone (1..60 covering 180Â°W..180Â°E).
+        * @param  {string} band - 8Â° latitudinal band (C..X covering 80Â°S..84Â°N).
+        * @param  {string} e100k - First letter (E) of 100km grid square.
+        * @param  {string} n100k - Second letter (N) of 100km grid square.
+        * @param  {number} easting - Easting in metres within 100km grid square.
+        * @param  {number} northing - Northing in metres within 100km grid square.
+        * @param  {LatLon.datums} [datum=WGS84] - Datum UTM coordinate is based on.
+        * @throws {RangeError}  Invalid MGRS grid reference.
+        *
+        * @example
+        *   import Mgrs from '/js/geodesy/mgrs.js';
+        *   const mgrsRef = new Mgrs(31, 'U', 'D', 'Q', 48251, 11932); // 31U DQ 48251 11932
+        */
       Mgrs(int zone, char band, char e100k, char n100k, double easting,
            double northing, Datum datum = LatLonEllipsoidal::datums().WGS84);
 
@@ -114,6 +114,29 @@ namespace geodesy
        */
       UtmMgrs toUtm();
 
+      /**
+        * Returns a string representation of an MGRS grid reference.
+        *
+        * To distinguish from civilian UTM coordinate representations, no space is included within the
+        * zone/band grid zone designator.
+        *
+        * Components are separated by spaces: for a military-style unseparated string, use
+        *   Mgrs.toString().replace(/ /g, '');
+        *
+        * Note that MGRS grid references get truncated, not rounded (unlike UTM coordinates); grid
+        * references indicate a bounding square, rather than a point, with the size of the square
+        * indicated by the precision - a precision of 10 indicates a 1-metre square, a precision of 4
+        * indicates a 1,000-metre square (hence 31U DQ 48 11 indicates a 1km square with SW corner at
+        * 31 N 448000 5411000, which would include the 1m square 31U DQ 48251 11932).
+        *
+        * @param   {number}     [digits=10] - Precision of returned grid reference (eg 4 = km, 10 = m).
+        * @returns {string}     This grid reference in standard format.
+        * @throws  {RangeError} Invalid precision.
+        *
+        * @example
+        *   const mgrsStr = new Mgrs(31, 'U', 'D', 'Q', 48251, 11932).toString(); // 31U DQ 48251 11932
+        */
+      std::string toString(unsigned digits=10);
 
    private:
       int m_zone;

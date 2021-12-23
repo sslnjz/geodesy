@@ -34,8 +34,24 @@
 #include "geodesy/latlon_spherical.h"
 #include "geodesy/algorithm.h"
 
+class latlon_spherical_unittest : public testing::Test
+{
+protected:
+   void SetUp() override
+   {
+      geodesy::Dms::setSeparator("");
 
-TEST(latlon_spherical_unittest, constructor)
+   }
+
+   void TearDown() override
+   {
+
+   }
+
+   const double R = 6371e3;
+};
+
+TEST_F(latlon_spherical_unittest, constructor)
 {
    EXPECT_EQ(geodesy::toFixed(geodesy::LatLonSpherical(52.205, 0.119).distanceTo(geodesy::LatLonSpherical(48.857, 2.351))), "404279");
    EXPECT_EQ(geodesy::toFixed(geodesy::LatLonSpherical(52.205, 0.119).distanceTo(geodesy::LatLonSpherical(48.857, 2.351), 3959), 1), "251.2");
@@ -57,7 +73,7 @@ TEST(latlon_spherical_unittest, constructor)
    EXPECT_EQ(geodesy::toExponential(geodesy::LatLonSpherical::areaOf(vec), 2), "6.18e+09");
 }
 
-TEST(latlon_spherical_unittest, alternate_point_formats)
+TEST_F(latlon_spherical_unittest, alternate_point_formats)
 {
    const auto cambg = geodesy::LatLonSpherical(52.205, 0.119);
    EXPECT_EQ(geodesy::toExponential(cambg.distanceTo(geodesy::LatLonSpherical(48.857, 2.351)), 3), "4.043e+05");
@@ -65,7 +81,7 @@ TEST(latlon_spherical_unittest, alternate_point_formats)
    EXPECT_EQ(geodesy::toExponential(cambg.distanceTo(geodesy::LatLonSpherical("48°51′25.2″N", "002°21′03.6″E")), 3), "4.043e+05");
 }
 
-TEST(latlon_spherical_unittest, dist_brng_dest)
+TEST_F(latlon_spherical_unittest, dist_brng_dest)
 {
    const auto cambg = geodesy::LatLonSpherical(52.205, 0.119), paris = geodesy::LatLonSpherical(48.857, 2.351);
    EXPECT_EQ(geodesy::toExponential(cambg.distanceTo(paris), 3), "4.043e+05");
@@ -84,13 +100,13 @@ TEST(latlon_spherical_unittest, dist_brng_dest)
    EXPECT_EQ(greenwich.destinationPoint(dist, brng, 6371e3).toString(), "51.5136°N, 000.0983°W");
 }
 
-TEST(latlon_spherical_unittest, dist_brng_dest_fails)
+TEST_F(latlon_spherical_unittest, dist_brng_dest_fails)
 {
    const auto cambg = geodesy::LatLonSpherical(52.205, 0.119), paris = geodesy::LatLonSpherical(48.857, 2.351);
    EXPECT_THROW(cambg.distanceTo({ "xxx", "xxx" }), std::invalid_argument);
 };
 
-TEST(latlon_spherical_unittest, intersection)
+TEST_F(latlon_spherical_unittest, intersection)
 {
    const double N = 0, E = 90, S = 180, W = 270;
    EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(0, 1), N, geodesy::LatLonSpherical(1, 0), E).toString(), "00.9998°N, 001.0000°E");
@@ -117,7 +133,7 @@ TEST(latlon_spherical_unittest, intersection)
    EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.6966041375563, 18.28125), 179.99999999999994, geodesy::LatLonSpherical(89, 180), 180).toString(), "90.0000°S, 163.9902°W");
 }
 
-TEST(latlon_spherical_unittest, cross_track_along_track)
+TEST_F(latlon_spherical_unittest, cross_track_along_track)
 {
    EXPECT_EQ(geodesy::toExponential(geodesy::LatLonSpherical(10, 1).crossTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 3), "-1.112e+06");
 
@@ -141,7 +157,7 @@ TEST(latlon_spherical_unittest, cross_track_along_track)
    EXPECT_EQ(geodesy::LatLonSpherical(10, 0).alongTrackDistanceTo(geodesy::LatLonSpherical(10, 0), geodesy::LatLonSpherical(0, 2)), 0);
 }
 
-TEST(latlon_spherical_unittest, misc)
+TEST_F(latlon_spherical_unittest, misc)
 {
    EXPECT_EQ(geodesy::LatLonSpherical(0, 0).maxLatitude(0), 90);
    EXPECT_EQ(geodesy::LatLonSpherical(0, 0).maxLatitude(1), 89);
@@ -156,7 +172,7 @@ TEST(latlon_spherical_unittest, misc)
    EXPECT_EQ(geodesy::LatLonSpherical::crossingParallels(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 0), 0), empty);
 }
 
-TEST(latlon_spherical_unittest, area_polygon_based)
+TEST_F(latlon_spherical_unittest, area_polygon_based)
 {
    const auto epsilon = std::numeric_limits<double>::epsilon();
    const auto R = 6371e3;
@@ -185,7 +201,7 @@ TEST(latlon_spherical_unittest, area_polygon_based)
    EXPECT_EQ(geodesy::toFixed(geodesy::LatLonSpherical::areaOf(polyConcave)), "74042699236");
 }
 
-TEST(latlon_spherical_unittest, Ed_Williams)
+TEST_F(latlon_spherical_unittest, Ed_Williams)
 { // www.edwilliams.org/avform.htm
    const auto lax = geodesy::LatLonSpherical(geodesy::Dms::parse("33° 57′N"), geodesy::Dms::parse("118° 24′W"));
    const auto jfk = geodesy::LatLonSpherical(geodesy::Dms::parse("40° 38′N"), geodesy::Dms::parse("073° 47′W"));
@@ -205,7 +221,7 @@ TEST(latlon_spherical_unittest, Ed_Williams)
    EXPECT_EQ(geodesy::LatLonSpherical::intersection(reo, 51, bke, 137).toString(geodesy::Dms::D, 3), "43.572°N, 116.189°W");
 }
 
-TEST(latlon_spherical_unittest, rhumb_lines)
+TEST_F(latlon_spherical_unittest, rhumb_lines)
 {
    const auto dov = geodesy::LatLonSpherical(51.127, 1.338), cal = geodesy::LatLonSpherical(50.964, 1.853);
    EXPECT_EQ(geodesy::toPrecision(dov.rhumbDistanceTo(cal), 4), "4.031e+04");

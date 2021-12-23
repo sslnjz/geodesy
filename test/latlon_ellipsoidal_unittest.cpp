@@ -32,13 +32,29 @@
 #include "geodesy/algorithm.h"
 
 using LatLonE = geodesy::LatLonEllipsoidal;
+class latlon_ellipsoidal_unittest : public testing::Test
+{
+protected:
+   void SetUp() override
+   {
+      geodesy::Dms::setSeparator("");
 
-TEST(latlon_ellipsoidal_unittest, constructor)
+   }
+
+   void TearDown() override
+   {
+
+   }
+
+   const double R = 6371e3;
+};
+
+TEST_F(latlon_ellipsoidal_unittest, constructor)
 {
    EXPECT_EQ(LatLonE(51.47788, -0.00147, 17).toString(geodesy::Dms::D, 4, 2), "51.4779°N, 000.0015°W +17.00m");
 }
 
-TEST(latlon_ellipsoidal_unittest, parse)
+TEST_F(latlon_ellipsoidal_unittest, parse)
 {
    EXPECT_EQ(LatLonE::parse(51.47788, -0.00147).toString(), "51.4779°N, 000.0015°W");
    EXPECT_EQ(LatLonE::parse("51°28′40″N, 000°00′05″W", 17).toString(), "51.4778°N, 000.0014°W");
@@ -55,7 +71,7 @@ TEST(latlon_ellipsoidal_unittest, parse)
    EXPECT_EQ(LatLonE::parse("51.47788, -0.00147", 99).toString(geodesy::Dms::D, 4, 0),"51.4779°N, 000.0015°W +99m");
 }
 
-TEST(latlon_ellipsoidal_unittest, toString)
+TEST_F(latlon_ellipsoidal_unittest, toString)
 {
    EXPECT_EQ(LatLonE(1, -2).toString(), "01.0000°N, 002.0000°W");
    EXPECT_EQ(LatLonE(1, -2).toString(geodesy::Dms::D), "01.0000°N, 002.0000°W");
@@ -81,7 +97,7 @@ TEST(latlon_ellipsoidal_unittest, toString)
    EXPECT_EQ(LatLonE(1, -2, -99).toString(geodesy::Dms::N, 6, 2), "1.000000, -2.000000 -99.00m");
 }
 
-TEST(latlon_ellipsoidal_unittest, getters_setters)
+TEST_F(latlon_ellipsoidal_unittest, getters_setters)
 {
    auto p = LatLonE(51.47788, -0.00147, 99);
    EXPECT_DOUBLE_EQ(p.lat(), (51.47788));

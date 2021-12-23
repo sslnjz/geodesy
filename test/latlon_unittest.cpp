@@ -33,10 +33,25 @@
 #include "geodesy/latlon.h"
 #include "geodesy/dms.h"
 
-TEST(latlon_unittest, examples)
+class latlon_unittest : public testing::Test
 {
-   geodesy::Dms::setSeparator(""); // tests are easier without any DMS separator
+protected:
+   void SetUp() override
+   {
+      geodesy::Dms::setSeparator("");
 
+   }
+
+   void TearDown() override
+   {
+
+   }
+
+   const double R = 6371e3;
+};
+
+TEST_F(latlon_unittest, examples)
+{
    EXPECT_EQ(geodesy::LatLon(52.205, 0.119).toString(),                          "52.2050°N, 000.1190°E");
    EXPECT_EQ(geodesy::LatLon::parse(52.205, 0.119).toString(),                   "52.2050°N, 000.1190°E");
    EXPECT_EQ(geodesy::LatLon::parse("52.205", "0.119").toString(),               "52.2050°N, 000.1190°E");
@@ -52,25 +67,25 @@ TEST(latlon_unittest, examples)
    EXPECT_EQ(greenwich.toString(geodesy::Dms::N),        "51.4779, -0.0015");
 }
 
-TEST(latlon_unittest, constructor_with_strings)
+TEST_F(latlon_unittest, constructor_with_strings)
 {
    EXPECT_EQ(geodesy::LatLon("52.205", "0.119"), geodesy::LatLon(52.205, 0.119));
 }
 
-TEST(latlon_unittest, constructor_fail)
+TEST_F(latlon_unittest, constructor_fail)
 {
    EXPECT_THROW(geodesy::LatLon("x", "x"), std::invalid_argument);
    EXPECT_THROW(geodesy::LatLon("x", "x"), std::invalid_argument);
 };
 
-TEST(latlon_unittest, parse_fail)
+TEST_F(latlon_unittest, parse_fail)
 {
    EXPECT_THROW(geodesy::LatLon::parse("cam", "bridge"), std::invalid_argument);
    EXPECT_THROW(geodesy::LatLon::parse("cambridge"),     std::invalid_argument);
    EXPECT_THROW(geodesy::LatLon::parse(NAN, NAN), std::invalid_argument);
 }
 
-TEST(latlon_unittest, getters_setters)
+TEST_F(latlon_unittest, getters_setters)
 {
    auto camb = geodesy::LatLon();
    //camb.lat = camb.latitude = "52° 12′ 18″ N";
@@ -92,7 +107,7 @@ TEST(latlon_unittest, getters_setters)
    EXPECT_NEAR(camb.longitude(), 0.119,  0.001);
 }
 
-TEST(latlon_unittest, setters_fail)
+TEST_F(latlon_unittest, setters_fail)
 {
    auto camb = geodesy::LatLon(0, 0);
    EXPECT_THROW(camb.setLat("xxx"),       std::invalid_argument);
@@ -102,7 +117,7 @@ TEST(latlon_unittest, setters_fail)
    EXPECT_THROW(camb.setLongitude("xxx"), std::invalid_argument);
 };
 
-TEST(latlon_unittest, toString)
+TEST_F(latlon_unittest, toString)
 {
    const auto btTower = geodesy::LatLon(51.521470, -0.138833);
    EXPECT_EQ(btTower.toString(),                      "51.5215°N, 000.1388°W");
@@ -113,7 +128,7 @@ TEST(latlon_unittest, toString)
    EXPECT_EQ(btTower.toString(geodesy::Dms::N, 6),    "51.521470, -0.138833");
 }
 
-TEST(latlon_unittest, misc)
+TEST_F(latlon_unittest, misc)
 {
    EXPECT_TRUE(geodesy::LatLon(52.205, 0.119) == geodesy::LatLon(52.205, 0.119));
    EXPECT_FALSE(geodesy::LatLon(52.206, 0.119) == geodesy::LatLon(52.205, 0.119));

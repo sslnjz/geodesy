@@ -32,7 +32,24 @@
 
 #include "geodesy/dms.h"
 
-TEST(dms_unittest, _0_)
+class dms_unittest : public testing::Test
+{
+protected:
+   void SetUp() override
+   {
+      geodesy::Dms::setSeparator("");
+
+   }
+
+   void TearDown() override
+   {
+
+   }
+
+   const double R = 6371e3;
+};
+
+TEST_F(dms_unittest, _0_)
 {
     EXPECT_EQ(0, geodesy::Dms::parse("0.0°"));
     EXPECT_EQ(0, geodesy::Dms::parse("0°"));
@@ -46,7 +63,7 @@ TEST(dms_unittest, _0_)
     EXPECT_EQ(geodesy::Dms::toDms(0, geodesy::Dms::DMS, 2), "000°00′00.00″");
 }
 
-TEST(dms_unittest, parse_variations)
+TEST_F(dms_unittest, parse_variations)
 {
    const std::string variations[] = {
          "45.76260",
@@ -78,7 +95,7 @@ TEST(dms_unittest, parse_variations)
    EXPECT_DOUBLE_EQ(45.76260, geodesy::Dms::parse(" 45°45′45.36″ "));
 }
 
-TEST(dms_unittest, parse_out_of_range)
+TEST_F(dms_unittest, parse_out_of_range)
 {
    EXPECT_DOUBLE_EQ(geodesy::Dms::parse("185"), 185);
    EXPECT_DOUBLE_EQ(geodesy::Dms::parse("365"), 365);
@@ -86,9 +103,8 @@ TEST(dms_unittest, parse_out_of_range)
    EXPECT_DOUBLE_EQ(geodesy::Dms::parse("-365"), -365);
 }
 
-TEST(dms_unittest, output_variations)
+TEST_F(dms_unittest, output_variations)
 {
-   geodesy::Dms::setSeparator("");
    EXPECT_EQ(geodesy::Dms::toDms(9.1525),                         "009.1525°");
    EXPECT_EQ(geodesy::Dms::toDms(9.1525, geodesy::Dms::D),        "009.1525°");
    EXPECT_EQ(geodesy::Dms::toDms(9.1525, geodesy::Dms::DM),       "009°09.15′");
@@ -100,7 +116,7 @@ TEST(dms_unittest, output_variations)
    EXPECT_EQ(geodesy::Dms::toDms(9.1525, geodesy::Dms::D, 6),     "009.152500°");
 }
 
-TEST(dms_unittest, compass_points)
+TEST_F(dms_unittest, compass_points)
 {
    EXPECT_EQ(geodesy::Dms::compassPoint(1),      "N");
    EXPECT_EQ(geodesy::Dms::compassPoint(0),      "N");
@@ -121,10 +137,8 @@ TEST(dms_unittest, compass_points)
    EXPECT_THROW(geodesy::Dms::compassPoint(0, 0), std::range_error);
 }
 
-TEST(dms_unittest, misc)
+TEST_F(dms_unittest, misc)
 {
-   //needs to align separator
-   geodesy::Dms::setSeparator("");
    EXPECT_EQ(geodesy::Dms::toLat(51.2, geodesy::Dms::DMS),              "51°12′00″N");
    EXPECT_EQ(geodesy::Dms::toLat(51.19999999999999, geodesy::Dms::DM),  "51°12.00′N");
    EXPECT_EQ(geodesy::Dms::toLat(51.19999999999999, geodesy::Dms::DMS), "51°12′00″N");
@@ -141,7 +155,7 @@ TEST(dms_unittest, misc)
    EXPECT_EQ(geodesy::Dms::fromLocale("51°28′40.12″N, 000°00′05.31″W"), "51°28′40.12″N, 000°00′05.31″W");
 }
 
-TEST(dms_unittest, parse_failures)
+TEST_F(dms_unittest, parse_failures)
 {
    EXPECT_TRUE(std::isnan(geodesy::Dms::parse("0 0 0 0")));
    EXPECT_TRUE(std::isnan(geodesy::Dms::parse("xxx")));
@@ -149,7 +163,7 @@ TEST(dms_unittest, parse_failures)
 }
 
 
-TEST(dms_unittest, wrap360)
+TEST_F(dms_unittest, wrap360)
 {
    EXPECT_EQ(geodesy::Dms::wrap360(-450),270);
    EXPECT_EQ(geodesy::Dms::wrap360(-405),315);
@@ -174,7 +188,7 @@ TEST(dms_unittest, wrap360)
    EXPECT_EQ(geodesy::Dms::wrap360(450),90);
 }
 
-TEST(dms_unittest, wrap180)
+TEST_F(dms_unittest, wrap180)
 {
    EXPECT_EQ(geodesy::Dms::wrap180(-450),  -90);
    EXPECT_EQ(geodesy::Dms::wrap180(-405),  -45);
@@ -200,7 +214,7 @@ TEST(dms_unittest, wrap180)
 }
 
 
-TEST(dms_unittest, wrap90)
+TEST_F(dms_unittest, wrap90)
 {
    EXPECT_EQ(geodesy::Dms::wrap90(-450), -90);
    EXPECT_EQ(geodesy::Dms::wrap90(-405), -45);
