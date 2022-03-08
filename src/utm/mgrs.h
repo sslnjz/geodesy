@@ -115,6 +115,26 @@ namespace geodesy
       UtmMgrs toUtm();
 
       /**
+     * Parses string representation of MGRS grid reference.
+     *
+     * An MGRS grid reference comprises (space-separated)
+     *  - grid zone designator (GZD)
+     *  - 100km grid square letter-pair
+     *  - easting
+     *  - northing.
+     *
+     * @param   {string} mgrsGridRef - String representation of MGRS grid reference.
+     * @returns {Mgrs}   Mgrs grid reference object.
+     * @throws  {Error}  Invalid MGRS grid reference.
+     *
+     * @example
+     *   const mgrsRef = Mgrs.parse('31U DQ 48251 11932');
+     *   const mgrsRef = Mgrs.parse('31UDQ4825111932');
+     *   //  mgrsRef: { zone:31, band:'U', e100k:'D', n100k:'Q', easting:48251, northing:11932 }
+     */
+      static Mgrs parse(const std::string& mgrsGridRef);
+
+      /**
         * Returns a string representation of an MGRS grid reference.
         *
         * To distinguish from civilian UTM coordinate representations, no space is included within the

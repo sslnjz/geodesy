@@ -87,3 +87,48 @@ std::string Mgrs::toString(unsigned int digits)
 
    return zPadded + m_band + " " + m_e100k + m_n100k + " " + ePadded + " " + nPadded;
 }
+
+Mgrs Mgrs::parse(const std::string &mgrsGridRef)
+{
+   if (mgrsGridRef.empty()) throw std::invalid_argument("invalid MGRS grid reference");
+
+   std::string mgrs = "";
+   // check for military-style grid reference with no separators
+   if (!strutil::strip(mgrsGridRef).empty()) {
+      try
+      {
+         double num = std::stod(mgrsGridRef.substr(0, 2));
+      }
+      catch (const std::invalid_argument& e)
+      {
+         throw std::invalid_argument("invalid MGRS grid reference");
+      }
+
+      auto en = strutil::strip(mgrsGridRef).substr(5); // get easting/northing following zone/band/100ksq
+      en = en.substr(0, en.length()/2)+' '+en.substr(-en.length()/2); // separate easting/northing
+      mgrs = mgrsGridRef.substr(0, 3)+' '+mgrsGridRef.substr(3, 5)+' '+en; // insert spaces
+   }
+
+   // match separate elements (separated by whitespace)
+   const auto ref = strutil::split(mgrs, ' ');
+   if (ref.empty() || ref.size() != 4)
+      throw std::invalid_argument("invalid MGRS grid reference");
+
+   // split gzd into zone/band
+   const auto gzd = ref[0];
+   const auto zone = gzd.substr(0, 2);
+   const auto band = gzd.substr(2, 3);
+
+   // split 100km letter-pair into e/n
+   const auto en100k = ref[1];
+   const auto e100k = en100k.substr(0, 1);
+   const auto n100k = en100k.substr(1, 2);
+
+   auto e = ref[2], n = ref[3];
+
+   // standardise to 10-digit refs - ie metres) (but only if < 10-digit refs, to allow decimals)
+   e = e.length()>=5 ?  e : (e+"00000").substr(0, 5);
+   n = n.length()>=5 ?  n : (n+"00000").substr(0, 5);
+
+   return Mgrs(std::stod(zone), std::stod(band), std::stod(e100k), std::stod(n100k), std::stod(e), std::stod(n));
+}

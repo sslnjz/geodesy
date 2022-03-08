@@ -113,7 +113,6 @@ add_subdirectory(src)
 add_subdirectory(test)
 
 ####CONFIG
-
 include(CMakePackageConfigHelpers)
 set(CONFIG_INC_DIR ${INC_DIR})
 set(CONFIG_LIB_DIR ${LIB_DIR})

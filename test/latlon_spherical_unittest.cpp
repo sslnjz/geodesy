@@ -130,7 +130,7 @@ TEST_F(latlon_spherical_unittest, intersection)
    EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(51, 0), 120, geodesy::LatLonSpherical(50, 0), 60).toString(), "50.4921°N, 001.3612°E");
 
    //TODO: Windows OK, MAC failed, needs check
-   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.6966041375563, 18.28125), 179.99999999999994, geodesy::LatLonSpherical(89, 180), 180).toString(), "90.0000°S, 163.9902°W");
+   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.6966041375563, 18.2812500000000), 179.99999999999994, geodesy::LatLonSpherical(89, 180), 180).toString(), "90.0000°S, 163.9902°W'");
 }
 
 TEST_F(latlon_spherical_unittest, cross_track_along_track)
