@@ -161,7 +161,7 @@ namespace geodesy
    {
       Datum ED50       { g_ellipsoids.Intl1924,      {   89.5,    93.8,    123.1,    -1.2,     0.0,      0.0,      0.156    } };
       Datum ETRS89     { g_ellipsoids.GRS80,         {    0,       0,        0,       0,       0,        0,        0        } };
-      Datum Irl1975     { g_ellipsoids.AiryModified,  { -482.530, 130.596, -564.557,  -8.150,   1.042,    0.214,    0.631    } };
+      Datum Irl1975    { g_ellipsoids.AiryModified,  { -482.530, 130.596, -564.557,  -8.150,   1.042,    0.214,    0.631    } };
       Datum NAD27      { g_ellipsoids.Clarke1866,    {    8,    -160,     -176,       0,       0,        0,        0        } };
       Datum NAD83      { g_ellipsoids.GRS80,         {    0.9956, -1.9103,  -0.5215, -0.00062, 0.025915, 0.009426, 0.011599 } };
       Datum NTF        { g_ellipsoids.Clarke1880IGN, {  168,      60,     -320,       0,       0,        0,        0        } };
@@ -213,18 +213,18 @@ namespace geodesy
     */
    static const struct ReferenceFrames
    {
-      ReferenceFrame ITRF2014  { "ITRF2014",   "2010.0", g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF2008  { "ITRF2008",   "2005.0", g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF2005  { "ITRF2005",   "2000.0", g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF2000  { "ITRF2000",   "1997.0", g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF93    { "ITRF93",     "1988.0", g_ellipsoids.GRS80 };
-      ReferenceFrame ITRF91    { "ITRF91",     "1988.0", g_ellipsoids.GRS80 };
-      ReferenceFrame WGS84g1762{ "WGS84g1762", "2005.0", g_ellipsoids.WGS84 };
-      ReferenceFrame WGS84g1674{ "WGS84g1674", "2005.0", g_ellipsoids.WGS84 };
-      ReferenceFrame WGS84g1150{ "WGS84g1150", "2001.0", g_ellipsoids.WGS84 };
-      ReferenceFrame ETRF2000  { "ETRF2000",   "2005.0", g_ellipsoids.GRS80 }; // ETRF2000(R08)
-      ReferenceFrame NAD83     { "NAD83",      "1997.0", g_ellipsoids.GRS80 }; // CORS96
-      ReferenceFrame GDA94     { "GDA94",      "1994.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2014   { "ITRF2014",   "2010.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2008   { "ITRF2008",   "2005.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2005   { "ITRF2005",   "2000.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF2000   { "ITRF2000",   "1997.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF93     { "ITRF93",     "1988.0", g_ellipsoids.GRS80 };
+      ReferenceFrame ITRF91     { "ITRF91",     "1988.0", g_ellipsoids.GRS80 };
+      ReferenceFrame WGS84g1762 { "WGS84g1762", "2005.0", g_ellipsoids.WGS84 };
+      ReferenceFrame WGS84g1674 { "WGS84g1674", "2005.0", g_ellipsoids.WGS84 };
+      ReferenceFrame WGS84g1150 { "WGS84g1150", "2001.0", g_ellipsoids.WGS84 };
+      ReferenceFrame ETRF2000   { "ETRF2000",   "2005.0", g_ellipsoids.GRS80 }; // ETRF2000(R08)
+      ReferenceFrame NAD83      { "NAD83",      "1997.0", g_ellipsoids.GRS80 }; // CORS96
+      ReferenceFrame GDA94      { "GDA94",      "1994.0", g_ellipsoids.GRS80 };
    } &g_reference_frames = *new ReferenceFrames;
 
 }
