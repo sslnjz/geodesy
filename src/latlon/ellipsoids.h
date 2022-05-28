@@ -171,6 +171,7 @@ namespace geodesy
       Datum WGS72      { g_ellipsoids.WGS72,         {    0,       0,       -4.5,    -0.22,    0,        0,        0.554    } };
       Datum WGS84      { g_ellipsoids.WGS84,         {    0.0,     0.0,      0.0,     0.0,     0.0,      0.0,      0.0      } };
    } &g_datums = *new Datums;
+
    /* sources:
     * - ED50:       www.gov.uk/guidance/oil-and-gas-petroleum-operations-notices#pon-4
     * - Irl1975:    www.osi.ie/wp-content/uploads/2015/05/transformations_booklet.pdf

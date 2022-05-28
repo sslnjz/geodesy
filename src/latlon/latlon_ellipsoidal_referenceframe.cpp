@@ -39,13 +39,13 @@ LatLonERF::LatLonEllipsoidalReferenceFrame(
     std::optional<std::string> epoch)
     : LatLonEllipsoidal(lat, lon, height)
 {
-    if (!referenceFrame || referenceFrame.value().epoch == std::nullopt)
+    if (!referenceFrame || !referenceFrame.value().epoch.has_value())
         throw std::runtime_error("unrecognized reference frame");
-    if (!epoch)
-        throw std::runtime_error("invalid epoch");
+    if (epoch && 0.0f == std::strtof(epoch.value().c_str(), nullptr) )
+        throw std::runtime_error("invalid epoch " + (epoch ? *epoch : ""));
 
     m_referenceFrame = referenceFrame;
-    m_epoch = epoch.value();
+    m_epoch = epoch;
 }
 
 std::optional<ReferenceFrame> LatLonERF::referenceFrame() const
