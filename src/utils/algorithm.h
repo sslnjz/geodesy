@@ -152,7 +152,12 @@ namespace geodesy
       return ss.str();
    }
 
-
+   /**
+    * Get a Exponential of a double
+    * @param {value} value to convert
+    * @param {p} precision
+    * @return
+    */
    [[maybe_unused]] static std::string toExponential(double value, int p = 0)
    {
       std::stringstream ss;
