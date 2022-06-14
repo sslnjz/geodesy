@@ -1,3 +1,5 @@
 geodesy-config.cmake
 include
 lib
+out/
+.vs/
