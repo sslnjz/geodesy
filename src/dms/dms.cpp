@@ -178,22 +178,6 @@ std::string Dms::toBearing(double deg, eFormat format, std::optional<int> dp)
    return brng.empty() ? "-" : std::regex_replace(brng, std::regex("360"), "0");
 }
 
-std::string Dms::fromLocale(const std::string& str)
-{
-   std::locale::global(std::locale("en_US.UTF-8"));
-   std::stringstream ss;
-   ss << str;
-   return ss.str();
-}
-
-std::string Dms::toLocale(const std::string& str)
-{
-   std::locale::global(std::locale(""));
-   std::stringstream ss;
-   ss << str;
-   return ss.str();
-}
-
 std::string Dms::compassPoint(double bearing, int precision)
 {
    if (precision < 1 || precision > 3)

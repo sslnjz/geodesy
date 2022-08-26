@@ -61,7 +61,7 @@ LatLonEllipsoidalVincenty::LatLonEllipsoidalVincenty()
 
 }
 
-double LatLonEllipsoidalVincenty::distanceTo(const LatLonEllipsoidal &point)
+double LatLonEllipsoidalVincenty::distanceTo(const LatLonEllipsoidal &point) const
 {
     try
     {
@@ -78,7 +78,7 @@ double LatLonEllipsoidalVincenty::distanceTo(const LatLonEllipsoidal &point)
     }
 }
 
-VI LatLonEllipsoidalVincenty::inverse(const LatLonEllipsoidal &point)
+VI LatLonEllipsoidalVincenty::inverse(const LatLonEllipsoidal &point) const
 {
     if (height() != 0 || point.height() != 0)
     {
@@ -155,12 +155,12 @@ VI LatLonEllipsoidalVincenty::inverse(const LatLonEllipsoidal &point)
     };
 }
 
-LatLonEllipsoidalVincenty LatLonEllipsoidalVincenty::destinationPoint(double distance, double initialBearing)
+LatLonEllipsoidalVincenty LatLonEllipsoidalVincenty::destinationPoint(double distance, double initialBearing) const
 {
     return direct(distance, initialBearing).point;
 }
 
-VD LatLonEllipsoidalVincenty::direct(double distance, double initialBearing)
+VD LatLonEllipsoidalVincenty::direct(double distance, double initialBearing) const
 {
     if (std::isnan(distance)) { throw std::runtime_error("invalid distance"); }
     if (distance == 0) { return {*this, NAN, 0}; }
@@ -221,7 +221,7 @@ VD LatLonEllipsoidalVincenty::direct(double distance, double initialBearing)
     };
 }
 
-double LatLonEllipsoidalVincenty::finalBearingTo(const LatLonEllipsoidal &point)
+double LatLonEllipsoidalVincenty::finalBearingTo(const LatLonEllipsoidal &point) const
 {
     try
     {
@@ -238,7 +238,7 @@ double LatLonEllipsoidalVincenty::finalBearingTo(const LatLonEllipsoidal &point)
     }
 }
 
-double LatLonEllipsoidalVincenty::initialBearingTo(const LatLonEllipsoidal &point)
+double LatLonEllipsoidalVincenty::initialBearingTo(const LatLonEllipsoidal &point) const
 {
     try
     {
@@ -255,14 +255,14 @@ double LatLonEllipsoidalVincenty::initialBearingTo(const LatLonEllipsoidal &poin
     }
 }
 
-double LatLonEllipsoidalVincenty::finalBearingOn(double distance, double initialBearing)
+double LatLonEllipsoidalVincenty::finalBearingOn(double distance, double initialBearing) const
 {
     const auto brng = direct(distance, initialBearing).finalBearing;
     return brng; // round to 0.001″ precision
 }
 
 LatLonEllipsoidalVincenty LatLonEllipsoidalVincenty::intermediatePointTo(
-        const LatLonEllipsoidal &point, double fraction)
+        const LatLonEllipsoidal &point, double fraction) const
 {
     if (fraction == 0) return *this;
     const auto inverse = this->inverse(point);

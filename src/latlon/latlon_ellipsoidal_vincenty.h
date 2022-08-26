@@ -87,7 +87,7 @@ namespace geodesy
          *   const p2 = new LatLon(58.64402, -3.07009);
          *   const d = p1.distanceTo(p2); // 969,954.166 m
          */
-        double distanceTo(const LatLonEllipsoidal& point);
+        double distanceTo(const LatLonEllipsoidal& point) const;
 
         /**
          * Returns the initial bearing (forward azimuth) to travel along a geodesic from ‘this’ point to
@@ -101,7 +101,7 @@ namespace geodesy
          *   const p2 = new LatLon(58.64402, -3.07009);
          *   const b1 = p1.initialBearingTo(p2); // 9.1419°
          */
-        double initialBearingTo(const LatLonEllipsoidal& point);
+        double initialBearingTo(const LatLonEllipsoidal& point) const;
 
         /**
          * Returns the final bearing (reverse azimuth) having travelled along a geodesic from ‘this’
@@ -115,7 +115,7 @@ namespace geodesy
          *   const p2 = new LatLon(58.64402, -3.07009);
          *   const b2 = p1.finalBearingTo(p2); // 11.2972°
          */
-        double finalBearingTo(const LatLonEllipsoidal& point);
+        double finalBearingTo(const LatLonEllipsoidal& point) const;
 
         /**
          * Returns the destination point having travelled the given distance along a geodesic given by
@@ -129,7 +129,7 @@ namespace geodesy
          *   const p1 = new LatLon(-37.95103, 144.42487);
          *   const p2 = p1.destinationPoint(54972.271, 306.86816); // 37.6528°S, 143.9265°E
          */
-        LatLonEllipsoidalVincenty destinationPoint(double distance, double initialBearing);
+        LatLonEllipsoidalVincenty destinationPoint(double distance, double initialBearing) const;
 
          /**
           * Returns the final bearing (reverse azimuth) having travelled along a geodesic given by initial
@@ -144,7 +144,7 @@ namespace geodesy
           *   const p1 = new LatLon(-37.95103, 144.42487);
           *   const b2 = p1.finalBearingOn(54972.271, 306.86816); // 307.1736°
           */
-         double finalBearingOn(double distance, double initialBearing);
+         double finalBearingOn(double distance, double initialBearing) const;
 
 
          /**
@@ -159,7 +159,7 @@ namespace geodesy
           *   const p2 = new LatLon(58.64402, -3.07009);
           *   const pInt = p1.intermediatePointTo(p2, 0.5); // 54.3639°N, 004.5304°W
           */
-         LatLonEllipsoidalVincenty intermediatePointTo( const LatLonEllipsoidal& point, double fraction);
+         LatLonEllipsoidalVincenty intermediatePointTo( const LatLonEllipsoidal& point, double fraction) const;
 
      private:
         /**
@@ -174,7 +174,7 @@ namespace geodesy
          * @throws  {RangeError} Point must be on surface of ellipsoid.
          * @throws  {EvalError}  Formula failed to converge.
          */
-        VD direct(double distance, double initialBearing);
+        VD direct(double distance, double initialBearing) const;
 
         /**
          * Vincenty inverse calculation.
@@ -188,7 +188,7 @@ namespace geodesy
          * @throws  {RangeError} Points must be on surface of ellipsoid.
          * @throws  {EvalError}  Formula failed to converge.
          */
-        VI inverse(const LatLonEllipsoidal& point);
+        VI inverse(const LatLonEllipsoidal& point) const;
     };
 }
 

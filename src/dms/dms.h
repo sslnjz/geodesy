@@ -54,7 +54,7 @@ namespace geodesy
       };
 
       /**
-       * Separator character to be used to separate degrees, minutes, seconds, and cardinal directions.
+       * @brief Separator character to be used to separate degrees, minutes, seconds, and cardinal directions.
        *
        * Default separator is U+202F ‘narrow no-break space’.
        *
@@ -71,7 +71,7 @@ namespace geodesy
       static void setSeparator(const std::string& sep);
 
       /**
-       * Parses string representing degrees/minutes/seconds into numeric degrees.
+       * @brief Parses string representing degrees/minutes/seconds into numeric degrees.
        *
        * This is very flexible on formats, allowing signed decimal degrees, or deg-min-sec optionally
        * suffixed by compass direction (NSEW); a variety of separators are accepted. Examples -3.62,
@@ -84,8 +84,8 @@ namespace geodesy
        * @returns {number}      - Degrees as decimal number.
        *
        * @example
-       *   const double lat = Dms.parse('51° 28′ 40.37″ N');
-       *   const double lon = Dms.parse('000° 00′ 05.29″ W');
+       *   const double lat = Dms.parse("51° 28′ 40.37″ N");
+       *   const double lon = Dms.parse("000° 00′ 05.29″ W");
        */
 
       template<class T>
@@ -94,13 +94,12 @@ namespace geodesy
       static double parse(const T& dms);
 
       /**
-       * Converts decimal degrees to deg/min/sec format
+       * @brief Converts decimal degrees to deg/min/sec format
        *  - degree, prime, double-prime symbols are added, but sign is discarded, though no compass
        *    direction is added.
        *  - degrees are zero-padded to 3 digits; for degrees latitude, use .slice(1) to remove leading
        *    zero.
        *
-       * @private
        * @param   {number} deg - Degrees to be formatted as specified.
        * @param   {string} [format=dms] - Return value as 'd', 'dm', 'dms' for deg, deg+min, deg+min+sec.
        * @param   {number} [dp=4|2|0] - Number of decimal places to use – default 4 for d, 2 for dm, 0 for dms.
@@ -145,36 +144,6 @@ namespace geodesy
       [[nodiscard]] static std::string toBearing(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
 
       /**
-       * Converts DMS string from locale thousands/decimal separators to JavaScript comma/dot separators
-       * for subsequent parsing.
-       *
-       * Both thousands and decimal separators must be followed by a numeric character, to facilitate
-       * parsing of single lat/long string (in which whitespace must be left after the comma separator).
-       *
-       * @param   {string} str - Degrees/minutes/seconds formatted with locale separators.
-       * @returns {string} Degrees/minutes/seconds formatted with standard Javascript separators.
-       *
-       * @example
-       *   const lat = Dms.fromLocale('51°28′40,12″N');                          // '51°28′40.12″N' in France
-       *   const p = new LatLon(Dms.fromLocale('51°28′40,37″N, 000°00′05,29″W'); // '51.4779°N, 000.0015°W' in France
-       */
-      static std::string fromLocale(const std::string& str);
-
-      /**
-       * Converts DMS string from JavaScript comma/dot thousands/decimal separators to locale separators.
-       *
-       * Can also be used to format standard numbers such as distances.
-       *
-       * @param   {string} str - Degrees/minutes/seconds formatted with standard Javascript separators.
-       * @returns {string} Degrees/minutes/seconds formatted with locale separators.
-       *
-       * @example
-       *   const Dms.toLocale('123,456.789');                   // '123.456,789' in France
-       *   const Dms.toLocale('51°28′40.12″N, 000°00′05.31″W'); // '51°28′40,12″N, 000°00′05,31″W' in France
-       */
-      static std::string toLocale(const std::string& str);
-
-      /**
        * Returns compass point (to given precision) for supplied bearing.
        *
        * @param   {number} bearing - Bearing in degrees from north.
@@ -182,8 +151,8 @@ namespace geodesy
        * @returns {string} Compass point for supplied bearing.
        *
        * @example
-       *   const std::string point = Dms::compassPoint(24);    // point = 'NNE'
-       *   const std::string point = Dms::compassPoint(24, 1); // point = 'N'
+       *   const std::string point = Dms::compassPoint(24);    // point = "NNE"
+       *   const std::string point = Dms::compassPoint(24, 1); // point = "N"
        */
       static std::string compassPoint(double bearing, int precision = 3);
 
@@ -191,8 +160,8 @@ namespace geodesy
        * Constrain degrees to range 0..360 (e.g. for bearings); -1 => 359, 361 => 1.
        *
        * @private
-       * @param {number} degrees
-       * @returns degrees within range 0..360.
+       * @param degrees {number} degrees to convert
+       * @returns degrees within rangye 0..360.
        */
       static double wrap360(double degrees);
 
@@ -200,7 +169,7 @@ namespace geodesy
        * Constrain degrees to range -180..+180 (e.g. for longitude); -181 => 179, 181 => -179.
        *
        * @private
-       * @param {number} degrees
+       * @param degrees {number} degrees to convert
        * @returns degrees within range -180..+180.
        */
       static double wrap180(double degrees);
@@ -209,7 +178,7 @@ namespace geodesy
        * Constrain degrees to range -90..+90 (e.g. for latitude); -91 => -89, 91 => 89.
        *
        * @private
-       * @param {number} degrees
+       * @param {number} degrees degrees to convert
        * @returns degrees within range -90..+90.
        */
       static double wrap90(double degrees);

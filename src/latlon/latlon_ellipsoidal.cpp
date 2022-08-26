@@ -171,9 +171,9 @@ Cartesian LatLonEllipsoidal::toCartesian() const
 
 bool LatLonEllipsoidal::operator==(const LatLonEllipsoidal& point) const
 {
-   if (std::fabs(m_lat - point.m_lat) > std::numeric_limits<double>::epsilon()) return false;
-   if (std::fabs(m_lon - point.m_lon) > std::numeric_limits<double>::epsilon()) return false;
-   if (std::fabs(m_height - point.m_height) > std::numeric_limits<double>::epsilon()) return false;
+   if (std::fabs(m_lat - point.m_lat) > 0.000000001) return false;
+   if (std::fabs(m_lon - point.m_lon) > 0.000000001) return false;
+   if (std::fabs(m_height - point.m_height) > 0.000000001) return false;
    if (m_epoch != point.m_epoch) return false;
    if (m_datum != point.m_datum) return false;
    if (m_referenceFrame != point.m_referenceFrame) return false;

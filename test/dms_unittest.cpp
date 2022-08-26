@@ -150,9 +150,6 @@ TEST_F(dms_unittest, misc)
    EXPECT_EQ(geodesy::Dms::toDms(51.19999999999999, geodesy::Dms::DM),  "051°12.00′");
    EXPECT_EQ(geodesy::Dms::toDms(51.19999999999999, geodesy::Dms::DMS), "051°12′00″");
    EXPECT_EQ(geodesy::Dms::toBearing(1),                                "001.0000°");
-   EXPECT_EQ(geodesy::Dms::toLocale("123,456.789"),                     "123,456.789");
-   EXPECT_EQ(geodesy::Dms::fromLocale("51°28′40.12″N"),                 "51°28′40.12″N");
-   EXPECT_EQ(geodesy::Dms::fromLocale("51°28′40.12″N, 000°00′05.31″W"), "51°28′40.12″N, 000°00′05.31″W");
 }
 
 TEST_F(dms_unittest, parse_failures)
