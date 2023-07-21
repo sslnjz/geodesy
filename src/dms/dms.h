@@ -241,7 +241,7 @@ namespace geodesy
          deg = dms_parts_d[0] / 1.000 + dms_parts_d[1] / 60.000;
          break;
       case 1:
-         deg = dms_parts_d[0] / 1.000;
+         deg = dms_parts_d[0];
          break;
       default:
          return NAN;
