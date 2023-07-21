@@ -63,7 +63,7 @@ namespace geodesy
        *   v = new vector3d(0.267, 0.535, 0.802);
        */
       constexpr vector3d() noexcept;
-      constexpr vector3d(double x, double y, double z) noexcept;
+      vector3d(double x, double y, double z);
 
       virtual ~vector3d() = default;
 
@@ -112,7 +112,7 @@ namespace geodesy
        */
       [[nodiscard]] vector3d times(double x) const
       {
-         if (std::isnan(x)) throw std::invalid_argument("invalid scalar value");
+         if (std::isnan(x)) throw std::invalid_argument("invalid scalar value：");
          return vector3d(vx * x, vy * x, vz * x);
       }
 
@@ -347,7 +347,14 @@ namespace geodesy
 
 
    constexpr vector3d::vector3d() noexcept : vx(0), vy(0), vz(0) { }
-   constexpr vector3d::vector3d(double x, double y, double z) noexcept : vx(x), vy(y), vz(z) { }
+   vector3d::vector3d(double x, double y, double z) : vx(x), vy(y), vz(z) 
+   {
+        if(std::isnan(x) || std::isnan(y) || std::isnan(z)){
+            std::stringstream ss;
+            ss << "invalid vector[" << x << ", " << y << ", " << z << "]";
+            throw std::runtime_error(ss.str());
+        }
+   }
 
    constexpr inline double vector3d::x() const noexcept
    {
