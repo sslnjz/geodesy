@@ -29,7 +29,7 @@
 #ifndef CARTESIAN_REFERENCEFRAME_H
 #define CARTESIAN_REFERENCEFRAME_H
 
-#include "cartesian.h"
+#include "geodesy/cartesian.h"
 
 namespace geodesy {
    /**

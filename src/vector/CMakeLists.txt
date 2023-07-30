@@ -37,6 +37,7 @@ set(SRC
 		"nvector_spherical.cpp"
 		"nvector_cartesian.cpp"
 		"cartesian_referenceFrame.cpp"
+		"vector3d.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})

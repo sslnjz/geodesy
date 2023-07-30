@@ -32,10 +32,10 @@
 
 #include <optional>
 
-#include "vector3d.h"
-#include "ellipsoids.h"
-#include "latlon_ellipsoidal.h"
-#include "latlon_nvector_ellipsoidal.h"
+#include "geodesy/vector3d.h"
+#include "geodesy/ellipsoids.h"
+#include "geodesy/latlon_ellipsoidal.h"
+#include "geodesy/latlon_nvector_ellipsoidal.h"
 
 namespace geodesy
 {

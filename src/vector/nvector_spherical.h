@@ -29,7 +29,7 @@
 #ifndef NVECTOR_SPHERICAL_H
 #define NVECTOR_SPHERICAL_H
 
-#include "vector3d.h"
+#include "geodesy/vector3d.h"
 
 namespace geodesy
 {

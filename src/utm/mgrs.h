@@ -156,7 +156,7 @@ namespace geodesy
         * @example
         *   const mgrsStr = new Mgrs(31, 'U', 'D', 'Q', 48251, 11932).toString(); // 31U DQ 48251 11932
         */
-      std::string toString(unsigned digits=10);
+      std::string toString(unsigned int digits=10);
 
    private:
       int m_zone;

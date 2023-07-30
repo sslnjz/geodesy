@@ -30,8 +30,8 @@
 #ifndef CARTESIAN_H
 #define CARTESIAN_H
 
-#include "vector3d.h"
-#include "latlon_ellipsoidal.h"
+#include "geodesy/vector3d.h"
+#include "geodesy/latlon_ellipsoidal.h"
 
 namespace geodesy
 {

@@ -30,7 +30,7 @@
 #ifndef CARTESIAN_NVECTOR_H
 #define CARTESIAN_NVECTOR_H
 
-#include "cartesian.h"
+#include "geodesy/cartesian.h"
 
 namespace geodesy
 {

@@ -62,17 +62,40 @@ namespace geodesy
        * @example
        *   v = new vector3d(0.267, 0.535, 0.802);
        */
-      constexpr vector3d() noexcept;
+      vector3d();
       vector3d(double x, double y, double z);
 
       virtual ~vector3d() = default;
 
-      [[nodiscard]] constexpr inline double x() const noexcept;
-      [[nodiscard]] constexpr inline double y() const noexcept;
-      [[nodiscard]] constexpr inline double z() const noexcept;
-      [[nodiscard]] inline double& rx() noexcept;
-      [[nodiscard]] inline double& ry() noexcept;
-      [[nodiscard]] inline double& rz() noexcept;
+      constexpr inline double vector3d::x() const noexcept
+      {
+         return vx;
+      }
+
+      constexpr inline double vector3d::y() const noexcept
+      {
+         return vy;
+      }
+
+      constexpr inline double vector3d::z() const noexcept
+      {
+         return vz;
+      }
+
+      inline double& vector3d::rx() noexcept
+      {
+         return vx;
+      }
+
+      inline double& vector3d::ry() noexcept
+      {
+         return vy;
+      }
+
+      inline double& vector3d::rz() noexcept
+      {
+         return vz;
+      }
 
 
       /**
@@ -80,7 +103,10 @@ namespace geodesy
        *
        * @returns {number} Magnitude of this vector.
        */
-      [[nodiscard]] inline double length() const;
+      [[nodiscard]] inline double length() const        
+      {
+          return std::sqrt(vx * vx + vy * vy + vz * vz);
+      }
 
       /**
        * Adds supplied vector to ‘this’ vector.
@@ -344,52 +370,6 @@ namespace geodesy
       double vy;
       double vz;
    };
-
-
-   constexpr vector3d::vector3d() noexcept : vx(0), vy(0), vz(0) { }
-   vector3d::vector3d(double x, double y, double z) : vx(x), vy(y), vz(z) 
-   {
-        if(std::isnan(x) || std::isnan(y) || std::isnan(z)){
-            std::stringstream ss;
-            ss << "invalid vector[" << x << ", " << y << ", " << z << "]";
-            throw std::runtime_error(ss.str());
-        }
-   }
-
-   constexpr inline double vector3d::x() const noexcept
-   {
-      return vx;
-   }
-
-   constexpr inline double vector3d::y() const noexcept
-   {
-      return vy;
-   }
-
-   constexpr inline double vector3d::z() const noexcept
-   {
-      return vz;
-   }
-
-   inline double& vector3d::rx() noexcept
-   {
-      return vx;
-   }
-
-   inline double& vector3d::ry() noexcept
-   {
-      return vy;
-   }
-
-   inline double& vector3d::rz() noexcept
-   {
-      return vz;
-   }
-
-   inline double vector3d::length() const
-   {
-      return std::sqrt(vx * vx + vy * vy + vz * vz);
-   }
 }
 
 #endif // VECTOR3D_H

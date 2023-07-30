@@ -40,6 +40,7 @@ set(SRC
 		"latlon_ellipsoidal_vincenty.cpp"
 		"latlon_ellipsoidal_referenceframe.cpp"
 		"latlon_ellipsoidal_datum.cpp"
+		"latlon_utm_mgrs.cpp"
 )
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})

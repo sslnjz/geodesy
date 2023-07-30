@@ -146,7 +146,7 @@ namespace geodesy
       [[nodiscard]] double northing() const { return m_northing; }
       [[nodiscard]] double easting() const { return m_easting; }
 
-   protected:
+   //protected:
       int m_zone;
       Hemisphere m_hemisphere;
       double m_easting;
