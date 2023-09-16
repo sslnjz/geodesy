@@ -34,8 +34,8 @@ Mgrs UtmMgrs::toMgrs() const
    auto northing = std::fmod(m_northing, 100e3);
 
    // round to nm precision
-   easting = std::stod(toFixed(easting, 6));
-   northing = std::stod(toFixed(northing, 6));
+   easting = std::stod(geodesy::toFixed(easting, 6));
+   northing = std::stod(geodesy::toFixed(northing, 6));
 
    return Mgrs(zone, band, e100k, n100k, easting, northing);
 }

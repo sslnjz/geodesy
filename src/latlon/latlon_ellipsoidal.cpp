@@ -130,13 +130,13 @@ std::string LatLonEllipsoidal::toString(Dms::eFormat format, std::optional<int> 
 {
    std::string height;
    if (dph != std::nullopt) {
-      height = (m_height >= 0 ? " +" : " ") + toFixed(m_height, *dph) + "m";
+      height = (m_height >= 0 ? " +" : " ") + geodesy::toFixed(m_height, *dph) + "m";
    }
 
    if (format == Dms::N) 
    { // signed numeric degrees
       if (dp == std::nullopt) dp = 4;
-      return toFixed(m_lat, *dp) + ", " + toFixed(m_lon, *dp) + (dph ? height : "");
+      return geodesy::toFixed(m_lat, *dp) + ", " + geodesy::toFixed(m_lon, *dp) + (dph ? height : "");
    }
    return Dms::toLat(m_lat, format, dp) + ", " + Dms::toLon(m_lon, format, dp) + (dph ? height : "");
 }

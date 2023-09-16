@@ -188,10 +188,10 @@ LatLonUtm Utm::toLatLon() const
    lambda += lambda0; // move λ from zonal to global coordinates
 
    // round to reasonable precision
-   const auto lat = std::stod(toFixed(toDegrees(phi), 14)); // nm precision (1nm = 10^-14°)
-   const auto lon = std::stod(toFixed(toDegrees(lambda),14)); // (strictly lat rounding should be φ⋅cosφ!)
-   const auto convergence = std::stod(toFixed(toDegrees(gamma),9));
-   const auto scale = std::stod(toFixed(k,12));
+   const auto lat = std::stod(geodesy::toFixed(geodesy::toDegrees(phi), 14)); // nm precision (1nm = 10^-14°)
+   const auto lon = std::stod(geodesy::toFixed(geodesy::toDegrees(lambda),14)); // (strictly lat rounding should be φ⋅cosφ!)
+   const auto convergence = std::stod(geodesy::toFixed(geodesy::toDegrees(gamma),9));
+   const auto scale = std::stod(geodesy::toFixed(k,12));
 
    LatLonUtm latLong = LatLonUtm(lat, lon, 0, m_datum);
    // ... and add the convergence and scale into the LatLon object ... wonderful JavaScript!
@@ -207,5 +207,5 @@ std::string Utm::toString(int dp) const
    ss << std::setw(2) << std::left << std::setfill('0') << m_zone;
 
    return ss.str() + " " + (m_hemisphere == Hemisphere::N ? "N " : "S ")
-      + toFixed(m_easting, dp) + toFixed(m_northing, dp);
+      + geodesy::toFixed(m_easting, dp) + geodesy::toFixed(m_northing, dp);
 }

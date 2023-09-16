@@ -101,10 +101,10 @@ Utm LatLonUtm::toUtm(std::optional<int> zoneOverride) const
    if (const auto falseNorthing = 10000e3; y < 0) y = y + falseNorthing; // make y in southern hemisphere relative to false northing
 
    // round to reasonable precision
-   x = std::stod(toFixed(x,9)); // nm precision
-   y = std::stod(toFixed(y,9)); // nm precision
-   const auto convergence = std::stod(toFixed(toDegrees(gamma), 9));
-   const auto scale = std::stod(toFixed(kappa,12));
+   x = std::stod(geodesy::toFixed(x,9)); // nm precision
+   y = std::stod(geodesy::toFixed(y,9)); // nm precision
+   const auto convergence = std::stod(geodesy::toFixed(geodesy::toDegrees(gamma), 9));
+   const auto scale = std::stod(geodesy::toFixed(kappa,12));
    const auto h = lat() >= 0 ? Utm::Hemisphere::N : Utm::Hemisphere::S; // hemisphere
 
    return Utm(zone, h, x, y, m_datum, convergence, scale, zoneOverride.has_value());
