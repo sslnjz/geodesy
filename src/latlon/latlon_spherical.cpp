@@ -28,13 +28,73 @@
 ***********************************************************************************/
 #include "latlon_spherical.h"
 
-#include <algorithm.h>
-#include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <stdexcept>
 
 #include "vector3d.h"
 #include "algorithm.h"
 
 using namespace geodesy;
+
+namespace
+{
+   void validateRadius(double radius)
+   {
+      if (!std::isfinite(radius) || radius <= 0.0)
+         throw std::invalid_argument("invalid radius");
+   }
+
+   void validateTrackPath(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd)
+   {
+      if (pathStart == pathEnd)
+         throw std::domain_error("path start and end must differ");
+   }
+
+   vector3d toUnitVector(const LatLonSpherical& point)
+   {
+      const auto phi = toRadians(point.lat());
+      const auto lambda = toRadians(point.lon());
+      return {
+         std::cos(phi) * std::cos(lambda),
+         std::cos(phi) * std::sin(lambda),
+         std::sin(phi)
+      };
+   }
+
+   double interiorAngleExcess(const std::vector<LatLonSpherical>& polygon, size_t nVertices)
+   {
+      if (nVertices < 3)
+         return 0.0;
+
+      double angleSum = 0.0;
+      for (size_t v = 0; v < nVertices; ++v)
+      {
+         const auto previous = toUnitVector(polygon[(v + nVertices - 1) % nVertices]);
+         const auto current = toUnitVector(polygon[v]);
+         const auto next = toUnitVector(polygon[(v + 1) % nVertices]);
+         const auto incomingNormal = current.cross(previous).unit();
+         const auto outgoingNormal = current.cross(next).unit();
+
+         // The angle between adjacent great-circle normals is the interior angle at this vertex.
+         angleSum += std::abs(incomingNormal.angleTo(outgoingNormal));
+      }
+
+      return std::abs(angleSum - (nVertices - 2) * pi);
+   }
+
+   bool needsPoleAreaCorrection(double sphericalExcess, double interiorExcess)
+   {
+      const auto trapeziumExcess = std::abs(sphericalExcess);
+      if (trapeziumExcess <= pi || !std::isfinite(interiorExcess))
+         return false;
+
+      // Karney's trapezium sum includes the polar complement for small polygons enclosing a pole.
+      // Interior-angle excess gives the small-region excess, while hemispheres remain unchanged.
+      return trapeziumExcess - interiorExcess > pi;
+   }
+}
 
 LatLonSpherical::LatLonSpherical()
    : LatLon()
@@ -86,8 +146,7 @@ double LatLonSpherical::initialBearingTo(const LatLonSpherical& point) const
 
 double LatLonSpherical::finalBearingTo(const LatLonSpherical& point) const
 {
-   //TODO: check
-   // get initial bearing from this point to destination point
+   // Final bearing is the reverse initial bearing from the destination back to this point.
    const double bearing = point.initialBearingTo(*this) + 180;
    return Dms::wrap360(bearing);
 }
@@ -237,6 +296,8 @@ std::pair<double, double> LatLonSpherical::crossingParallels(const LatLonSpheric
 
 double LatLonSpherical::rhumbDistanceTo(const LatLonSpherical& point, double radius) const
 {
+   validateRadius(radius);
+
    // see www.edwilliams.org/avform.htm#Rhumb
    const auto R = radius;
    const auto phi1 = toRadians(m_lat);
@@ -274,13 +335,15 @@ double LatLonSpherical::rhumbBearingTo(const LatLonSpherical& point) const
 
 LatLonSpherical LatLonSpherical::rhumbDestinationPoint(double distance, double bearing, double radius) const
 {
+   validateRadius(radius);
+
    const auto phi1 = toRadians(m_lat);
    const auto lambda1 = toRadians(m_lon);
    const auto theta = toRadians(bearing);
    const auto delta = distance / radius; // angular distance in radians
    const auto DELTAphi = delta * std::cos(theta);
    double phi2 = phi1 + DELTAphi;
-   // check for some daft bugger going past the pole, normalise latitude if so
+   // A rhumb line crossing a pole continues on the opposite meridian; mirror latitude back into range.
    if (std::abs(phi2) > pi / 2) 
    {
       phi2 = phi2 > 0 ? pi - phi2 : -pi - phi2;
@@ -315,6 +378,9 @@ LatLonSpherical LatLonSpherical::rhumbMidpointTo(const LatLonSpherical& point) c
 
 double LatLonSpherical::crossTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd, double radius) const
 {
+   validateRadius(radius);
+   validateTrackPath(pathStart, pathEnd);
+
    if (*this == pathStart) 
       return 0;
 
@@ -322,12 +388,17 @@ double LatLonSpherical::crossTrackDistanceTo(const LatLonSpherical& pathStart, c
    const auto delta13 = pathStart.distanceTo(*this, R) / R;
    const auto theta13 = toRadians(pathStart.initialBearingTo(*this));
    const auto theta12 = toRadians(pathStart.initialBearingTo(pathEnd));
-   const auto deltaxt = std::asin(std::sin(delta13) * std::sin(theta13 - theta12));
+   // Cross-track angle follows the signed great-circle offset from the start-to-end path.
+   const auto sinDeltaXt = std::sin(delta13) * std::sin(theta13 - theta12);
+   const auto deltaxt = std::asin(std::clamp(sinDeltaXt, -1.0, 1.0));
    return deltaxt * R;
 }
 
 double LatLonSpherical::alongTrackDistanceTo(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd, double radius) const
 {
+   validateRadius(radius);
+   validateTrackPath(pathStart, pathEnd);
+
    if (*this == pathStart)
       return 0;
 
@@ -335,13 +406,18 @@ double LatLonSpherical::alongTrackDistanceTo(const LatLonSpherical& pathStart, c
    const auto delta13 = pathStart.distanceTo(*this, R) / R;
    const auto theta13 = toRadians(pathStart.initialBearingTo(*this));
    const auto theta12 = toRadians(pathStart.initialBearingTo(pathEnd));
-   const auto deltaxt = std::asin(std::sin(delta13) * std::sin(theta13 - theta12));
-   const auto deltaat = std::acos(std::cos(delta13) / std::abs(std::cos(deltaxt)));
+   // Along-track distance projects the start-to-current arc onto the path's great circle.
+   const auto sinDeltaXt = std::sin(delta13) * std::sin(theta13 - theta12);
+   const auto deltaxt = std::asin(std::clamp(sinDeltaXt, -1.0, 1.0));
+   const auto cosRatio = std::cos(delta13) / std::abs(std::cos(deltaxt));
+   const auto deltaat = std::acos(std::clamp(cosRatio, -1.0, 1.0));
    return deltaat * sign(std::cos(theta12 - theta13)) * R;
 }
 
-double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double radius)
+double LatLonSpherical::areaOf(const std::vector<LatLonSpherical>& polygon, double radius)
 {
+   validateRadius(radius);
+
    if (polygon.empty()) 
       return std::numeric_limits<double>::infinity() * 0.0;
 
@@ -350,47 +426,24 @@ double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double rad
    // where E is the spherical excess of the trapezium obtained by extending the edge to the equator
    // (Karney's method is probably more efficient than the more widely known L’Huilier’s Theorem)
    const auto R = radius;
-   // close polygon so that last point equals first point
    const auto closed = polygon[0] == (polygon[polygon.size() - 1]);
-   if (!closed) {
-      polygon.push_back(polygon[0]);
-   }
-   const size_t nVertices = polygon.size() - 1;
+   const size_t nVertices = closed ? polygon.size() - 1 : polygon.size();
    auto S = 0.0; // spherical excess in steradians
    for (size_t v = 0; v < nVertices; ++v) 
    {
       const auto phi1 = toRadians(polygon[v].lat());
-      const auto phi2 = toRadians(polygon[v + 1].lat());
-      const auto DELTAlambda = toRadians((polygon[v + 1].lon() - polygon[v].lon()));
-      const auto E = 2 * std::atan2(std::tan(DELTAlambda / 2) * (std::tan(phi1 / 2) + std::tan(phi2 / 2)), 1 + std::tan(phi1 / 2) * std::tan(phi2 / 2));
+      const auto phi2 = toRadians(polygon[(v + 1) % nVertices].lat());
+      const auto DELTAlambda = toRadians((polygon[(v + 1) % nVertices].lon() - polygon[v].lon()));
+      const auto E = 2 * std::atan2(std::tan(DELTAlambda / 2) * (std::tan(phi1 / 2) + std::tan(phi2 / 2)),
+                                    1 + std::tan(phi1 / 2) * std::tan(phi2 / 2));
       S += E;
    }
 
-   if (auto isPoleEnclosedBy =  [](const std::vector<LatLonSpherical>& p){
-         //TODO: any better test than this
-         double SIGMADELTA = 0.0;
-         double prevBrng = p[0].initialBearingTo(p[1]);
-         for (size_t v = 0; v < p.size() - 1; v++)
-         {
-            const auto initBrng = p[v].initialBearingTo(p[v + 1]);
-            const auto finalBrng = p[v].finalBearingTo(p[v + 1]);
-            SIGMADELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
-            SIGMADELTA += std::fmod((finalBrng - initBrng + 540), 360) - 180;
-            prevBrng = finalBrng;
-         }
-         const auto initBrng = p[0].initialBearingTo(p[1]);
-         SIGMADELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
-         // TODO: fix (intermittant) edge crossing pole - eg (85,90), (85,0), (85,-90)
-         return (std::abs(SIGMADELTA) < 90);
-      }; isPoleEnclosedBy(polygon)) 
+   if (needsPoleAreaCorrection(S, interiorAngleExcess(polygon, nVertices))) 
    {
       S = std::fabs(S) - 2 * pi;
    }
 
    const auto A = std::abs(S * R * R); // area in units of R
-   if (!closed) 
-   {
-      polygon.pop_back(); // restore polygon to pristine condition
-   }
    return A;
 }

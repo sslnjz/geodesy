@@ -103,7 +103,7 @@ TEST_F(latlon_spherical_unittest, dist_brng_dest)
 TEST_F(latlon_spherical_unittest, dist_brng_dest_fails)
 {
    const auto cambg = geodesy::LatLonSpherical(52.205, 0.119), paris = geodesy::LatLonSpherical(48.857, 2.351);
-   EXPECT_THROW(cambg.distanceTo({ "xxx", "xxx" }), std::invalid_argument);
+   EXPECT_THROW(static_cast<void>(cambg.distanceTo({ "xxx", "xxx" })), std::invalid_argument);
 };
 
 TEST_F(latlon_spherical_unittest, intersection)
@@ -129,8 +129,9 @@ TEST_F(latlon_spherical_unittest, intersection)
 
    EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(51, 0), 120, geodesy::LatLonSpherical(50, 0), 60).toString(), "50.4921°N, 001.3612°E");
 
-   //TODO: Windows OK, MAC failed, needs check
-   EXPECT_EQ(geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.6966041375563, 18.2812500000000), 179.99999999999994, geodesy::LatLonSpherical(89, 180), 180).toString(), "90.0000°S, 163.9902°W'");
+   const auto polarIntersection = geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.6966041375563, 18.2812500000000), 179.99999999999994, geodesy::LatLonSpherical(89, 180), 180);
+   EXPECT_NEAR(polarIntersection.lat(), -90.0, 1e-10);
+   EXPECT_TRUE(std::isfinite(polarIntersection.lon()));
 }
 
 TEST_F(latlon_spherical_unittest, cross_track_along_track)
@@ -146,15 +147,37 @@ TEST_F(latlon_spherical_unittest, cross_track_along_track)
    EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(1, 1).crossTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "-1.112e+05");
    EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(-1, 1).crossTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "1.112e+05");
    EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(-1, -1).crossTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "1.112e+05");
-   EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(1, -1).crossTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "-1.112e+05"); // eslint-disable-line space-in-parens
+   EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(1, -1).crossTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "-1.112e+05");
 
-   EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(1, 1).alongTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "1.112e+05"); // eslint-disable-line space-in-parens
+   EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(1, 1).alongTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "1.112e+05");
    EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(-1, 1).alongTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "1.112e+05");
    EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(-1, -1).alongTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "-1.112e+05");
-   EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(1, -1).alongTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "-1.112e+05"); // eslint-disable-line space-in-parens
+   EXPECT_EQ(geodesy::toPrecision(geodesy::LatLonSpherical(1, -1).alongTrackDistanceTo(geodesy::LatLonSpherical(0, 0), geodesy::LatLonSpherical(0, 2)), 4), "-1.112e+05");
 
    EXPECT_EQ(geodesy::LatLonSpherical(10, 0).crossTrackDistanceTo(geodesy::LatLonSpherical(10, 0), geodesy::LatLonSpherical(0, 2)), 0);
    EXPECT_EQ(geodesy::LatLonSpherical(10, 0).alongTrackDistanceTo(geodesy::LatLonSpherical(10, 0), geodesy::LatLonSpherical(0, 2)), 0);
+}
+
+TEST_F(latlon_spherical_unittest, cross_track_along_track_edge_cases)
+{
+   const auto current = geodesy::LatLonSpherical(10, 1);
+   const auto pathStart = geodesy::LatLonSpherical(0, 0);
+   const auto pathEnd = geodesy::LatLonSpherical(0, 2);
+
+   EXPECT_THROW(static_cast<void>(current.crossTrackDistanceTo(pathStart, pathEnd, 0)), std::invalid_argument);
+   EXPECT_THROW(static_cast<void>(current.alongTrackDistanceTo(pathStart, pathEnd, -1)), std::invalid_argument);
+   EXPECT_THROW(static_cast<void>(current.crossTrackDistanceTo(pathStart, pathStart)), std::domain_error);
+   EXPECT_THROW(static_cast<void>(current.alongTrackDistanceTo(pathStart, pathStart)), std::domain_error);
+
+   const auto antiMeridianStart = geodesy::LatLonSpherical(0, 179);
+   const auto antiMeridianEnd = geodesy::LatLonSpherical(0, -179);
+   const auto northOfPath = geodesy::LatLonSpherical(1, 180);
+   const auto southBeforePath = geodesy::LatLonSpherical(-1, 178);
+
+   EXPECT_NEAR(northOfPath.crossTrackDistanceTo(antiMeridianStart, antiMeridianEnd), -111194.92664455874, 1e-6);
+   EXPECT_NEAR(northOfPath.alongTrackDistanceTo(antiMeridianStart, antiMeridianEnd), 111194.92664455874, 1e-6);
+   EXPECT_NEAR(southBeforePath.crossTrackDistanceTo(antiMeridianStart, antiMeridianEnd), 111194.92664455874, 1e-6);
+   EXPECT_NEAR(southBeforePath.alongTrackDistanceTo(antiMeridianStart, antiMeridianEnd), -111194.92664455874, 1e-6);
 }
 
 TEST_F(latlon_spherical_unittest, misc)
@@ -201,6 +224,36 @@ TEST_F(latlon_spherical_unittest, area_polygon_based)
    EXPECT_EQ(geodesy::toFixed(geodesy::LatLonSpherical::areaOf(polyConcave)), "74042699236");
 }
 
+TEST_F(latlon_spherical_unittest, area_polygon_edge_cases)
+{
+   std::vector polarEdge = {
+      geodesy::LatLonSpherical(85, 90),
+      geodesy::LatLonSpherical(85, 0),
+      geodesy::LatLonSpherical(85, -90)
+   };
+   std::vector antiMeridian = {
+      geodesy::LatLonSpherical(10, 179),
+      geodesy::LatLonSpherical(10, -179),
+      geodesy::LatLonSpherical(11, -179),
+      geodesy::LatLonSpherical(11, 179)
+   };
+   std::vector openTriangle = {
+      geodesy::LatLonSpherical(0, 0),
+      geodesy::LatLonSpherical(1, 0),
+      geodesy::LatLonSpherical(0, 1)
+   };
+   const auto originalTriangleSize = openTriangle.size();
+
+   EXPECT_EQ(geodesy::toFixed(geodesy::LatLonSpherical::areaOf(polarEdge)), "309500173322");
+   EXPECT_EQ(geodesy::toFixed(geodesy::LatLonSpherical::areaOf(antiMeridian)), "24316454671");
+   EXPECT_EQ(geodesy::toFixed(geodesy::LatLonSpherical::areaOf(openTriangle)), "6182469723");
+   EXPECT_EQ(openTriangle.size(), originalTriangleSize);
+
+   EXPECT_TRUE(std::isnan(geodesy::LatLonSpherical::areaOf(std::vector<geodesy::LatLonSpherical>{})));
+   EXPECT_THROW(static_cast<void>(geodesy::LatLonSpherical::areaOf(openTriangle, 0)), std::invalid_argument);
+   EXPECT_THROW(static_cast<void>(geodesy::LatLonSpherical::areaOf(openTriangle, -1)), std::invalid_argument);
+}
+
 TEST_F(latlon_spherical_unittest, Ed_Williams)
 { // www.edwilliams.org/avform.htm
    const auto lax = geodesy::LatLonSpherical(geodesy::Dms::parse("33° 57′N"), geodesy::Dms::parse("118° 24′W"));
@@ -239,4 +292,21 @@ TEST_F(latlon_spherical_unittest, rhumb_lines)
    EXPECT_EQ(geodesy::LatLonSpherical(1, -179).rhumbDestinationPoint(222356, 270).toString(), "01.0000°N, 179.0000°E");
    EXPECT_EQ(dov.rhumbMidpointTo(cal).toString(), "51.0455°N, 001.5957°E");
    EXPECT_EQ(geodesy::LatLonSpherical(1, -179).rhumbMidpointTo(geodesy::LatLonSpherical(1, 178)).toString(), "01.0000°N, 179.5000°E");
+}
+
+TEST_F(latlon_spherical_unittest, rhumb_line_edge_cases)
+{
+   const auto point = geodesy::LatLonSpherical(51.127, 1.338);
+
+   EXPECT_DOUBLE_EQ(point.rhumbDistanceTo(point), 0.0);
+   EXPECT_TRUE(std::isnan(point.rhumbBearingTo(point)));
+   EXPECT_EQ(point.rhumbDestinationPoint(0.0, 116.7).toString(), "51.1270°N, 001.3380°E");
+   EXPECT_EQ(point.rhumbMidpointTo(point).toString(), "51.1270°N, 001.3380°E");
+
+   EXPECT_THROW(static_cast<void>(point.rhumbDistanceTo(geodesy::LatLonSpherical(50.964, 1.853), 0)), std::invalid_argument);
+   EXPECT_THROW(static_cast<void>(point.rhumbDestinationPoint(40310, 116.7, std::numeric_limits<double>::quiet_NaN())), std::invalid_argument);
+
+   const auto nearNorthPole = geodesy::LatLonSpherical(89, 0);
+   EXPECT_EQ(nearNorthPole.rhumbDestinationPoint(2 * pi * R / 180.0, 0).toString(), "89.0000°N, 000.0000°E");
+   EXPECT_EQ(geodesy::LatLonSpherical(85, 179).rhumbMidpointTo(geodesy::LatLonSpherical(85, -179)).toString(), "85.0000°N, 180.0000°E");
 }

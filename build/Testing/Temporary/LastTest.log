@@ -1,10 +1,10 @@
-Start testing: May 08 23:20 中国标准时间
+Start testing: May 09 00:00 中国标准时间
 ----------------------------------------------------------
 1/10 Testing: dms_unittest
 1/10 Test: dms_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/dms_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"dms_unittest" start time: May 08 23:20 中国标准时间
+"dms_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -12,11 +12,11 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [----------] Global test environment set-up.
 [----------] 13 tests from dms_unittest
 [ RUN      ] dms_unittest._0_
-[       OK ] dms_unittest._0_ (3 ms)
+[       OK ] dms_unittest._0_ (2 ms)
 [ RUN      ] dms_unittest.parse_variations
-[       OK ] dms_unittest.parse_variations (69 ms)
+[       OK ] dms_unittest.parse_variations (52 ms)
 [ RUN      ] dms_unittest.parse_unicode_hemisphere_and_negative_values
-[       OK ] dms_unittest.parse_unicode_hemisphere_and_negative_values (4 ms)
+[       OK ] dms_unittest.parse_unicode_hemisphere_and_negative_values (3 ms)
 [ RUN      ] dms_unittest.parse_out_of_range
 [       OK ] dms_unittest.parse_out_of_range (0 ms)
 [ RUN      ] dms_unittest.output_variations
@@ -37,16 +37,16 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [       OK ] dms_unittest.wrap180 (0 ms)
 [ RUN      ] dms_unittest.wrap90
 [       OK ] dms_unittest.wrap90 (0 ms)
-[----------] 13 tests from dms_unittest (80 ms total)
+[----------] 13 tests from dms_unittest (61 ms total)
 
 [----------] Global test environment tear-down
-[==========] 13 tests from 1 test suite ran. (81 ms total)
+[==========] 13 tests from 1 test suite ran. (61 ms total)
 [  PASSED  ] 13 tests.
 <end of output>
-Test time =   0.21 sec
+Test time =   0.14 sec
 ----------------------------------------------------------
 Test Passed.
-"dms_unittest" end time: May 08 23:20 中国标准时间
+"dms_unittest" end time: May 09 00:00 中国标准时间
 "dms_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -54,7 +54,7 @@ Test Passed.
 2/10 Test: js_reference_examples_baseline_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/js_reference_examples_baseline_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"js_reference_examples_baseline_unittest" start time: May 08 23:20 中国标准时间
+"js_reference_examples_baseline_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -66,13 +66,13 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [----------] 1 test from js_reference_examples_baseline_unittest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (1 ms total)
+[==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.19 sec
+Test time =   0.10 sec
 ----------------------------------------------------------
 Test Passed.
-"js_reference_examples_baseline_unittest" end time: May 08 23:20 中国标准时间
+"js_reference_examples_baseline_unittest" end time: May 09 00:00 中国标准时间
 "js_reference_examples_baseline_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -80,7 +80,7 @@ Test Passed.
 3/10 Test: latlon_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/latlon_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"latlon_unittest" start time: May 08 23:20 中国标准时间
+"latlon_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -88,9 +88,9 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [----------] Global test environment set-up.
 [----------] 9 tests from latlon_unittest
 [ RUN      ] latlon_unittest.examples
-[       OK ] latlon_unittest.examples (6 ms)
+[       OK ] latlon_unittest.examples (3 ms)
 [ RUN      ] latlon_unittest.constructor_with_strings
-[       OK ] latlon_unittest.constructor_with_strings (2 ms)
+[       OK ] latlon_unittest.constructor_with_strings (1 ms)
 [ RUN      ] latlon_unittest.constructor_fail
 [       OK ] latlon_unittest.constructor_fail (0 ms)
 [ RUN      ] latlon_unittest.parse_fail
@@ -105,16 +105,16 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [       OK ] latlon_unittest.normalizes_anti_meridian_longitudes (0 ms)
 [ RUN      ] latlon_unittest.misc
 [       OK ] latlon_unittest.misc (0 ms)
-[----------] 9 tests from latlon_unittest (15 ms total)
+[----------] 9 tests from latlon_unittest (8 ms total)
 
 [----------] Global test environment tear-down
-[==========] 9 tests from 1 test suite ran. (16 ms total)
+[==========] 9 tests from 1 test suite ran. (8 ms total)
 [  PASSED  ] 9 tests.
 <end of output>
-Test time =   0.05 sec
+Test time =   0.11 sec
 ----------------------------------------------------------
 Test Passed.
-"latlon_unittest" end time: May 08 23:20 中国标准时间
+"latlon_unittest" end time: May 09 00:00 中国标准时间
 "latlon_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -122,54 +122,49 @@ Test Passed.
 4/10 Test: latlon_spherical_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/latlon_spherical_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"latlon_spherical_unittest" start time: May 08 23:20 中国标准时间
+"latlon_spherical_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
-[==========] Running 10 tests from 1 test suite.
+[==========] Running 13 tests from 1 test suite.
 [----------] Global test environment set-up.
-[----------] 10 tests from latlon_spherical_unittest
+[----------] 13 tests from latlon_spherical_unittest
 [ RUN      ] latlon_spherical_unittest.constructor
 [       OK ] latlon_spherical_unittest.constructor (0 ms)
 [ RUN      ] latlon_spherical_unittest.alternate_point_formats
-[       OK ] latlon_spherical_unittest.alternate_point_formats (2 ms)
+[       OK ] latlon_spherical_unittest.alternate_point_formats (1 ms)
 [ RUN      ] latlon_spherical_unittest.dist_brng_dest
 [       OK ] latlon_spherical_unittest.dist_brng_dest (0 ms)
 [ RUN      ] latlon_spherical_unittest.dist_brng_dest_fails
 [       OK ] latlon_spherical_unittest.dist_brng_dest_fails (0 ms)
 [ RUN      ] latlon_spherical_unittest.intersection
-D:\workspace\github\geodesy\test\latlon_spherical_unittest.cpp(133): error: Expected equality of these values:
-  geodesy::LatLonSpherical::intersection(geodesy::LatLonSpherical(-77.6966041375563, 18.2812500000000), 179.99999999999994, geodesy::LatLonSpherical(89, 180), 180).toString()
-    Which is: "90.0000\xC2\xB0S, 163.9902\xC2\xB0W"
-    As Text: "90.0000°S, 163.9902°W"
-  "90.0000°S, 163.9902°W'"
-    Which is: "90.0000\xC2\xB0S, 163.9902\xC2\xB0W'"
-    As Text: "90.0000°S, 163.9902°W'"
-[  FAILED  ] latlon_spherical_unittest.intersection (1 ms)
+[       OK ] latlon_spherical_unittest.intersection (0 ms)
 [ RUN      ] latlon_spherical_unittest.cross_track_along_track
 [       OK ] latlon_spherical_unittest.cross_track_along_track (0 ms)
+[ RUN      ] latlon_spherical_unittest.cross_track_along_track_edge_cases
+[       OK ] latlon_spherical_unittest.cross_track_along_track_edge_cases (0 ms)
 [ RUN      ] latlon_spherical_unittest.misc
 [       OK ] latlon_spherical_unittest.misc (0 ms)
 [ RUN      ] latlon_spherical_unittest.area_polygon_based
 [       OK ] latlon_spherical_unittest.area_polygon_based (0 ms)
+[ RUN      ] latlon_spherical_unittest.area_polygon_edge_cases
+[       OK ] latlon_spherical_unittest.area_polygon_edge_cases (0 ms)
 [ RUN      ] latlon_spherical_unittest.Ed_Williams
-[       OK ] latlon_spherical_unittest.Ed_Williams (5 ms)
+[       OK ] latlon_spherical_unittest.Ed_Williams (3 ms)
 [ RUN      ] latlon_spherical_unittest.rhumb_lines
 [       OK ] latlon_spherical_unittest.rhumb_lines (0 ms)
-[----------] 10 tests from latlon_spherical_unittest (13 ms total)
+[ RUN      ] latlon_spherical_unittest.rhumb_line_edge_cases
+[       OK ] latlon_spherical_unittest.rhumb_line_edge_cases (0 ms)
+[----------] 13 tests from latlon_spherical_unittest (8 ms total)
 
 [----------] Global test environment tear-down
-[==========] 10 tests from 1 test suite ran. (13 ms total)
-[  PASSED  ] 9 tests.
-[  FAILED  ] 1 test, listed below:
-[  FAILED  ] latlon_spherical_unittest.intersection
-
- 1 FAILED TEST
+[==========] 13 tests from 1 test suite ran. (9 ms total)
+[  PASSED  ] 13 tests.
 <end of output>
-Test time =   0.14 sec
+Test time =   0.03 sec
 ----------------------------------------------------------
-Test Failed.
-"latlon_spherical_unittest" end time: May 08 23:20 中国标准时间
+Test Passed.
+"latlon_spherical_unittest" end time: May 09 00:00 中国标准时间
 "latlon_spherical_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -177,7 +172,7 @@ Test Failed.
 5/10 Test: latlon_nvector_spherical_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/latlon_nvector_spherical_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"latlon_nvector_spherical_unittest" start time: May 08 23:20 中国标准时间
+"latlon_nvector_spherical_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -185,17 +180,17 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [----------] Global test environment set-up.
 [----------] 21 tests from latlon_nvector_spherical_unittest
 [ RUN      ] latlon_nvector_spherical_unittest.examples
-[       OK ] latlon_nvector_spherical_unittest.examples (1 ms)
+[       OK ] latlon_nvector_spherical_unittest.examples (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.examples_NvectorSpherical
 [       OK ] latlon_nvector_spherical_unittest.examples_NvectorSpherical (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.constructor_with_strings
-[       OK ] latlon_nvector_spherical_unittest.constructor_with_strings (1 ms)
+[       OK ] latlon_nvector_spherical_unittest.constructor_with_strings (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.constructor_fail
 [       OK ] latlon_nvector_spherical_unittest.constructor_fail (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.getters_setters
-[       OK ] latlon_nvector_spherical_unittest.getters_setters (1 ms)
+[       OK ] latlon_nvector_spherical_unittest.getters_setters (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.setters_fail
-[       OK ] latlon_nvector_spherical_unittest.setters_fail (1 ms)
+[       OK ] latlon_nvector_spherical_unittest.setters_fail (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.toString
 [       OK ] latlon_nvector_spherical_unittest.toString (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.great_circle
@@ -203,7 +198,7 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [ RUN      ] latlon_nvector_spherical_unittest.dist_brng_dest
 [       OK ] latlon_nvector_spherical_unittest.dist_brng_dest (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.intersection
-[       OK ] latlon_nvector_spherical_unittest.intersection (1 ms)
+[       OK ] latlon_nvector_spherical_unittest.intersection (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.crosstrack_alongtrack
 [       OK ] latlon_nvector_spherical_unittest.crosstrack_alongtrack (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.trilaterate
@@ -211,7 +206,7 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [ RUN      ] latlon_nvector_spherical_unittest.area_enclosed_polygon_based
 [       OK ] latlon_nvector_spherical_unittest.area_enclosed_polygon_based (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.Ed_Williams
-[       OK ] latlon_nvector_spherical_unittest.Ed_Williams (5 ms)
+[       OK ] latlon_nvector_spherical_unittest.Ed_Williams (3 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.misc
 [       OK ] latlon_nvector_spherical_unittest.misc (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.example_5_surface_distance
@@ -226,16 +221,16 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [       OK ] latlon_nvector_spherical_unittest.example_9_Intersection_of_two_paths (0 ms)
 [ RUN      ] latlon_nvector_spherical_unittest.example_10_Cross_track_distance
 [       OK ] latlon_nvector_spherical_unittest.example_10_Cross_track_distance (0 ms)
-[----------] 21 tests from latlon_nvector_spherical_unittest (16 ms total)
+[----------] 21 tests from latlon_nvector_spherical_unittest (10 ms total)
 
 [----------] Global test environment tear-down
-[==========] 21 tests from 1 test suite ran. (16 ms total)
+[==========] 21 tests from 1 test suite ran. (10 ms total)
 [  PASSED  ] 21 tests.
 <end of output>
-Test time =   0.05 sec
+Test time =   0.11 sec
 ----------------------------------------------------------
 Test Passed.
-"latlon_nvector_spherical_unittest" end time: May 08 23:20 中国标准时间
+"latlon_nvector_spherical_unittest" end time: May 09 00:00 中国标准时间
 "latlon_nvector_spherical_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -243,7 +238,7 @@ Test Passed.
 6/10 Test: latlon_ellipsoidal_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/latlon_ellipsoidal_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"latlon_ellipsoidal_unittest" start time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -253,21 +248,21 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [ RUN      ] latlon_ellipsoidal_unittest.constructor
 [       OK ] latlon_ellipsoidal_unittest.constructor (0 ms)
 [ RUN      ] latlon_ellipsoidal_unittest.parse
-[       OK ] latlon_ellipsoidal_unittest.parse (9 ms)
+[       OK ] latlon_ellipsoidal_unittest.parse (4 ms)
 [ RUN      ] latlon_ellipsoidal_unittest.toString
-[       OK ] latlon_ellipsoidal_unittest.toString (1 ms)
+[       OK ] latlon_ellipsoidal_unittest.toString (0 ms)
 [ RUN      ] latlon_ellipsoidal_unittest.getters_setters
 [       OK ] latlon_ellipsoidal_unittest.getters_setters (0 ms)
-[----------] 4 tests from latlon_ellipsoidal_unittest (11 ms total)
+[----------] 4 tests from latlon_ellipsoidal_unittest (6 ms total)
 
 [----------] Global test environment tear-down
-[==========] 4 tests from 1 test suite ran. (11 ms total)
+[==========] 4 tests from 1 test suite ran. (6 ms total)
 [  PASSED  ] 4 tests.
 <end of output>
-Test time =   0.15 sec
+Test time =   0.11 sec
 ----------------------------------------------------------
 Test Passed.
-"latlon_ellipsoidal_unittest" end time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_unittest" end time: May 09 00:00 中国标准时间
 "latlon_ellipsoidal_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -275,7 +270,7 @@ Test Passed.
 7/10 Test: latlon_ellipsoidal_referenceframe_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/latlon_ellipsoidal_referenceframe_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"latlon_ellipsoidal_referenceframe_unittest" start time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_referenceframe_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -289,13 +284,13 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [----------] 2 tests from ReferenceFrame (1 ms total)
 
 [----------] Global test environment tear-down
-[==========] 2 tests from 1 test suite ran. (2 ms total)
+[==========] 2 tests from 1 test suite ran. (1 ms total)
 [  PASSED  ] 2 tests.
 <end of output>
-Test time =   0.15 sec
+Test time =   0.09 sec
 ----------------------------------------------------------
 Test Passed.
-"latlon_ellipsoidal_referenceframe_unittest" end time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_referenceframe_unittest" end time: May 09 00:00 中国标准时间
 "latlon_ellipsoidal_referenceframe_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -303,7 +298,7 @@ Test Passed.
 8/10 Test: latlon_ellipsoidal_datum_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/latlon_ellipsoidal_datum_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"latlon_ellipsoidal_datum_unittest" start time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_datum_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -311,7 +306,7 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [----------] Global test environment set-up.
 [----------] 6 tests from latlon_ellipsoidal_datum_unittest
 [ RUN      ] latlon_ellipsoidal_datum_unittest.examples
-[       OK ] latlon_ellipsoidal_datum_unittest.examples (1 ms)
+[       OK ] latlon_ellipsoidal_datum_unittest.examples (0 ms)
 [ RUN      ] latlon_ellipsoidal_datum_unittest.getter
 [       OK ] latlon_ellipsoidal_datum_unittest.getter (0 ms)
 [ RUN      ] latlon_ellipsoidal_datum_unittest.convert_datum_Greenwich
@@ -321,17 +316,17 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [ RUN      ] latlon_ellipsoidal_datum_unittest.equals
 [       OK ] latlon_ellipsoidal_datum_unittest.equals (0 ms)
 [ RUN      ] latlon_ellipsoidal_datum_unittest.cartesian
-[       OK ] latlon_ellipsoidal_datum_unittest.cartesian (1 ms)
-[----------] 6 tests from latlon_ellipsoidal_datum_unittest (3 ms total)
+[       OK ] latlon_ellipsoidal_datum_unittest.cartesian (0 ms)
+[----------] 6 tests from latlon_ellipsoidal_datum_unittest (1 ms total)
 
 [----------] Global test environment tear-down
-[==========] 6 tests from 1 test suite ran. (4 ms total)
+[==========] 6 tests from 1 test suite ran. (1 ms total)
 [  PASSED  ] 6 tests.
 <end of output>
-Test time =   0.16 sec
+Test time =   0.11 sec
 ----------------------------------------------------------
 Test Passed.
-"latlon_ellipsoidal_datum_unittest" end time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_datum_unittest" end time: May 09 00:00 中国标准时间
 "latlon_ellipsoidal_datum_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -339,7 +334,7 @@ Test Passed.
 9/10 Test: latlon_ellipsoidal_vincenty_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/latlon_ellipsoidal_vincenty_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"latlon_ellipsoidal_vincenty_unittest" start time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_vincenty_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -359,23 +354,23 @@ D:\workspace\github\geodesy\test\latlon_ellipsoidal_vincenty_unittest.cpp(35): e
     As Text: "54.3639°N, 004.5304°W"
   "54.3639�N, 004.5304�W"
     Which is: "54.3639\xB0N, 004.5304\xB0W"
-[  FAILED  ] latlon_ellipsoidal_vincenty_unittest.example (1 ms)
+[  FAILED  ] latlon_ellipsoidal_vincenty_unittest.example (0 ms)
 [ RUN      ] latlon_ellipsoidal_vincenty_unittest.Uk
 [       OK ] latlon_ellipsoidal_vincenty_unittest.Uk (0 ms)
-[----------] 2 tests from latlon_ellipsoidal_vincenty_unittest (2 ms total)
+[----------] 2 tests from latlon_ellipsoidal_vincenty_unittest (1 ms total)
 
 [----------] Global test environment tear-down
-[==========] 2 tests from 1 test suite ran. (2 ms total)
+[==========] 2 tests from 1 test suite ran. (1 ms total)
 [  PASSED  ] 1 test.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] latlon_ellipsoidal_vincenty_unittest.example
 
  1 FAILED TEST
 <end of output>
-Test time =   0.17 sec
+Test time =   0.09 sec
 ----------------------------------------------------------
 Test Failed.
-"latlon_ellipsoidal_vincenty_unittest" end time: May 08 23:20 中国标准时间
+"latlon_ellipsoidal_vincenty_unittest" end time: May 09 00:00 中国标准时间
 "latlon_ellipsoidal_vincenty_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -383,7 +378,7 @@ Test Failed.
 10/10 Test: vector3d_unittest
 Command: "D:/workspace/github/geodesy/build/test/Debug/vector3d_unittest.exe"
 Directory: D:/workspace/github/geodesy/build/test
-"vector3d_unittest" start time: May 08 23:20 中国标准时间
+"vector3d_unittest" start time: May 09 00:00 中国标准时间
 Output:
 ----------------------------------------------------------
 Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googletest\src\gtest_main.cc
@@ -407,14 +402,14 @@ Running main() from D:\workspace\github\geodesy\build\_deps\googletest-src\googl
 [----------] 7 tests from vector3d_unittest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 7 tests from 1 test suite ran. (1 ms total)
+[==========] 7 tests from 1 test suite ran. (0 ms total)
 [  PASSED  ] 7 tests.
 <end of output>
-Test time =   0.13 sec
+Test time =   0.08 sec
 ----------------------------------------------------------
 Test Passed.
-"vector3d_unittest" end time: May 08 23:20 中国标准时间
+"vector3d_unittest" end time: May 09 00:00 中国标准时间
 "vector3d_unittest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: May 08 23:20 中国标准时间
+End testing: May 09 00:00 中国标准时间
