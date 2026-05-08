@@ -28,132 +28,220 @@
 ***********************************************************************************/
 #include "dms.h"
 
-#include <iomanip>
-#include <sstream>
-#include <cmath>
-#include <locale>
+#include "algorithm.h"
+#include "strutil.h"
 
-#include "vector3d.h"
+#include <cmath>
+#include <iomanip>
+#include <regex>
+#include <sstream>
+#include <vector>
+
+namespace
+{
+    int defaultDecimalPlaces(geodesy::Dms::eFormat format)
+    {
+        switch (format)
+        {
+        case geodesy::Dms::D:
+            return 4;
+        case geodesy::Dms::DM:
+            return 2;
+        case geodesy::Dms::DMS:
+            return 0;
+        case geodesy::Dms::N:
+            return 4;
+        }
+
+        return 4;
+    }
+
+    double decimalScale(int decimalPlaces)
+    {
+        return std::pow(10.0, decimalPlaces);
+    }
+
+    bool parseNumberToken(const std::string& token, double& value)
+    {
+        try
+        {
+            std::size_t consumed = 0;
+            value = std::stod(token, &consumed);
+            return consumed == token.size() && std::isfinite(value);
+        }
+        catch (const std::exception&)
+        {
+            return false;
+        }
+    }
+
+    std::string formatFixed(double value, int decimalPlaces)
+    {
+        std::ostringstream stream;
+        stream << std::fixed << std::setprecision(decimalPlaces) << value;
+        return stream.str();
+    }
+
+    std::string padLeft(std::string value, std::size_t width)
+    {
+        if (value.size() >= width)
+            return value;
+
+        return std::string(width - value.size(), '0') + value;
+    }
+
+    std::string formatDegrees(double degrees, int decimalPlaces)
+    {
+        return padLeft(formatFixed(degrees, decimalPlaces), decimalPlaces == 0 ? 3 : 4 + decimalPlaces);
+    }
+
+    std::string formatMinutes(double minutes, int decimalPlaces)
+    {
+        return padLeft(formatFixed(minutes, decimalPlaces), decimalPlaces == 0 ? 2 : 3 + decimalPlaces);
+    }
+
+    std::string formatSeconds(double seconds, int decimalPlaces)
+    {
+        return padLeft(formatFixed(seconds, decimalPlaces), decimalPlaces == 0 ? 2 : 3 + decimalPlaces);
+    }
+}
 
 using namespace geodesy;
 
-std::string& Dms::_separator = *new std::string("");
+std::string& Dms::mutableSeparator()
+{
+   // Keep the current C++ API default empty while allowing callers to opt into another separator.
+   static std::string separator = "";
+   return separator;
+}
 
 std::string Dms::separator()
 {
-   return _separator;
+   return mutableSeparator();
 }
 
 void Dms::setSeparator(const std::string& sep)
 {
-   _separator = sep;
+   mutableSeparator() = sep;
+}
+
+double Dms::parse(double degrees)
+{
+   return degrees;
+}
+
+double Dms::parse(const char* dms)
+{
+   if (dms == nullptr)
+      return NAN;
+
+   return parse(std::string(dms));
+}
+
+double Dms::parse(const std::string& dms)
+{
+   const std::string trimmed = strutil::strip(dms);
+   if (trimmed.empty())
+      return NAN;
+
+   double decimalDegrees = NAN;
+   if (std::regex_match(trimmed, std::regex(R"(^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$)")))
+   {
+      return parseNumberToken(trimmed, decimalDegrees) ? decimalDegrees : NAN;
+   }
+
+   // Strip the leading sign and trailing hemisphere before splitting degree, minute, and second fields.
+   std::string unsignedDms = std::regex_replace(trimmed, std::regex(R"(^-)"), "");
+   unsignedDms = std::regex_replace(unsignedDms, std::regex(R"(\s*[NSEW]\s*$)", std::regex_constants::icase), "");
+
+   std::vector<std::string> dmsParts = strutil::split_regex(unsignedDms, "[^0-9.,]+");
+   while (!dmsParts.empty() && dmsParts.back().empty())
+      dmsParts.pop_back();
+   while (!dmsParts.empty() && dmsParts.front().empty())
+      dmsParts.erase(dmsParts.begin());
+
+   if (dmsParts.empty() || dmsParts.size() > 3)
+      return NAN;
+
+   std::vector<double> numericParts;
+   numericParts.reserve(dmsParts.size());
+   for (const auto& part : dmsParts)
+   {
+      double value = NAN;
+      if (!parseNumberToken(part, value))
+         return NAN;
+      numericParts.push_back(value);
+   }
+
+   // Interpret split fields using the reference d/m/s rules: d, d+m/60, or d+m/60+s/3600.
+   switch (numericParts.size())
+   {
+   case 3:
+      decimalDegrees = numericParts[0] + numericParts[1] / 60.0 + numericParts[2] / 3600.0;
+      break;
+   case 2:
+      decimalDegrees = numericParts[0] + numericParts[1] / 60.0;
+      break;
+   case 1:
+      decimalDegrees = numericParts[0];
+      break;
+   default:
+      return NAN;
+   }
+
+   if (std::regex_search(trimmed, std::regex(R"(^-|\s*[WS]\s*$)", std::regex_constants::icase)))
+      decimalDegrees = -decimalDegrees;
+
+   return decimalDegrees;
 }
 
 std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)
 {
    // give up here if we can't make a number from deg
-   if (isnan(deg)) 
+   if (std::isnan(deg) || !std::isfinite(deg))
       return "";
 
-   // default values
-   if (dp == std::nullopt) 
-   {
-      switch (format)
-      {
-      case D: 
-         dp = 4;
-         break;
-      case DM: 
-         dp = 2;
-         break;
-      case DMS: 
-         dp = 0;
-         break;
-      case N:
-          dp = 4;
-          break;
-      }
-   }
+   const int decimalPlaces = dp.value_or(defaultDecimalPlaces(format));
+   if (decimalPlaces < 0)
+      return "";
+
+   if (format == N)
+      return formatFixed(deg, decimalPlaces);
 
    // (unsigned result ready for appending compass dir'n)
-   deg = std::fabs(deg);  
+   deg = std::fabs(deg);
 
    std::string dms;
    switch (format)
    {
    case D:
       {
-         std::string d;
-         std::stringstream dss;
-         // left-pad with leading zeros (note may include decimals)
-         dss << std::fixed << std::setprecision(*dp) << std::setfill('0') << deg;// round/right-pad degrees
-         d = dss.str();
-         if (deg < 100) d = "0" + d;                    // left-pad with leading zeros (note may include decimals)
-         if (deg < 10) d = "0" + d;
-         dms = d + "°";
+         dms = formatDegrees(deg, decimalPlaces) + "°";
       }
       break;
    case DM:
       {
-         std::string  m;
-         std::stringstream dss, mss;
-
-         int dd = static_cast<int>(std::floor(deg)); // get component deg
-         double dm = std::fmod((deg * 60), 60); // get component min & round/right-pad
-
-         if (std::fabs(60.0 - dm) < (*dp + 1) * 0.1) // check for rounding up
-         {
-            dm = 0.0;
-            ++dd;
-         }
-         
-         dss << std::setfill('0') << std::setw(3) << dd;
-         mss << std::fixed << std::setprecision(*dp) << dm;
-         m = mss.str();
-
-         if (dm < 10)
-            m = "0" + m;
-         dms = dss.str() + "°" + _separator + m + "′";
+         const double scale = decimalScale(decimalPlaces);
+         const double roundedMinutes = std::round(deg * 60.0 * scale) / scale;
+         const auto degrees = static_cast<int>(std::floor(roundedMinutes / 60.0));
+         const double minutes = roundedMinutes - degrees * 60.0;
+         dms = padLeft(std::to_string(degrees), 3) + "°" + mutableSeparator()
+            + formatMinutes(minutes, decimalPlaces) + "′";
       }
       break;
    case DMS:
       {
-         std::string d, m, s;
-         std::stringstream dss, mss, sss;
-
-         int dd = static_cast<int>(std::floor(deg)); // get component deg
-         int dm = static_cast<int>(std::fmod((deg * 3600) / 60, 60)); // get component min
-         double ds = std::fmod(deg * 3600, 60); // get component sec & round/right-pad
-
-         if(std::fabs(60.0 - ds) <= (*dp + 1) * 0.1 ) // check for rounding up
-         {
-            ds = 0;
-            ++dm;
-         }
-
-         // check for rounding up
-         if (dm == 60) // check for rounding up
-         {
-            dm = 0.0;
-            ++dd;
-         }
-
-         dss << std::setfill('0') << std::setw(3) << dd;
-         mss << std::setfill('0') << std::setw(2) << dm;
-         sss << std::fixed << std::setprecision(*dp) << std::setfill('0') << ds;
-         s = sss.str();
-
-         if (ds < 10) s = "0" + s;
-
-         dms = dss.str() + "°" + mss.str() + "′" + s + "″";
+         const double scale = decimalScale(decimalPlaces);
+         const double roundedSeconds = std::round(deg * 3600.0 * scale) / scale;
+         const auto degrees = static_cast<int>(std::floor(roundedSeconds / 3600.0));
+         const auto minutes = static_cast<int>(std::floor((roundedSeconds - degrees * 3600.0) / 60.0));
+         const double seconds = roundedSeconds - degrees * 3600.0 - minutes * 60.0;
+         dms = padLeft(std::to_string(degrees), 3) + "°" + mutableSeparator()
+            + padLeft(std::to_string(minutes), 2) + "′" + mutableSeparator()
+            + formatSeconds(seconds, decimalPlaces) + "″";
       }
       break;
    case N:
-      {
-         std::stringstream dmss;
-         dmss << std::fixed << std::setprecision(*dp) << std::setfill('0') << deg;
-         dms = dmss.str();
-      }
       break;
    }
    return dms;
@@ -162,20 +250,23 @@ std::string Dms::toDms(double deg, eFormat format, std::optional<int> dp)
 std::string Dms::toLat(double deg, eFormat format, std::optional<int> dp)
 {
    const std::string lat = toDms(wrap90(deg), format, dp);
-   return lat.empty() ? "-" : lat.substr(1) + _separator + (deg < 0 ? "S" : "N"); // knock off initial '0' for lat!
+   return lat.empty() ? "-" : lat.substr(1) + mutableSeparator() + (deg < 0 ? "S" : "N");
 }
 
 std::string Dms::toLon(double deg, eFormat format, std::optional<int> dp)
 {
    const std::string lon = toDms(wrap180(deg), format, dp);
-   return lon.empty() ? "-" : lon + _separator + (deg < 0 ? "W" : "E");
+   return lon.empty() ? "-" : lon + mutableSeparator() + (deg < 0 ? "W" : "E");
 }
 
 std::string Dms::toBearing(double deg, eFormat format, std::optional<int> dp)
 {
    const std::string brng = toDms(wrap360(deg), format, dp);
    // just in case rounding took us up to 360∼!
-   return brng.empty() ? "-" : std::regex_replace(brng, std::regex("360"), "0");
+   if (brng.empty())
+      return "-";
+
+   return brng.rfind("360", 0) == 0 ? "0" + brng.substr(3) : brng;
 }
 
 std::string Dms::compassPoint(double bearing, int precision)
@@ -198,39 +289,15 @@ std::string Dms::compassPoint(double bearing, int precision)
 
 double Dms::wrap360(double degrees)
 {
-   if (0 <= degrees && degrees < 360)
-      return degrees; // avoid rounding due to arithmetic ops if within range
-    // bearing wrapping requires a sawtooth wave function with a vertical offset equal to the
-    // amplitude and a corresponding phase shift; this changes the general sawtooth wave function from
-    //     f(x) = (2ax/p - p/2) % p - a
-    // to
-    //     f(x) = (2ax/p) % p
-    // where a = amplitude, p = period, % = modulo; however, c++ fmod is a remainder operator
-    // not a modulo operator - for modulo, replace 'x%n' with '((x%n)+n)%n'
-    const double x = degrees, a = 180, p = 360;
-    return  std::fmod(std::fmod(2 * a* x / p, p) + p, p);
+   return geodesy::wrap360(degrees);
 }
 
 double Dms::wrap180(double degrees)
 {
-   if (-180 < degrees && degrees <= 180)
-      return degrees; // avoid rounding due to arithmetic ops if within range
-    // longitude wrapping requires a sawtooth wave function; a general sawtooth wave is
-    //     f(x) = (2ax/p - p/2) % p - a
-    // where a = amplitude, p = period, % = modulo; however, c++ fmod is a remainder operator
-    // not a modulo operator - for modulo, replace 'x%n' with '((x%n)+n)%n'
-    const double x = degrees, a = 180, p = 360;
-    return std::fmod((std::fmod((2*a*x/p - p/2), p)+p) ,p) - a;
+   return geodesy::wrap180(degrees);
 }
 
 double Dms::wrap90(double degrees)
 {
-   if (-90 <= degrees && degrees <= 90)
-      return degrees; // avoid rounding due to arithmetic ops if within range
-    // latitude wrapping requires a triangle wave function; a general triangle wave is
-    //     f(x) = 4a/p ⋅ | (x-p/4)%p - p/2 | - a
-    // where a = amplitude, p = period, % = modulo; however, c++ fmod is a remainder operator
-    // not a modulo operator - for modulo, replace 'x%n' with '((x%n)+n)%n'
-    const double x = degrees, a = 90, p = 360;
-    return 4*a/p * std::abs(std::fmod((std::fmod((x-p/4), p)+p) ,p) - p/2) - a;
+   return geodesy::wrap90(degrees);
 }

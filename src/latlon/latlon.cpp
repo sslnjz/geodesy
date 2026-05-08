@@ -30,13 +30,26 @@
 #include "latlon.h"
 
 #include <cmath>
-#include <sstream>
 #include <iomanip>
+#include <limits>
+#include <sstream>
+#include <utility>
 
 #include "dms.h"
 #include "strutil.h"
 
 using namespace geodesy;
+
+namespace
+{
+   constexpr double coordinateEqualityTolerance = 1e-12;
+
+   double displayLongitudeDegrees(double longitude)
+   {
+      // Keep stored longitudes normalized while preserving the established 180E formatted boundary.
+      return std::fabs(longitude + 180.0) <= 1e-9 ? 180.0 : longitude;
+   }
+}
 
 LatLon::LatLon() noexcept
    : m_lat(0), m_lon(0)
@@ -44,21 +57,15 @@ LatLon::LatLon() noexcept
 }
 
 LatLon::LatLon(double lat, double lon)
+   : m_lat(normalizeLatitudeDegrees(lat))
+   , m_lon(normalizeLongitudeDegrees(lon))
 {
-   if (std::isnan(lat)) throw std::invalid_argument("invalid lat’");
-   if (std::isnan(lon)) throw std::invalid_argument("invalid lon’");
-
-   m_lat = Dms::wrap90(lat);
-   m_lon = Dms::wrap180(lon);
 }
 
 LatLon::LatLon(const std::string& lat, const std::string& lon)
+   : m_lat(normalizeLatitudeDegrees(Dms::parse(lat)))
+   , m_lon(normalizeLongitudeDegrees(Dms::parse(lon)))
 {
-   if (std::isnan(Dms::parse(lat))) throw std::invalid_argument("invalid lat’");
-   if (std::isnan(Dms::parse(lon))) throw std::invalid_argument("invalid lon’");
-
-   m_lat = Dms::wrap90(Dms::parse(lat));
-   m_lon = Dms::wrap180(Dms::parse(lon));
 }
 
 LatLon::LatLon(const LatLon& rhs) noexcept
@@ -129,8 +136,8 @@ double LatLon::longitude() const
 
 bool geodesy::operator==(const LatLon& p1, const LatLon& p2)
 {
-   if (std::fabs(p1.m_lat - p2.m_lat) > std::numeric_limits<double>::epsilon()) return false;
-   if (std::fabs(p1.m_lon - p2.m_lon) > std::numeric_limits<double>::epsilon()) return false;
+   if (std::fabs(p1.m_lat - p2.m_lat) > coordinateEqualityTolerance) return false;
+   if (std::fabs(p1.m_lon - p2.m_lon) > coordinateEqualityTolerance) return false;
    return true;
 }
 
@@ -171,7 +178,7 @@ std::string LatLon::toString(Dms::eFormat e,  std::optional<int> dp) const
       return ss.str();
    }
 
-   return Dms::toLat(m_lat, e, dp) + ", " + Dms::toLon(m_lon, e, dp);
+   return Dms::toLat(m_lat, e, dp) + ", " + Dms::toLon(displayLongitudeDegrees(m_lon), e, dp);
 }
 
 std::string LatLon::toGeoJSON() const
@@ -188,4 +195,23 @@ std::string LatLon::toGeoJSON() const
 bool LatLon::equals(const LatLon& point) const
 {
    return *this == point;
+}
+
+double LatLon::normalizeLatitudeDegrees(double latitude)
+{
+   if (!std::isfinite(latitude))
+      throw std::invalid_argument("invalid latitude");
+
+   // Latitude follows the reference triangle-wave wrapping, allowing JS-style inputs beyond the poles.
+   return Dms::wrap90(latitude);
+}
+
+double LatLon::normalizeLongitudeDegrees(double longitude)
+{
+   if (!std::isfinite(longitude))
+      throw std::invalid_argument("invalid longitude");
+
+   // Longitude is stored in the half-open interval [-180, 180), matching the reference wrap convention.
+   const double wrapped = Dms::wrap180(longitude);
+   return wrapped == 180.0 ? -180.0 : wrapped;
 }

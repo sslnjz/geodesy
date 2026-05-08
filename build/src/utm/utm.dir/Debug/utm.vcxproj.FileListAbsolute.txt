@@ -1,0 +1,1 @@
+D:\workspace\github\geodesy\build\src\utm\utm.dir\Debug\utm.lib

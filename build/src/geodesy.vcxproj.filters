@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\workspace\github\geodesy\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="D:\workspace\github\geodesy\build\src\dms\dms.dir\$(Configuration)\dms.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\utils\utils.dir\$(Configuration)\strutil.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_utm.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_osgridref.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_spherical.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_ellipsoidal.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_nvector_spherical.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_nvector_ellipsoidal.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_ellipsoidal_vincenty.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_ellipsoidal_referenceframe.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_ellipsoidal_datum.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\latlon\latlon.dir\$(Configuration)\latlon_utm_mgrs.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\ned.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\cartesian.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\cartesian_datum.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\nvector_ellipsoidal.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\nvector_spherical.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\nvector_cartesian.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\cartesian_referenceFrame.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\vector\vector.dir\$(Configuration)\vector3d.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\utm\utm.dir\$(Configuration)\utm.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\utm\utm.dir\$(Configuration)\mgrs.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\utm\utm.dir\$(Configuration)\utm_mgrs.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\workspace\github\geodesy\build\src\utm\utm.dir\$(Configuration)\osgridref.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Object Libraries">
+      <UniqueIdentifier>{6D6DA838-F8DA-3F92-A17F-5B690F27C9C7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

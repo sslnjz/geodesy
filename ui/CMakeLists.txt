@@ -36,9 +36,7 @@ project(geodesy_tool
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(geodesy REQUIRED CONFIG HINTS ..)
-include_directories(${GEODESY_INCLUDE_DIR})
-link_directories(${GEODESY_LIB_DIR})
+include_directories(${INC_DIR})
 
 
 

@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/googletest-populate"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/68979e7ca188a8613853ac985d6a75fc/googletest-populate.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/cb024692ce6e3028fcfaf56417303480/googletest-populate-complete.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-build.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-configure.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-download.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-install.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-mkdir.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-patch.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-test.rule"
+		},
+		{
+			"file" : "D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/1e10e176d32580f5cb3e2d2cbdfcc48c/googletest-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"googletest-populate"
+		],
+		"name" : "googletest-populate"
+	}
+}

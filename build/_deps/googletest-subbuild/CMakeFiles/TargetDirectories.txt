@@ -1,0 +1,3 @@
+D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/googletest-populate.dir
+D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/ALL_BUILD.dir
+D:/workspace/github/geodesy/build/_deps/googletest-subbuild/CMakeFiles/ZERO_CHECK.dir

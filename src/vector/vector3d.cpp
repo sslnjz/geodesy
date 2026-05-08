@@ -1,4 +1,36 @@
+/**********************************************************************************
+*  MIT License                                                                    *
+*                                                                                 *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*                                                                                 *
+*  Geodesy tools for conversions between (historical) datums                      *
+*  (c) Chris Veness 2005-2019                                                     *
+*  www.movable-type.co.uk/scripts/latlong-convert-coords.html                     *
+*  www.movable-type.co.uk/scripts/geodesy-library.html#latlon-ellipsoidal-datum   *
+*                                                                                 *
+*  Permission is hereby granted, free of charge, to any person obtaining a copy   *
+*  of this software and associated documentation files (the "Software"), to deal  *
+*  in the Software without restriction, including without limitation the rights   *
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      *
+*  copies of the Software, and to permit persons to whom the Software is          *
+*  furnished to do so, subject to the following conditions:                       *
+*                                                                                 *
+*  The above copyright notice and this permission notice shall be included in all *
+*  copies or substantial portions of the Software.                                *
+*                                                                                 *
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     *
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       *
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    *
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  *
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
+*  SOFTWARE.                                                                      *
+***********************************************************************************/
 #include "vector3d.h"
+
+#include <cmath>
+#include <sstream>
+#include <stdexcept>
 
 using geodesy::vector3d;
 
@@ -17,9 +49,9 @@ vector3d::vector3d() : vx(0), vy(0), vz(0) { }
 
 vector3d::vector3d(double x, double y, double z) : vx(x), vy(y), vz(z)
 {
-    if (std::isnan(x) || std::isnan(y) || std::isnan(z)) {
+    if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z)) {
         std::stringstream ss;
         ss << "invalid vector[" << x << ", " << y << ", " << z << "]";
-        throw std::runtime_error(ss.str());
+        throw std::invalid_argument(ss.str());
     }
 }

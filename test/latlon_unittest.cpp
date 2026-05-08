@@ -29,6 +29,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <limits>
 
 #include "geodesy/latlon.h"
 #include "geodesy/dms.h"
@@ -70,12 +71,16 @@ TEST_F(latlon_unittest, examples)
 TEST_F(latlon_unittest, constructor_with_strings)
 {
    EXPECT_EQ(geodesy::LatLon("52.205", "0.119"), geodesy::LatLon(52.205, 0.119));
+   EXPECT_EQ(geodesy::LatLon("52°12′18.0″N", "000°07′08.4″E"), geodesy::LatLon(52.205, 0.119));
 }
 
 TEST_F(latlon_unittest, constructor_fail)
 {
    EXPECT_THROW(geodesy::LatLon("x", "x"), std::invalid_argument);
-   EXPECT_THROW(geodesy::LatLon("x", "x"), std::invalid_argument);
+   EXPECT_THROW(geodesy::LatLon(std::numeric_limits<double>::quiet_NaN(), 0), std::invalid_argument);
+   EXPECT_THROW(geodesy::LatLon(0, std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+   EXPECT_THROW(geodesy::LatLon(std::numeric_limits<double>::infinity(), 0), std::invalid_argument);
+   EXPECT_THROW(geodesy::LatLon(0, std::numeric_limits<double>::infinity()), std::invalid_argument);
 };
 
 TEST_F(latlon_unittest, parse_fail)
@@ -83,6 +88,7 @@ TEST_F(latlon_unittest, parse_fail)
    EXPECT_THROW(geodesy::LatLon::parse("cam", "bridge"), std::invalid_argument);
    EXPECT_THROW(geodesy::LatLon::parse("cambridge"),     std::invalid_argument);
    EXPECT_THROW(geodesy::LatLon::parse(NAN, NAN), std::invalid_argument);
+   EXPECT_THROW(geodesy::LatLon::parse("52.205, 0.119, 1"), std::invalid_argument);
 }
 
 TEST_F(latlon_unittest, getters_setters)
@@ -115,6 +121,8 @@ TEST_F(latlon_unittest, setters_fail)
    EXPECT_THROW(camb.setLon("xxx"),       std::invalid_argument);
    EXPECT_THROW(camb.setLng("xxx"),       std::invalid_argument);
    EXPECT_THROW(camb.setLongitude("xxx"), std::invalid_argument);
+   EXPECT_THROW(camb.setLat(std::numeric_limits<double>::infinity()), std::invalid_argument);
+   EXPECT_THROW(camb.setLon(std::numeric_limits<double>::infinity()), std::invalid_argument);
 };
 
 TEST_F(latlon_unittest, toString)
@@ -128,9 +136,24 @@ TEST_F(latlon_unittest, toString)
    EXPECT_EQ(btTower.toString(geodesy::Dms::N, 6),    "51.521470, -0.138833");
 }
 
+TEST_F(latlon_unittest, normalizes_anti_meridian_longitudes)
+{
+   EXPECT_DOUBLE_EQ(geodesy::LatLon(0, 181).lon(), -179);
+   EXPECT_DOUBLE_EQ(geodesy::LatLon(0, -181).lon(), 179);
+   EXPECT_DOUBLE_EQ(geodesy::LatLon(0, 540).lon(), -180);
+   EXPECT_DOUBLE_EQ(geodesy::LatLon(0, 180).lon(), -180);
+   EXPECT_EQ(geodesy::LatLon(0, 180).toString(), "00.0000°N, 180.0000°E");
+
+   auto point = geodesy::LatLon(0, 0);
+   point.setLongitude(180);
+   EXPECT_DOUBLE_EQ(point.longitude(), -180);
+}
+
 TEST_F(latlon_unittest, misc)
 {
    EXPECT_TRUE(geodesy::LatLon(52.205, 0.119) == geodesy::LatLon(52.205, 0.119));
    EXPECT_FALSE(geodesy::LatLon(52.206, 0.119) == geodesy::LatLon(52.205, 0.119));
+   EXPECT_TRUE(geodesy::LatLon(52.205, 360.119).equals(geodesy::LatLon(52.205, 0.119)));
+   EXPECT_NE(geodesy::LatLon(52.205, 0.119), geodesy::LatLon(52.205, -0.119));
    EXPECT_EQ(geodesy::LatLon(52.205, 0.119).toGeoJSON(), "{ type: \"Point\", coordinates: [0.119, 52.205] }");
 };

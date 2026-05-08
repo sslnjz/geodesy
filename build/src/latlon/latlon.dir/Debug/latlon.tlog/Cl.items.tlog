@@ -1,0 +1,11 @@
+D:\workspace\github\geodesy\src\latlon\latlon.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon.obj
+D:\workspace\github\geodesy\src\latlon\latlon_utm.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_utm.obj
+D:\workspace\github\geodesy\src\latlon\latlon_osgridref.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_osgridref.obj
+D:\workspace\github\geodesy\src\latlon\latlon_spherical.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_spherical.obj
+D:\workspace\github\geodesy\src\latlon\latlon_ellipsoidal.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_ellipsoidal.obj
+D:\workspace\github\geodesy\src\latlon\latlon_nvector_spherical.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_nvector_spherical.obj
+D:\workspace\github\geodesy\src\latlon\latlon_nvector_ellipsoidal.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_nvector_ellipsoidal.obj
+D:\workspace\github\geodesy\src\latlon\latlon_ellipsoidal_vincenty.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_ellipsoidal_vincenty.obj
+D:\workspace\github\geodesy\src\latlon\latlon_ellipsoidal_referenceframe.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_ellipsoidal_referenceframe.obj
+D:\workspace\github\geodesy\src\latlon\latlon_ellipsoidal_datum.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_ellipsoidal_datum.obj
+D:\workspace\github\geodesy\src\latlon\latlon_utm_mgrs.cpp;D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon_utm_mgrs.obj

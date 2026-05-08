@@ -54,6 +54,7 @@ if (MINGW)
 endif ()
 
 include(GNUInstallDirs)
+enable_testing()
 
 set(CMAKE_CONFIG_INSTALL_FILE ${PROJECT_BINARY_DIR}/config.toinstall.cmake)
 set(CMAKE_CONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})

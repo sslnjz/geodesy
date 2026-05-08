@@ -1,0 +1,17 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/workspace/github/geodesy/build/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/src/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/src/dms/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/src/utils/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/src/latlon/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/src/vector/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/src/utm/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/test/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/_deps/googletest-build/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/_deps/googletest-build/googletest/cmake_install.cmake",
+		"D:/workspace/github/geodesy/build/ui/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

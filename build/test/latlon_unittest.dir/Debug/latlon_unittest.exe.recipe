@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\x64\Debug\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\x64\Debug\LINK_HEADERS</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_unittest.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

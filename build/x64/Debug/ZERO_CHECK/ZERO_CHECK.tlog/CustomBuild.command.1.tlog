@@ -1,0 +1,10 @@
+^D:\WORKSPACE\GITHUB\GEODESY\BUILD\CMAKEFILES\631037F726DDC25E4F9AF9F0D317E2E8\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/workspace/github/geodesy -BD:/workspace/github/geodesy/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/workspace/github/geodesy/build/geodesy.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

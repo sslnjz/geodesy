@@ -29,21 +29,28 @@
 #ifndef DMS_H
 #define DMS_H
 
-#include <string>
-#include <regex>
-#include <optional>
 #include <cmath>
+#include <optional>
+#include <regex>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 #include "strutil.h"
 
 namespace geodesy
 {
-   // @note: Unicode Degree = U+00B0. Prime = U+2032, Double prime = U+2033
+   /**
+    * Degree/minute/second parsing, formatting, wrapping, and compass-point helpers.
+    *
+    * Public angle values are decimal degrees. Formatting follows the JavaScript reference convention
+    * of using Unicode degree, prime, and double-prime symbols.
+    */
    class Dms
    {
    public:
       Dms() = default;
-      virtual ~Dms() = default;
+      ~Dms() = default;
 
       enum eFormat
       {
@@ -88,10 +95,15 @@ namespace geodesy
        *   const double lon = Dms.parse("000° 00′ 05.29″ W");
        */
 
-      template<class T>
-      using ENABLE = std::enable_if_t<std::is_arithmetic_v<T> || std::is_convertible_v<T, std::string>>;
-      template<class T, typename = ENABLE<T>>
-      static double parse(const T& dms);
+      [[nodiscard]] static double parse(double degrees);
+      template<class T, std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<std::decay_t<T>, bool>, int> = 0>
+      [[nodiscard]] static double parse(T degrees)
+      {
+         return static_cast<double>(degrees);
+      }
+      [[nodiscard]] static double parse(const std::string& dms);
+      [[nodiscard]] static double parse(const char* dms);
+      static double parse(bool dms) = delete;
 
       /**
        * @brief Converts decimal degrees to deg/min/sec format
@@ -105,7 +117,7 @@ namespace geodesy
        * @param   {number} [dp=4|2|0] - Number of decimal places to use – default 4 for d, 2 for dm, 0 for dms.
        * @returns {string} Degrees formatted as deg/min/secs according to specified format.
        */
-      static std::string toDms(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
+      [[nodiscard]] static std::string toDms(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
       
       /**
        * Converts numeric degrees to deg/min/sec latitude (2-digit degrees, suffixed with N/S).
@@ -117,7 +129,7 @@ namespace geodesy
        * @example
        *   const std::string lat = Dms::toLat(-3.62, 'dms'); // 3°37′12″S
        */
-      static std::string toLat(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
+      [[nodiscard]] static std::string toLat(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
 
       /**
        * Convert numeric degrees to deg/min/sec longitude (3-digit degrees, suffixed with E/W).
@@ -129,7 +141,7 @@ namespace geodesy
        * @example
        *   const std::string lon = Dms::toLon(-3.62, 'dms'); // 3°37′12″W
        */
-      static std::string toLon(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
+      [[nodiscard]] static std::string toLon(double deg, eFormat format = D, std::optional<int> dp = std::nullopt);
 
       /**
        * Converts numeric degrees to deg/min/sec as a bearing (0°..360°).
@@ -154,7 +166,7 @@ namespace geodesy
        *   const std::string point = Dms::compassPoint(24);    // point = "NNE"
        *   const std::string point = Dms::compassPoint(24, 1); // point = "N"
        */
-      static std::string compassPoint(double bearing, int precision = 3);
+      [[nodiscard]] static std::string compassPoint(double bearing, int precision = 3);
 
       /**
        * Constrain degrees to range 0..360 (e.g. for bearings); -1 => 359, 361 => 1.
@@ -163,7 +175,7 @@ namespace geodesy
        * @param degrees {number} degrees to convert
        * @returns degrees within rangye 0..360.
        */
-      static double wrap360(double degrees);
+      [[nodiscard]] static double wrap360(double degrees);
 
       /**
        * Constrain degrees to range -180..+180 (e.g. for longitude); -181 => 179, 181 => -179.
@@ -172,7 +184,7 @@ namespace geodesy
        * @param degrees {number} degrees to convert
        * @returns degrees within range -180..+180.
        */
-      static double wrap180(double degrees);
+      [[nodiscard]] static double wrap180(double degrees);
 
       /**
        * Constrain degrees to range -90..+90 (e.g. for latitude); -91 => -89, 91 => 89.
@@ -181,79 +193,11 @@ namespace geodesy
        * @param {number} degrees degrees to convert
        * @returns degrees within range -90..+90.
        */
-      static double wrap90(double degrees);
+      [[nodiscard]] static double wrap90(double degrees);
 
    private:
-       /* Degree-minutes-seconds (& cardinal directions) separator character */
-       static std::string& _separator; // U+202F = 'narrow no-break space'
+      static std::string& mutableSeparator();
    };
-
-   template <class T, typename>
-   double Dms::parse(const T& dms)
-   {
-      if constexpr (std::is_convertible_v<T, double>)
-      {
-         return dms;
-      }
-
-      // check for signed decimal degrees without NSEW, if so return it directly
-      if (std::regex_search(strutil::strip(dms), std::regex("^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$")))
-      {
-         return std::stod(dms);
-      }
-
-      // strip off any sign or compass dir'n & split out separate d/m/s
-      const std::string trim_dms = strutil::strip(dms);
-      std::vector<std::string> dms_parts = strutil::split_regex(
-         std::regex_replace(trim_dms, std::regex("(^-)|([NSEW]$)", std::regex_constants::icase), ""),
-         "[^0-9.,]+");
-
-      if (dms_parts[dms_parts.size() - 1].empty())
-      {
-         dms_parts.erase(dms_parts.begin() + (dms_parts.size() - 1));
-      }
-
-      if (dms_parts.empty())
-         return NAN;
-
-      std::vector<double> dms_parts_d{};
-      for (auto elem : dms_parts)
-      {
-         try
-         {
-            const double d = std::stod(elem);
-            dms_parts_d.emplace_back(d);
-         }
-         catch (...)
-         {
-            return NAN;
-         }
-      }
-
-      // and convert to decimal degrees...
-      double deg = NAN;
-      switch (dms_parts.size())
-      {
-      case 3:
-         deg = dms_parts_d[0] / 1.000 + dms_parts_d[1] / 60.000 + dms_parts_d[2] / 3600.000;
-         break;
-      case 2:
-         deg = dms_parts_d[0] / 1.000 + dms_parts_d[1] / 60.000;
-         break;
-      case 1:
-         deg = dms_parts_d[0];
-         break;
-      default:
-         return NAN;
-      }
-
-      if (std::regex_search(dms, std::regex("(^-)|([SW]$)")))
-      {
-         deg = -deg; // take '-', west and south as -ve
-      }
-
-      return deg;
-   }
 }
 
 

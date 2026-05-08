@@ -36,9 +36,7 @@ project(geodesy_test
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(geodesy REQUIRED CONFIG HINTS ..)
-include_directories(${GEODESY_INCLUDE_DIR})
-link_directories(${GEODESY_LIB_DIR})
+include_directories(${INC_DIR})
 
 ################################
 # GTest
@@ -49,7 +47,7 @@ include(FetchContent)
 FetchContent_Declare(
 		googletest
 		GIT_REPOSITORY https://github.com/google/googletest.git
-		GIT_TAG        release-1.13.0
+		GIT_TAG        v1.13.0
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -76,6 +74,7 @@ endif ()
 
 set(TEST_LIST
 		dms_unittest
+		js_reference_examples_baseline_unittest
 		latlon_unittest
 		latlon_spherical_unittest
 		latlon_nvector_spherical_unittest
@@ -90,12 +89,14 @@ set(GEODESY_LIB geodesy)
 set(GTEST_LIB gtest gtest_main)
 
 foreach(src ${TEST_LIST})
-	add_executable(${src} EXCLUDE_FROM_ALL ${src}.cpp)
+	add_executable(${src} ${src}.cpp)
 	target_link_libraries(${src} ${GEODESY_LIB} ${GTEST_LIB})
-	add_test(${src} ${src})
+	add_test(NAME ${src} COMMAND ${src})
 	add_dependencies(check ${src})
 endforeach()
 
-foreach(src ${TEST_LIST})
-	add_test(${src}-memory-check ${memcheck_command} ./${src})
-endforeach()
+if (CMAKE_MEMORYCHECK_COMMAND)
+	foreach(src ${TEST_LIST})
+		add_test(NAME ${src}-memory-check COMMAND ${memcheck_command} ./${src})
+	endforeach()
+endif()

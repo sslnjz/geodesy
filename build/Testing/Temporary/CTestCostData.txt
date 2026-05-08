@@ -1,0 +1,13 @@
+js_reference_examples_baseline_unittest 8 0.0243254
+dms_unittest 9 0.0228693
+latlon_unittest 10 0.00508123
+latlon_spherical_unittest 0 0
+latlon_nvector_spherical_unittest 6 0.00789823
+latlon_ellipsoidal_unittest 7 0.0211533
+latlon_ellipsoidal_referenceframe_unittest 6 0.0257702
+latlon_ellipsoidal_datum_unittest 7 0.0225884
+latlon_ellipsoidal_vincenty_unittest 0 0
+vector3d_unittest 8 0.0168357
+---
+latlon_spherical_unittest
+latlon_ellipsoidal_vincenty_unittest

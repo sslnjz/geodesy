@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\x64\Debug\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\x64\Debug\LINK_HEADERS</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\src\x64\Debug\SCRIPT_SHARED_LIB</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\dms_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\ui\Debug\geodesy_tool.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\js_reference_examples_baseline_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_ellipsoidal_datum_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_ellipsoidal_referenceframe_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_ellipsoidal_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_ellipsoidal_vincenty_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_nvector_spherical_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_spherical_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\latlon_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\test\Debug\vector3d_unittest.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\workspace\github\geodesy\build\x64\Debug\ALL_BUILD</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

@@ -1,0 +1,8 @@
+D:\workspace\github\geodesy\src\vector\ned.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\ned.obj
+D:\workspace\github\geodesy\src\vector\cartesian.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\cartesian.obj
+D:\workspace\github\geodesy\src\vector\cartesian_datum.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\cartesian_datum.obj
+D:\workspace\github\geodesy\src\vector\nvector_ellipsoidal.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\nvector_ellipsoidal.obj
+D:\workspace\github\geodesy\src\vector\nvector_spherical.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\nvector_spherical.obj
+D:\workspace\github\geodesy\src\vector\nvector_cartesian.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\nvector_cartesian.obj
+D:\workspace\github\geodesy\src\vector\cartesian_referenceFrame.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\cartesian_referenceFrame.obj
+D:\workspace\github\geodesy\src\vector\vector3d.cpp;D:\workspace\github\geodesy\build\src\vector\vector.dir\Debug\vector3d.obj

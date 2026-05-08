@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\CMakeFiles\4073484a3dc5b49379729a494636bd44\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{FDD54F7F-F703-37EB-8833-D5AFA0D5A779}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -95,6 +95,22 @@ TEST_F(dms_unittest, parse_variations)
    EXPECT_DOUBLE_EQ(45.76260, geodesy::Dms::parse(" 45°45′45.36″ "));
 }
 
+TEST_F(dms_unittest, parse_unicode_hemisphere_and_negative_values)
+{
+   constexpr double greenwichLat = 51.47788055555556;
+   constexpr double greenwichLon = -0.0014694444444444444;
+
+   EXPECT_NEAR(geodesy::Dms::parse("51° 28′ 40.37″ N"), greenwichLat, 1e-14);
+   EXPECT_NEAR(geodesy::Dms::parse("000° 00′ 05.29″ W"), greenwichLon, 1e-14);
+   EXPECT_NEAR(geodesy::Dms::parse("51º28'40.37\"n"), greenwichLat, 1e-14);
+   EXPECT_NEAR(geodesy::Dms::parse("000°00’05.29” w"), greenwichLon, 1e-14);
+
+   EXPECT_DOUBLE_EQ(geodesy::Dms::parse("-3°37′12″"), -3.62);
+   EXPECT_DOUBLE_EQ(geodesy::Dms::parse("3°37′12″S"), -3.62);
+   EXPECT_DOUBLE_EQ(geodesy::Dms::parse("-3°37′12″S"), -3.62);
+   EXPECT_DOUBLE_EQ(geodesy::Dms::parse("3 37 12 e"), 3.62);
+}
+
 TEST_F(dms_unittest, parse_out_of_range)
 {
    EXPECT_DOUBLE_EQ(geodesy::Dms::parse("185"), 185);
@@ -134,7 +150,19 @@ TEST_F(dms_unittest, compass_points)
    EXPECT_EQ(geodesy::Dms::compassPoint(237, 1), "W");
    EXPECT_EQ(geodesy::Dms::compassPoint(237, 2), "SW");
    EXPECT_EQ(geodesy::Dms::compassPoint(237, 3), "WSW");
-   EXPECT_THROW(geodesy::Dms::compassPoint(0, 0), std::range_error);
+   EXPECT_THROW({ const auto ignored = geodesy::Dms::compassPoint(0, 0); (void)ignored; }, std::range_error);
+}
+
+TEST_F(dms_unittest, compass_precision_boundaries)
+{
+   EXPECT_EQ(geodesy::Dms::compassPoint(11.24, 3), "N");
+   EXPECT_EQ(geodesy::Dms::compassPoint(11.25, 3), "NNE");
+   EXPECT_EQ(geodesy::Dms::compassPoint(22.49, 2), "N");
+   EXPECT_EQ(geodesy::Dms::compassPoint(22.50, 2), "NE");
+   EXPECT_EQ(geodesy::Dms::compassPoint(44.99, 1), "N");
+   EXPECT_EQ(geodesy::Dms::compassPoint(45.00, 1), "E");
+   EXPECT_EQ(geodesy::Dms::compassPoint(348.75, 3), "N");
+   EXPECT_THROW({ const auto ignored = geodesy::Dms::compassPoint(0, 4); (void)ignored; }, std::range_error);
 }
 
 TEST_F(dms_unittest, misc)
@@ -150,6 +178,15 @@ TEST_F(dms_unittest, misc)
    EXPECT_EQ(geodesy::Dms::toDms(51.19999999999999, geodesy::Dms::DM),  "051°12.00′");
    EXPECT_EQ(geodesy::Dms::toDms(51.19999999999999, geodesy::Dms::DMS), "051°12′00″");
    EXPECT_EQ(geodesy::Dms::toBearing(1),                                "001.0000°");
+}
+
+TEST_F(dms_unittest, format_boundary_values)
+{
+   EXPECT_EQ(geodesy::Dms::toDms(-3.62, geodesy::Dms::DMS), "003°37′12″");
+   EXPECT_EQ(geodesy::Dms::toLat(-3.62, geodesy::Dms::DMS), "03°37′12″S");
+   EXPECT_EQ(geodesy::Dms::toLon(-3.62, geodesy::Dms::DMS), "003°37′12″W");
+   EXPECT_EQ(geodesy::Dms::toBearing(-3.62, geodesy::Dms::DMS), "356°22′48″");
+   EXPECT_EQ(geodesy::Dms::toBearing(359.999999999, geodesy::Dms::D, 0), "0°");
 }
 
 TEST_F(dms_unittest, parse_failures)

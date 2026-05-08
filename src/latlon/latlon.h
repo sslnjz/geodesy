@@ -29,14 +29,17 @@
 #ifndef LATLON_H
 #define LATLON_H
 
+#include <cmath>
+#include <optional>
 #include <string>
+#include <type_traits>
 
 #include "dms.h"
 
 namespace geodesy
 {
    /**
-    * Base LatLon class
+    * Value type for a latitude/longitude coordinate stored as decimal degrees.
     */
    class LatLon
    {
@@ -168,6 +171,10 @@ namespace geodesy
    protected:
       double m_lat; // Latitude in degrees north from equator
       double m_lon; // Longitude in degrees east from international reference meridian
+
+   private:
+      [[nodiscard]] static double normalizeLatitudeDegrees(double latitude);
+      [[nodiscard]] static double normalizeLongitudeDegrees(double longitude);
    };
 
    template <class T, typename>
@@ -175,15 +182,12 @@ namespace geodesy
    {
       if constexpr (std::is_arithmetic_v<T>)
       {
-         m_lat = Dms::wrap90(lat);
+         m_lat = normalizeLatitudeDegrees(static_cast<double>(lat));
       }
       else
       {
-         m_lat = Dms::wrap90(Dms::parse(lat));
+         m_lat = normalizeLatitudeDegrees(Dms::parse(lat));
       }
-      
-      if (std::isnan(m_lat))
-         throw std::invalid_argument("invalid lat");
    }
 
    template <class T, typename>
@@ -197,15 +201,12 @@ namespace geodesy
    {
       if constexpr (std::is_arithmetic_v<T>)
       {
-         m_lon = Dms::wrap180(lon);
+         m_lon = normalizeLongitudeDegrees(static_cast<double>(lon));
       }
       else
       {
-         m_lon = Dms::wrap180(Dms::parse(lon));
+         m_lon = normalizeLongitudeDegrees(Dms::parse(lon));
       }
-      
-      if (std::isnan(m_lon))
-         throw std::invalid_argument("invalid lon");
    }
 
    template <class T, typename>

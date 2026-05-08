@@ -1,0 +1,1 @@
+D:\workspace\github\geodesy\build\src\latlon\latlon.dir\Debug\latlon.lib

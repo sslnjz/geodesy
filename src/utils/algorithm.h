@@ -29,17 +29,61 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include <limits>
 #include <cmath>
 #include <iomanip>
-#include <string>
+#include <limits>
 #include <sstream>
+#include <string>
 // π
-constexpr auto pi = (3.1415926535897931);
+constexpr auto pi = (3.141592653589793238462643383279502884);
 constexpr auto epsilon = std::numeric_limits<double>::epsilon();
 
 namespace geodesy
 {
+   [[nodiscard]] static double positiveModulo(double value, double period)
+   {
+      return std::fmod(std::fmod(value, period) + period, period);
+   }
+
+   /**
+    * Constrain latitude-style degrees to the range -90..+90 using the reference triangle wave.
+    */
+   [[nodiscard]] static double wrap90(double degrees)
+   {
+      if (-90 <= degrees && degrees <= 90)
+         return degrees;
+
+      constexpr double amplitude = 90.0;
+      constexpr double period = 360.0;
+      return 4 * amplitude / period * std::abs(positiveModulo(degrees - period / 4, period) - period / 2)
+         - amplitude;
+   }
+
+   /**
+    * Constrain longitude-style degrees to the range -180..+180 using a negative-safe modulo.
+    */
+   [[nodiscard]] static double wrap180(double degrees)
+   {
+      if (-180 <= degrees && degrees <= 180)
+         return degrees;
+
+      constexpr double amplitude = 180.0;
+      constexpr double period = 360.0;
+      return positiveModulo(2 * amplitude * degrees / period - period / 2, period) - amplitude;
+   }
+
+   /**
+    * Constrain bearing-style degrees to the range 0..360 using a negative-safe modulo.
+    */
+   [[nodiscard]] static double wrap360(double degrees)
+   {
+      if (0 <= degrees && degrees < 360)
+         return degrees;
+
+      constexpr double amplitude = 180.0;
+      constexpr double period = 360.0;
+      return positiveModulo(2 * amplitude * degrees / period, period);
+   }
 
    /**
     * Conversion degrees to Radians.

@@ -32,6 +32,7 @@
 #include <cmath>
 #include <iomanip>
 #include <limits>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <optional>
@@ -67,32 +68,32 @@ namespace geodesy
 
       virtual ~vector3d() = default;
 
-      constexpr inline double vector3d::x() const noexcept
+      constexpr inline double x() const noexcept
       {
          return vx;
       }
 
-      constexpr inline double vector3d::y() const noexcept
+      constexpr inline double y() const noexcept
       {
          return vy;
       }
 
-      constexpr inline double vector3d::z() const noexcept
+      constexpr inline double z() const noexcept
       {
          return vz;
       }
 
-      inline double& vector3d::rx() noexcept
+      inline double& rx() noexcept
       {
          return vx;
       }
 
-      inline double& vector3d::ry() noexcept
+      inline double& ry() noexcept
       {
          return vy;
       }
 
-      inline double& vector3d::rz() noexcept
+      inline double& rz() noexcept
       {
          return vz;
       }
@@ -138,7 +139,7 @@ namespace geodesy
        */
       [[nodiscard]] vector3d times(double x) const
       {
-         if (std::isnan(x)) throw std::invalid_argument("invalid scalar value：");
+         if (!std::isfinite(x)) throw std::invalid_argument("invalid scalar value");
          return vector3d(vx * x, vy * x, vz * x);
       }
 
@@ -150,7 +151,7 @@ namespace geodesy
        */
       [[nodiscard]] vector3d dividedBy(double x) const
       {
-         if (std::isnan(x) || essentiallyEqual(x, 0.0))
+         if (!std::isfinite(x) || essentiallyEqual(x, 0.0))
             throw std::invalid_argument("invalid scalar value");
 
          return vector3d(vx / x, vy / x, vz / x);
@@ -206,7 +207,8 @@ namespace geodesy
             return *this;
          }
 
-         if (std::fabs(norm - 0) < std::numeric_limits<double>::epsilon()) 
+         // A zero vector has no defined direction; preserve the reference no-op behaviour explicitly.
+         if (std::fabs(norm - 0) < std::numeric_limits<double>::epsilon())
          {
             return *this;
          }
@@ -229,8 +231,9 @@ namespace geodesy
          // q.v. stackoverflow.com/questions/14066933#answer-16544330, but n·p₁×p₂ is numerically
          // ill-conditioned, so just calculate sign to apply to |p₁×p₂|
          // if n·p₁×p₂ is -ve, negate |p₁×p₂|
-         const int sign = n == std::nullopt || cross(v).dot(*n) >= 0 ? 1 : -1;
-         const double sintheta = cross(v).length() * sign;
+         const vector3d crossProduct = cross(v);
+         const int sign = !n.has_value() || crossProduct.dot(*n) >= 0 ? 1 : -1;
+         const double sintheta = crossProduct.length() * sign;
          const double costheta = dot(v);
          return std::atan2(sintheta, costheta);
       }
@@ -245,16 +248,16 @@ namespace geodesy
       vector3d rotateAround(const vector3d& axis, double angle) const
       {
          const double theta = toRadians(angle);
-         // en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle
-         // en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Quaternion-derived_rotation_matrix
+         // Public rotation angles are degrees; the rotation matrix uses radians internally.
          const vector3d p = unit();
          const vector3d a = axis.unit();
          const double s = std::sin(theta);
          const double c = std::cos(theta);
          const double t = 1 - c;
          const double x = a.vx, y = a.vy, z = a.vz;
-         const double r[3][3] = 
-         { // rotation matrix for rotation about supplied axis
+         // Rotation matrix for rotation about the supplied unit axis.
+         const double r[3][3] =
+         {
             { t * x * x + c, t * x * y - s * z, t * x * z + s * y } ,
             { t * x * y + s * z, t * y * y + c, t * y * z - s * x },
             { t * x * z - s * y, t * y * z + s * x, t * z * z + c },
@@ -316,8 +319,9 @@ namespace geodesy
        * @param   {number}   x - Factor to multiply this vector by.
        * @returns {Vector3d} Vector scaled by x.
        */
-      constexpr inline vector3d& operator*=(double x)
+      inline vector3d& operator*=(double x)
       {
+         if (!std::isfinite(x)) throw std::invalid_argument("invalid scalar value");
          vx *= x;
          vy *= x;
          vz *= x;
@@ -330,8 +334,11 @@ namespace geodesy
        * @param   {number}   x - Factor to multiply this vector by.
        * @returns {Vector3d} Vector scaled by x.
        */
-      constexpr inline vector3d& operator/=(double x)
+      inline vector3d& operator/=(double x)
       {
+         if (!std::isfinite(x) || essentiallyEqual(x, 0.0))
+            throw std::invalid_argument("invalid scalar value");
+
          vx /= x;
          vy /= x;
          vz /= x;
@@ -355,15 +362,15 @@ namespace geodesy
       friend inline vector3d operator-(const vector3d& v1, const vector3d& v2)
       { return vector3d(v1.vx - v2.vx, v1.vy - v2.vy, v1.vz - v2.vz);}
       friend inline vector3d operator*(const vector3d& v, double x)
-      { return vector3d(v.vx * x, v.vy * x, v.vz * x);}
+      { return v.times(x);}
       friend inline vector3d operator*(double x, const vector3d& v)
-      { return vector3d(v.vx * x, v.vy * x, v.vz * x);}
-      friend vector3d operator/(const vector3d& v, double x)
-      { return vector3d(v.vx / x, v.vy / x, v.vz / x);}
+      { return v.times(x);}
+      friend inline vector3d operator/(const vector3d& v, double x)
+      { return v.dividedBy(x);}
       friend inline vector3d operator+(const vector3d& v)
       { return v;}
       friend inline vector3d operator-(const vector3d& v)
-      { return vector3d(v.x(), v.y(), v.z());}
+      { return v.negate();}
 
    private:
       double vx;

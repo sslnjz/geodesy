@@ -61,6 +61,43 @@ TEST(vector3d_unittest, methods)
    EXPECT_EQ(v123.toString(6), "[1.000000, 2.000000, 3.000000]");
 }
 
+TEST(vector3d_unittest, zero_vector_unit_is_noop)
+{
+   const auto zero = geodesy::vector3d(0, 0, 0);
+
+   EXPECT_EQ(zero.unit(), zero);
+   EXPECT_DOUBLE_EQ(zero.unit().length(), 0.0);
+}
+
+TEST(vector3d_unittest, cross_product_preserves_operand_order)
+{
+   const auto xAxis = geodesy::vector3d(1, 0, 0);
+   const auto yAxis = geodesy::vector3d(0, 1, 0);
+   const auto zAxis = geodesy::vector3d(0, 0, 1);
+
+   EXPECT_EQ(xAxis.cross(yAxis), zAxis);
+   EXPECT_EQ(yAxis.cross(xAxis), -zAxis);
+}
+
+TEST(vector3d_unittest, angle_sign_uses_supplied_plane_normal)
+{
+   const auto xAxis = geodesy::vector3d(1, 0, 0);
+   const auto yAxis = geodesy::vector3d(0, 1, 0);
+   const auto zAxis = geodesy::vector3d(0, 0, 1);
+
+   EXPECT_NEAR(geodesy::toDegrees(xAxis.angleTo(yAxis, zAxis)), 90.0, 1e-12);
+   EXPECT_NEAR(geodesy::toDegrees(xAxis.angleTo(yAxis, -zAxis)), -90.0, 1e-12);
+}
+
+TEST(vector3d_unittest, rotation_uses_degree_input)
+{
+   const auto rotated = geodesy::vector3d(1, 0, 0).rotateAround(geodesy::vector3d(0, 0, 1), 90.0);
+
+   EXPECT_NEAR(rotated.x(), 0.0, 1e-12);
+   EXPECT_NEAR(rotated.y(), 1.0, 1e-12);
+   EXPECT_NEAR(rotated.z(), 0.0, 1e-12);
+}
+
 TEST(vector3d_unittest, operators)
 {
    auto v123 = geodesy::vector3d(1, 2, 3);
@@ -72,4 +109,5 @@ TEST(vector3d_unittest, operators)
    EXPECT_EQ(v123 *= 2,    geodesy::vector3d(2, 4, 6));
    v123 = geodesy::vector3d(1, 2, 3);
    EXPECT_EQ(v123 /= 2,    geodesy::vector3d(0.5, 1, 1.5));
+   EXPECT_EQ(-v123, geodesy::vector3d(-0.5, -1, -1.5));
 }

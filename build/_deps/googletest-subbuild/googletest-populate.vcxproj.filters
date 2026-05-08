@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-mkdir.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-download.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-update.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-patch.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-configure.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-build.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-install.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\1e10e176d32580f5cb3e2d2cbdfcc48c\googletest-populate-test.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\cb024692ce6e3028fcfaf56417303480\googletest-populate-complete.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\68979e7ca188a8613853ac985d6a75fc\googletest-populate.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\workspace\github\geodesy\build\_deps\googletest-subbuild\CMakeFiles\googletest-populate" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{86590E58-D3A5-32A0-9657-A65B74E1016C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

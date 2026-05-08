@@ -1,0 +1,20 @@
+^D:\WORKSPACE\GITHUB\GEODESY\BUILD\CMAKEFILES\DF42B663717B0A4950D39A18EB4CF1A9\SCRIPT_SHARED_LIB.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo 'GROUP ( libgeodesy.a ) ' > D:/workspace/github/geodesy/lib/libgeodesy.so
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^D:\WORKSPACE\GITHUB\GEODESY\SRC\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/workspace/github/geodesy -BD:/workspace/github/geodesy/build --check-stamp-file D:/workspace/github/geodesy/build/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
