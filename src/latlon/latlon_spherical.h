@@ -30,6 +30,8 @@
 #define LATLON_SPHERICAL_H
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "latlon.h"
 

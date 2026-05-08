@@ -28,13 +28,37 @@
 ***********************************************************************************/
 #include "latlon_spherical.h"
 
-#include <algorithm.h>
-#include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <stdexcept>
 
 #include "vector3d.h"
 #include "algorithm.h"
 
 using namespace geodesy;
+
+namespace
+{
+   constexpr double angularTolerance = 1e-15;
+
+   void validateRadius(double radius)
+   {
+      if (!std::isfinite(radius) || radius <= 0.0)
+         throw std::invalid_argument("invalid radius");
+   }
+
+   double centralAngleRadians(double phi1, double phi2, double deltaLambda)
+   {
+      // Haversine is well-conditioned for short distances; clamp absorbs round-off at antipodal limits.
+      const double sinDeltaPhi = std::sin((phi2 - phi1) / 2.0);
+      const double sinDeltaLambda = std::sin(deltaLambda / 2.0);
+      const double a = sinDeltaPhi * sinDeltaPhi
+         + std::cos(phi1) * std::cos(phi2) * sinDeltaLambda * sinDeltaLambda;
+      const double clamped = std::clamp(a, 0.0, 1.0);
+      return 2.0 * std::atan2(std::sqrt(clamped), std::sqrt(1.0 - clamped));
+   }
+}
 
 LatLonSpherical::LatLonSpherical()
    : LatLon()
@@ -54,16 +78,15 @@ LatLonSpherical::LatLonSpherical(const std::string& lat, const std::string& lon)
 
 double LatLonSpherical::distanceTo(const LatLonSpherical& point, double radius) const
 {
+   validateRadius(radius);
+
    // a = sin²(Δφ/2) + cos(φ1)⋅cos(φ2)⋅sin²(Δλ/2)
    // δ = 2·atan2(√(a), √(1−a))
    // see mathforum.org/library/drmath/view/51879.html for derivation
    const auto phi1 = toRadians(m_lat), lambda1 = toRadians(m_lon);
    const auto phi2 = toRadians(point.lat()), lambda2 = toRadians(point.lon());
-   const auto DELTAphi = phi2 - phi1;
    const auto DELTAlambda = lambda2 - lambda1;
-   const auto a = std::sin(DELTAphi / 2) * std::sin(DELTAphi / 2) + std::cos(phi1) * std::cos(phi2) * std::sin(DELTAlambda / 2) *
-      std::sin(DELTAlambda / 2);
-   const double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
+   const double c = centralAngleRadians(phi1, phi2, DELTAlambda);
    const double d = radius * c;
    return d;
 }
@@ -86,8 +109,7 @@ double LatLonSpherical::initialBearingTo(const LatLonSpherical& point) const
 
 double LatLonSpherical::finalBearingTo(const LatLonSpherical& point) const
 {
-   //TODO: check
-   // get initial bearing from this point to destination point
+   // Get initial bearing from destination point to this point and reverse it by adding 180°.
    const double bearing = point.initialBearingTo(*this) + 180;
    return Dms::wrap360(bearing);
 }
@@ -123,11 +145,8 @@ LatLonSpherical LatLonSpherical::intermediatePointTo(const LatLonSpherical& poin
    const auto phi1 = toRadians(m_lat), lambda1 = toRadians(m_lon);
    const auto phi2 = toRadians(point.lat()), lambda2 = toRadians(point.lon());
    // distance between points
-   const auto DELTAphi = phi2 - phi1;
    const auto DELTAlambda = lambda2 - lambda1;
-   const auto a = std::sin(DELTAphi / 2) * std::sin(DELTAphi / 2)
-      + std::cos(phi1) * std::cos(phi2) * std::sin(DELTAlambda / 2) * std::sin(DELTAlambda / 2);
-   const auto delta = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
+   const auto delta = centralAngleRadians(phi1, phi2, DELTAlambda);
    const auto A = std::sin((1 - fraction) * delta) / std::sin(delta);
    const auto B = std::sin(fraction * delta) / std::sin(delta);
    const auto x = A * std::cos(phi1) * std::cos(lambda1) + B * std::cos(phi2) * std::cos(lambda2);
@@ -140,6 +159,8 @@ LatLonSpherical LatLonSpherical::intermediatePointTo(const LatLonSpherical& poin
 
 LatLonSpherical LatLonSpherical::destinationPoint(double distance, double bearing, double radius) const
 {
+   validateRadius(radius);
+
    // sinφ2 = sinφ1⋅cosδ + cosφ1⋅sinδ⋅cosθ
    // tanΔλ = sinθ⋅sinδ⋅cosφ1 / cosδ−sinφ1⋅sinφ2
    // see mathforum.org/library/drmath/view/52049.html for derivation
@@ -160,10 +181,9 @@ LatLonSpherical LatLonSpherical::intersection(const LatLonSpherical& p1, double 
    const auto phi1 = toRadians(p1.lat()), lambda1 = toRadians(p1.lon());
    const auto phi2 = toRadians(p2.lat()), lambda2 = toRadians(p2.lon());
    const auto theta13 = toRadians(brng1), theta23 = toRadians(brng2);
-   const auto DELTAphi = phi2 - phi1, DELTAlambda = lambda2 - lambda1;
+   const auto DELTAlambda = lambda2 - lambda1;
    // angular distance p1-p2
-   const auto delta12 = 2 * std::asin(std::sqrt(std::sin(DELTAphi / 2) * std::sin(DELTAphi / 2)
-      + std::cos(phi1) * std::cos(phi2) * std::sin(DELTAlambda / 2) * std::sin(DELTAlambda / 2)));
+   const auto delta12 = centralAngleRadians(phi1, phi2, DELTAlambda);
    if (std::abs(delta12) < std::numeric_limits<double>::epsilon())
    {
       return { p1.lat(), p1.lon() }; // coincident points
@@ -179,7 +199,7 @@ LatLonSpherical LatLonSpherical::intersection(const LatLonSpherical& p1, double 
    const auto alpha1 = theta13 - theta12; // angle 2-1-3
    const auto alpha2 = theta21 - theta23; // angle 1-2-3
 
-   if (std::sin(alpha1) == 0 && std::sin(alpha2) == 0) 
+   if (std::abs(std::sin(alpha1)) < angularTolerance && std::abs(std::sin(alpha2)) < angularTolerance)
    {
       throw std::runtime_error("infinite intersections"); // infinite intersections
    }
@@ -367,7 +387,7 @@ double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double rad
    }
 
    if (auto isPoleEnclosedBy =  [](const std::vector<LatLonSpherical>& p){
-         //TODO: any better test than this
+         // Pole enclosure follows the reference bearing-sum heuristic for spherical polygons.
          double SIGMADELTA = 0.0;
          double prevBrng = p[0].initialBearingTo(p[1]);
          for (size_t v = 0; v < p.size() - 1; v++)
@@ -380,7 +400,7 @@ double LatLonSpherical::areaOf(std::vector<LatLonSpherical>& polygon, double rad
          }
          const auto initBrng = p[0].initialBearingTo(p[1]);
          SIGMADELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
-         // TODO: fix (intermittant) edge crossing pole - eg (85,90), (85,0), (85,-90)
+         // Edge crossings close to a pole can make longitude direction numerically fragile.
          return (std::abs(SIGMADELTA) < 90);
       }; isPoleEnclosedBy(polygon)) 
    {
