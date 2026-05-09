@@ -1,15 +1,45 @@
+/**********************************************************************************
+*  MIT License                                                                    *
+*                                                                                 *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*                                                                                 *
+*  Geodesy tools for conversions between (historical) datums                      *
+*  (c) Chris Veness 2005-2019                                                     *
+*  www.movable-type.co.uk/scripts/latlong-convert-coords.html                     *
+*  www.movable-type.co.uk/scripts/geodesy-library.html#latlon-ellipsoidal-datum   *
+*                                                                                 *
+*  Permission is hereby granted, free of charge, to any person obtaining a copy   *
+*  of this software and associated documentation files (the "Software"), to deal  *
+*  in the Software without restriction, including without limitation the rights   *
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      *
+*  copies of the Software, and to permit persons to whom the Software is          *
+*  furnished to do so, subject to the following conditions:                       *
+*                                                                                 *
+*  The above copyright notice and this permission notice shall be included in all *
+*  copies or substantial portions of the Software.                                *
+*                                                                                 *
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     *
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       *
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    *
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  *
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
+*  SOFTWARE.                                                                      *
+***********************************************************************************/
+
 #include "latlon_utm_mgrs.h"
-#include "utm.h"
 
 using geodesy::LatLonUtmMgrs;
 
-LatLonUtmMgrs::LatLonUtmMgrs(double lat, double lon, double height, std::optional<Datum> datum, std::optional<ReferenceFrame> reference, std::optional<std::string> epoch)
-	: LatLonUtm(lat, lon, height, datum, reference, epoch)
+LatLonUtmMgrs::LatLonUtmMgrs(double lat, double lon, double height, std::optional<Datum> datum,
+   std::optional<ReferenceFrame> reference, std::optional<std::string> epoch)
+   : LatLonUtm(lat, lon, height, datum, reference, epoch)
 {
 }
 
-geodesy::UtmMgrs geodesy::LatLonUtmMgrs::toUtm(std::optional<int> zoneOverride)
+geodesy::UtmMgrs LatLonUtmMgrs::toUtm(std::optional<int> zoneOverride) const
 {
-	const auto utm = LatLonUtm::toUtm(zoneOverride);
-	return UtmMgrs(utm.m_zone, utm.m_hemisphere,utm.easting(), utm.northing(), utm.m_datum);
+   const auto utm = LatLonUtm::toUtm(zoneOverride);
+   return UtmMgrs(utm.zone(), utm.hemisphere(), utm.easting(), utm.northing(),
+      utm.datum(), utm.convergence(), utm.scale());
 }

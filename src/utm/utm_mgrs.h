@@ -5,8 +5,8 @@
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
-*  www.movable-type.co.uk/scripts/latlong-utm-mgrs.html                           *
-*  www.movable-type.co.uk/scripts/geodesy-library.html#utm                        *
+*  www.movable-type.co.uk/scripts/latlong-convert-coords.html                     *
+*  www.movable-type.co.uk/scripts/geodesy-library.html#latlon-ellipsoidal-datum   *
 *                                                                                 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy   *
 *  of this software and associated documentation files (the "Software"), to deal  *
@@ -34,31 +34,25 @@
 
 namespace geodesy
 {
-   /**
-    * Extends Utm with method to convert UTM coordinate to MGRS reference.
-    *
-    * @extends Utm
-    */
    class Mgrs;
+
+   /**
+    * UTM coordinate with an MGRS formatting bridge.
+    */
    class UtmMgrs : public Utm
    {
    public:
-      UtmMgrs(int zone, Hemisphere h, double easting, double northing, std::optional<Datum> datum = LatLonEllipsoidal::datums().WGS84);
+      UtmMgrs(int zone, Hemisphere h, double easting, double northing,
+         std::optional<Datum> datum = LatLonEllipsoidal::datums().WGS84,
+         std::optional<double> convergence = std::nullopt,
+         std::optional<double> scale = std::nullopt,
+         bool verifyEN = true);
 
       /**
-       * Converts UTM coordinate to MGRS reference.
-       *
-       * @returns {Mgrs}
-       * @throws  {TypeError} Invalid UTM coordinate.
-       *
-       * @example
-       *   const utmCoord = new Utm(31, 'N', 448251, 5411932);
-       *   const mgrsRef = utmCoord.toMgrs(); // 31U DQ 48251 11932
+       * Converts this UTM coordinate to an MGRS reference in the same zone and datum.
        */
-      Mgrs toMgrs() const;
+      [[nodiscard]] Mgrs toMgrs() const;
    };
-
-
 }
 
 #endif // UTM_MGRS_H
