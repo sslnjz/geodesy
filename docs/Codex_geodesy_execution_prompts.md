@@ -24,7 +24,6 @@
 9. 核心代码需要自然、工程化注释；不得出现 AI、Codex、ChatGPT、generated、prompt 等痕迹。
 10. 修改必须可验证：至少运行聚焦测试；条件允许时运行全量 `ctest`。
 
-
 ## 0.1 Superpowers 启动指令
 
 你的迁移计划本身要求使用 `superpowers:subagent-driven-development` 或 `superpowers:executing-plans`。因此，每个正式执行会话的 Prompt 最前面建议增加以下一行：
@@ -923,32 +922,32 @@ ctest --test-dir build-release --output-on-failure
 
 为了减少上下文污染，推荐按以下批次执行：
 
-| 批次 | 会话 | 内容 |
-|---|---|---|
-| 0 | prep | 仓库准备，文档与状态文件 |
-| 1 | phase-00 | Build/API baseline |
-| 2 | phase-01 | DMS |
-| 3 | phase-02 | Vector3d |
-| 4 | phase-03 | Base LatLon |
-| 5 | phase-04a | Spherical basic |
-| 6 | phase-04b | Spherical rhumb/track |
-| 7 | phase-04c | Spherical polygon/convergence |
-| 8 | phase-05a | Ellipsoidal forward ECEF |
-| 9 | phase-05b | ECEF reverse/round-trip |
-| 10 | phase-06 | Datum/Helmert |
-| 11 | phase-07a | Vincenty inverse |
-| 12 | phase-07b | Vincenty direct/convergence |
-| 13 | phase-08a | UTM parse/format |
-| 14 | phase-08b | LatLon -> UTM |
-| 15 | phase-08c | UTM -> LatLon/convergence |
-| 16 | phase-09 | MGRS |
-| 17 | phase-10 | OS Grid Reference |
-| 18 | phase-11a | ReferenceFrame data/epoch |
-| 19 | phase-11b | ReferenceFrame conversion |
-| 20 | phase-12 | Spherical n-vector |
-| 21 | phase-13 | Ellipsoidal n-vector/NED |
-| 22 | phase-14 | API compatibility |
-| 23 | phase-15 | Full convergence |
+| 批次  | 会话        | 内容                            |
+| --- | --------- | ----------------------------- |
+| 0   | prep      | 仓库准备，文档与状态文件                  |
+| 1   | phase-00  | Build/API baseline            |
+| 2   | phase-01  | DMS                           |
+| 3   | phase-02  | Vector3d                      |
+| 4   | phase-03  | Base LatLon                   |
+| 5   | phase-04a | Spherical basic               |
+| 6   | phase-04b | Spherical rhumb/track         |
+| 7   | phase-04c | Spherical polygon/convergence |
+| 8   | phase-05a | Ellipsoidal forward ECEF      |
+| 9   | phase-05b | ECEF reverse/round-trip       |
+| 10  | phase-06  | Datum/Helmert                 |
+| 11  | phase-07a | Vincenty inverse              |
+| 12  | phase-07b | Vincenty direct/convergence   |
+| 13  | phase-08a | UTM parse/format              |
+| 14  | phase-08b | LatLon -> UTM                 |
+| 15  | phase-08c | UTM -> LatLon/convergence     |
+| 16  | phase-09  | MGRS                          |
+| 17  | phase-10  | OS Grid Reference             |
+| 18  | phase-11a | ReferenceFrame data/epoch     |
+| 19  | phase-11b | ReferenceFrame conversion     |
+| 20  | phase-12  | Spherical n-vector            |
+| 21  | phase-13  | Ellipsoidal n-vector/NED      |
+| 22  | phase-14  | API compatibility             |
+| 23  | phase-15  | Full convergence              |
 
 每完成 3-4 个批次，建议运行一次“代码审查 Prompt”。
 
@@ -985,4 +984,3 @@ ctest --test-dir build-release --output-on-failure
 4. 如果一个 Phase 只修测试，提交信息可以是：
    - `test: add dms reference cases`
    - `test: cover utm zone edge cases`
-

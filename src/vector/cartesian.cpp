@@ -28,6 +28,9 @@
 ***********************************************************************************/
 #include "cartesian.h"
 
+#include <cmath>
+#include <stdexcept>
+
 using namespace geodesy;
 
 Cartesian::Cartesian()
@@ -44,16 +47,37 @@ Cartesian::Cartesian(double x, double y, double z)
 
 LatLonEllipsoidal Cartesian::toLatLon(Ellipsoid ellipsoid) const
 {
-   // note ellipsoid is available as a parameter for when toLatLon gets subclassed to
-   // Ellipsoidal_Datum / Ellipsoidal_Referenceframe.
-   //const Cartesian cts = *this;
-   //const Ellipsoid els = ellipsoid;
    auto [a, b, f] = ellipsoid;
+
+   if (!std::isfinite(x()) || !std::isfinite(y()) || !std::isfinite(z()))
+   {
+      throw std::invalid_argument("invalid cartesian coordinate");
+   }
+
+   if (!std::isfinite(a) || !std::isfinite(b) || !std::isfinite(f)
+      || a <= 0 || b <= 0 || b > a || f <= 0 || f >= 1)
+   {
+      throw std::invalid_argument("invalid ellipsoid");
+   }
 
    const double e2 = 2 * f - f * f; // 1st eccentricity squared ≡ (a²−b²)/a²
    const double epsilon2 = e2 / (1 - e2); // 2nd eccentricity squared ≡ (a²−b²)/b²
    const double p = std::sqrt(x() * x() + y() * y()); // distance from minor axis
    const double R = std::sqrt(p * p + z() * z()); // polar radius
+
+   if (R == 0.0)
+   {
+      throw std::domain_error("cartesian origin has no geodetic latitude or longitude");
+   }
+
+   if (p == 0.0)
+   {
+      // Longitude is undefined on the minor axis; the reference convention is 0°.
+      // Height is measured along the ellipsoid normal, so polar height is |z|-b.
+      const double lat = z() < 0 ? -90.0 : 90.0;
+      const double h = std::fabs(z()) - b;
+      return { lat, 0.0, h };
+   }
 
    // parametric latitude (Bowring eqn.17, replacing tanβ = z·a / p·b)
    const double tanbeta = (b * z()) / (a * p) * (1 + epsilon2 * b / R);
