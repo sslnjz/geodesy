@@ -100,10 +100,57 @@ TEST_F(latlon_spherical_unittest, dist_brng_dest)
    EXPECT_EQ(greenwich.destinationPoint(dist, brng, 6371e3).toString(), "51.5136°N, 000.0983°W");
 }
 
+TEST_F(latlon_spherical_unittest, great_circle_zero_distance_and_coincident_points)
+{
+   const auto point = geodesy::LatLonSpherical(52.205, 0.119);
+
+   EXPECT_DOUBLE_EQ(point.distanceTo(point), 0.0);
+   EXPECT_TRUE(std::isnan(point.initialBearingTo(point)));
+   EXPECT_TRUE(std::isnan(point.finalBearingTo(point)));
+   EXPECT_EQ(point.midpointTo(point).toString(), "52.2050°N, 000.1190°E");
+   EXPECT_EQ(point.intermediatePointTo(point, 0.5).toString(), "52.2050°N, 000.1190°E");
+   EXPECT_EQ(point.destinationPoint(0.0, 300.7).toString(), "52.2050°N, 000.1190°E");
+}
+
+TEST_F(latlon_spherical_unittest, great_circle_crosses_anti_meridian)
+{
+   const auto west = geodesy::LatLonSpherical(10, 179);
+   const auto east = geodesy::LatLonSpherical(10, -179);
+   const auto distance = west.distanceTo(east);
+   const auto bearing = west.initialBearingTo(east);
+   const auto midpoint = west.midpointTo(east);
+   const auto intermediate = west.intermediatePointTo(east, 0.5);
+   const auto destination = west.destinationPoint(distance, bearing);
+
+   EXPECT_NEAR(distance, 219010.916388795, 1e-6);
+   EXPECT_NEAR(bearing, 89.8263347199293, 1e-12);
+   EXPECT_NEAR(west.finalBearingTo(east), 90.1736652800708, 1e-12);
+   EXPECT_EQ(midpoint.toString(), "10.0015°N, 180.0000°E");
+   EXPECT_EQ(intermediate.toString(), "10.0015°N, 180.0000°E");
+   EXPECT_NEAR(destination.lat(), east.lat(), 1e-12);
+   EXPECT_NEAR(destination.lon(), east.lon(), 1e-12);
+}
+
+TEST_F(latlon_spherical_unittest, great_circle_handles_poles)
+{
+   const auto nearNorthPole = geodesy::LatLonSpherical(89, 0);
+   const auto acrossPole = nearNorthPole.destinationPoint(2 * pi * R / 180.0, 0);
+
+   EXPECT_NEAR(nearNorthPole.distanceTo(geodesy::LatLonSpherical(90, 0)), pi * R / 180.0, 1e-6);
+   EXPECT_EQ(nearNorthPole.midpointTo(geodesy::LatLonSpherical(90, 0)).toString(), "89.5000°N, 000.0000°E");
+   EXPECT_EQ(acrossPole.toString(), "89.0000°N, 180.0000°E");
+}
+
+   EXPECT_EQ(greenwich.destinationPoint(dist, brng).toString(), "51.5136°N, 000.0983°W");
+   EXPECT_EQ(greenwich.destinationPoint(dist, brng, 6371e3).toString(), "51.5136°N, 000.0983°W");
+}
+
 TEST_F(latlon_spherical_unittest, dist_brng_dest_fails)
 {
    const auto cambg = geodesy::LatLonSpherical(52.205, 0.119), paris = geodesy::LatLonSpherical(48.857, 2.351);
    EXPECT_THROW(static_cast<void>(cambg.distanceTo({ "xxx", "xxx" })), std::invalid_argument);
+   EXPECT_THROW(static_cast<void>(cambg.distanceTo(paris, std::numeric_limits<double>::quiet_NaN())), std::invalid_argument);
+   EXPECT_THROW(static_cast<void>(cambg.destinationPoint(7794, 300.7, 0)), std::invalid_argument);
 };
 
 TEST_F(latlon_spherical_unittest, intersection)
@@ -289,6 +336,9 @@ TEST_F(latlon_spherical_unittest, rhumb_lines)
    EXPECT_EQ(dov.rhumbDestinationPoint(40310, 116.7, 6371e3).toString(), "50.9641°N, 001.8531°E");
    EXPECT_EQ(geodesy::LatLonSpherical(1, 1).rhumbDestinationPoint(111178, 90).toString(), "01.0000°N, 002.0000°E");
    EXPECT_EQ(geodesy::LatLonSpherical(1, 179).rhumbDestinationPoint(222356, 90).toString(), "01.0000°N, 179.0000°W");
+   EXPECT_EQ(geodesy::LatLonSpherical(1, -179).rhumbDestinationPoint(222356, 270).toString(), "01.0000°N, 179.0000°E");
+   EXPECT_EQ(dov.rhumbMidpointTo(cal).toString(), "51.0455°N, 001.5957°E");
+   EXPECT_EQ(geodesy::LatLonSpherical(1, -179).rhumbMidpointTo(geodesy::LatLonSpherical(1, 178)).toString(), "01.0000°N, 179.5000°E");
    EXPECT_EQ(geodesy::LatLonSpherical(1, -179).rhumbDestinationPoint(222356, 270).toString(), "01.0000°N, 179.0000°E");
    EXPECT_EQ(dov.rhumbMidpointTo(cal).toString(), "51.0455°N, 001.5957°E");
    EXPECT_EQ(geodesy::LatLonSpherical(1, -179).rhumbMidpointTo(geodesy::LatLonSpherical(1, 178)).toString(), "01.0000°N, 179.5000°E");
