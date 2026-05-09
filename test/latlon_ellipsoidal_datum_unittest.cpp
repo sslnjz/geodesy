@@ -1,7 +1,7 @@
 ﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                         *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -30,6 +30,13 @@
 
 #include "geodesy/latlon_ellipsoidal_datum.h"
 #include "geodesy/cartesian_datum.h"
+
+namespace
+{
+   constexpr double angularToleranceDegrees = 5e-7;
+   constexpr double heightToleranceMetres = 0.02;
+   constexpr double cartesianToleranceMetres = 1e-6;
+}
 
 using LatLonE = geodesy::LatLonEllipsoidal;
 using LEDatum = geodesy::LatLonEllipsoidalDatum;
@@ -76,6 +83,59 @@ TEST_F(latlon_ellipsoidal_datum_unittest, convert_datum_Greenwich)
    // greenwichOSGB36.height = 0;
    EXPECT_EQ(greenwichOSGB36.toString(geodesy::Dms::D, 6), "51.477364°N, 000.000150°E"); // TODO: huh? should be 0°E? out by c. 10 metres / 0.5″! am I missing something?
    EXPECT_EQ(greenwichOSGB36.convertDatum(LEDatum::datums().WGS84).toString(geodesy::Dms::D, 5), "51.47788°N, 000.00147°W");
+}
+
+TEST_F(latlon_ellipsoidal_datum_unittest, convert_datum_preserves_identity_for_wgs84)
+{
+   const auto source = LEDatum(51.47788, -0.00147, 46.3, LEDatum::datums().WGS84);
+   const auto converted = source.convertDatum(LEDatum::datums().WGS84);
+
+   EXPECT_NEAR(converted.lat(), source.lat(), angularToleranceDegrees);
+   EXPECT_NEAR(converted.lon(), source.lon(), angularToleranceDegrees);
+   EXPECT_NEAR(converted.height(), source.height(), heightToleranceMetres);
+   EXPECT_TRUE(converted.datum() == LEDatum::datums().WGS84);
+}
+
+TEST_F(latlon_ellipsoidal_datum_unittest, converts_wgs84_to_osgb36_and_back_numerically)
+{
+   const auto source = LEDatum(51.47788, -0.00147, 46.0, LEDatum::datums().WGS84);
+   const auto osgb36 = source.convertDatum(LEDatum::datums().OSGB36);
+
+   EXPECT_NEAR(osgb36.lat(), 51.477364, angularToleranceDegrees);
+   EXPECT_NEAR(osgb36.lon(), 0.000150, angularToleranceDegrees);
+   EXPECT_NEAR(osgb36.height(), 0.10, heightToleranceMetres);
+   EXPECT_TRUE(osgb36.datum() == LEDatum::datums().OSGB36);
+
+   const auto roundTrip = osgb36.convertDatum(LEDatum::datums().WGS84);
+   EXPECT_NEAR(roundTrip.lat(), source.lat(), angularToleranceDegrees);
+   EXPECT_NEAR(roundTrip.lon(), source.lon(), angularToleranceDegrees);
+   EXPECT_NEAR(roundTrip.height(), source.height(), heightToleranceMetres);
+   EXPECT_TRUE(roundTrip.datum() == LEDatum::datums().WGS84);
+}
+
+TEST_F(latlon_ellipsoidal_datum_unittest, cartesian_identity_datum_does_not_apply_false_transform)
+{
+   const auto source = CDatum(3980581.210, -111.159, 4966824.522, LEDatum::datums().WGS84);
+   const auto converted = source.convertDatum(LEDatum::datums().WGS84);
+
+   EXPECT_NEAR(converted.x(), source.x(), cartesianToleranceMetres);
+   EXPECT_NEAR(converted.y(), source.y(), cartesianToleranceMetres);
+   EXPECT_NEAR(converted.z(), source.z(), cartesianToleranceMetres);
+   EXPECT_TRUE(converted.datum() == LEDatum::datums().WGS84);
+}
+
+TEST_F(latlon_ellipsoidal_datum_unittest, rejects_unrecognised_datum_paths)
+{
+   const geodesy::Datum invalidDatum{};
+
+   EXPECT_THROW(LEDatum(51.47788, -0.00147, 0.0, invalidDatum), std::invalid_argument);
+   EXPECT_THROW(LEDatum::parse(51.47788, -0.00147, 0.0, invalidDatum), std::invalid_argument);
+   EXPECT_THROW(CDatum(3980581.210, -111.159, 4966824.522, invalidDatum), std::invalid_argument);
+   EXPECT_THROW({
+      const auto converted = CDatum(3980581.210, -111.159, 4966824.522, LEDatum::datums().WGS84)
+         .convertDatum(invalidDatum);
+      static_cast<void>(converted);
+   }, std::invalid_argument);
 }
 
 TEST_F(latlon_ellipsoidal_datum_unittest, convert_datum_Petroleum_Operations_Notices)

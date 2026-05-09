@@ -1,7 +1,7 @@
-﻿/**********************************************************************************
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                         *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -26,106 +26,141 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
 *  SOFTWARE.                                                                      *
 ***********************************************************************************/
+
 #include "cartesian_datum.h"
 #include "ellipsoids.h"
 #include "latlon_ellipsoidal_datum.h"
 
-#include <iostream>
+#include <cmath>
+#include <stdexcept>
 
 using namespace geodesy;
+
+namespace
+{
+   bool isValidEllipsoid(const Ellipsoid& ellipsoid)
+   {
+      return std::isfinite(ellipsoid.a) && std::isfinite(ellipsoid.b) && std::isfinite(ellipsoid.f)
+         && ellipsoid.a > 1.0 && ellipsoid.b > 1.0 && ellipsoid.b <= ellipsoid.a
+         && ellipsoid.f > 0.0 && ellipsoid.f < 1.0;
+   }
+
+   void validateDatum(const Datum& datum)
+   {
+      if (!isValidEllipsoid(datum.ellipsoid))
+      {
+         throw std::invalid_argument("unrecognised datum");
+      }
+   }
+
+   Transform inverseOf(const Transform& transform)
+   {
+      return {
+         -transform.tx,
+         -transform.ty,
+         -transform.tz,
+         -transform.s,
+         -transform.rx,
+         -transform.ry,
+         -transform.rz
+      };
+   }
+}
 
 CartesianDatum::CartesianDatum(double x, double y, double z, const Datum& datum)
    : Cartesian(x, y, z)
    , m_datum(datum)
 {
-
+   validateDatum(m_datum);
 }
 
-Datum CartesianDatum::datum()
+Datum CartesianDatum::datum() const
 {
    return m_datum;
 }
 
-void CartesianDatum::setDatum(const Datum &datum)
+void CartesianDatum::setDatum(const Datum& datum)
 {
+   validateDatum(datum);
    m_datum = datum;
 }
 
 LatLonEllipsoidalDatum CartesianDatum::toLatLon(std::optional<Datum> deprecatedDatum)
 {
+   const Datum datum = deprecatedDatum ? *deprecatedDatum : m_datum;
+   validateDatum(datum);
+
    if (deprecatedDatum)
    {
-      std::cout << "datum parameter to Cartesian_Datum.toLatLon is deprecated: set datum before calling toLatLon()";
-      m_datum = *deprecatedDatum;
+      m_datum = datum;
    }
-   const auto datum = m_datum ? m_datum : g_datums.WGS84;
 
-   const auto latLon = Cartesian::toLatLon(datum.ellipsoid); // TODO: what if datum is not geocentric?
-   const auto point = LatLonEllipsoidalDatum(latLon.lat(), latLon.lon(), latLon.height(), m_datum);
-   return point;
+   const auto latLon = Cartesian::toLatLon(datum.ellipsoid);
+   return LatLonEllipsoidalDatum(latLon.lat(), latLon.lon(), latLon.height(), datum);
 }
 
-CartesianDatum CartesianDatum::convertDatum(Datum toDatum)
+CartesianDatum CartesianDatum::convertDatum(Datum toDatum) const
 {
-   // TODO: what if datum is not geocentric?
-   if (!toDatum || !toDatum.ellipsoid)
-      throw std::invalid_argument("unrecognised datum");
-   if (!m_datum)
-      throw std::runtime_error("cartesian coordinate has no datum");
+   validateDatum(toDatum);
+   validateDatum(m_datum);
 
-   CartesianDatum* oldCartesian = nullptr;
-   Transform transform;
+   if (m_datum == toDatum)
+   {
+      return CartesianDatum(x(), y(), z(), toDatum);
+   }
+
+   const CartesianDatum* oldCartesian = this;
+   CartesianDatum wgs84Cartesian(0.0, 0.0, 0.0, g_datums.WGS84);
+   Transform transform = toDatum.transforms;
 
    if (m_datum == g_datums.WGS84)
    {
-      // converting from WGS 84
+      // Reference transforms are defined from WGS84 into the target datum.
       oldCartesian = this;
       transform = toDatum.transforms;
    }
-   if (toDatum == g_datums.WGS84) {
-      // converting to WGS 84; use inverse transform
-      oldCartesian = this;
-      transform = m_datum.transforms.inverse();
-   }
-   if (!transform)
+   else if (toDatum == g_datums.WGS84)
    {
-      // neither this.datum nor toDatum are WGS84: convert this to WGS84 first
-      CartesianDatum cas = convertDatum(g_datums.WGS84);
-      oldCartesian = &cas;
+      // Inverting all seven Helmert parameters converts a source datum back to WGS84.
+      oldCartesian = this;
+      transform = inverseOf(m_datum.transforms);
+   }
+   else
+   {
+      // Non-WGS84 datum pairs are chained through WGS84, matching the JavaScript reference flow.
+      wgs84Cartesian = convertDatum(g_datums.WGS84);
+      oldCartesian = &wgs84Cartesian;
       transform = toDatum.transforms;
    }
 
    auto newCartesian = oldCartesian->applyTransform(transform);
-   newCartesian.m_datum = toDatum;
+   newCartesian.setDatum(toDatum);
 
    return newCartesian;
 }
 
 CartesianDatum CartesianDatum::applyTransform(Transform t) const
 {
-   // this point
    const auto x1 = x(), y1 = y(), z1 = z();
 
-   // transform parameters
-   const auto tx = t.tx;                    // x-shift in metres
-   const auto ty = t.ty;                    // y-shift in metres
-   const auto tz = t.tz;                    // z-shift in metres
-   const auto s  = t.s/1e6 + 1;            // scale: normalise parts-per-million to (s+1)
-   const auto rx = toRadians((t.rx/3600)); // x-rotation: normalise arcseconds to radians
-   const auto ry = toRadians((t.ry/3600)); // y-rotation: normalise arcseconds to radians
-   const auto rz = toRadians((t.rz/3600)); // z-rotation: normalise arcseconds to radians
+   // Helmert transform parameters are stored as metres, parts-per-million, and arc-seconds.
+   // Rotations and scale are normalised once here at the Cartesian calculation boundary.
+   const auto tx = t.tx;
+   const auto ty = t.ty;
+   const auto tz = t.tz;
+   const auto s  = t.s / 1e6 + 1.0;
+   const auto rx = toRadians(t.rx / 3600.0);
+   const auto ry = toRadians(t.ry / 3600.0);
+   const auto rz = toRadians(t.rz / 3600.0);
 
-   // apply transform
-   const auto x2 = tx + x1*s  - y1*rz + z1*ry;
-   const auto y2 = ty + x1*rz + y1*s  - z1*rx;
-   const auto z2 = tz - x1*ry + y1*rx + z1*s;
+   const auto x2 = tx + x1 * s  - y1 * rz + z1 * ry;
+   const auto y2 = ty + x1 * rz + y1 * s  - z1 * rx;
+   const auto z2 = tz - x1 * ry + y1 * rx + z1 * s;
 
-   return CartesianDatum(x2, y2, z2);
+   return CartesianDatum(x2, y2, z2, g_datums.WGS84);
 }
 
 std::string CartesianDatum::toString(int dp) const
 {
    return vector3d::toString(dp);
 }
-
-

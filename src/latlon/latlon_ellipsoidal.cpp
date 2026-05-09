@@ -29,8 +29,10 @@
 #include "latlon_ellipsoidal.h"
 #include "cartesian.h"
 
+#include <cmath>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 #include <utility>
 
 using namespace geodesy;
@@ -151,10 +153,21 @@ Cartesian LatLonEllipsoidal::toCartesian() const
                      ? m_datum->ellipsoid
                      : m_referenceFrame ? m_referenceFrame->ellipsoid : ellipsoids().WGS84;
 
+   if (!std::isfinite(m_height))
+   {
+      throw std::invalid_argument("invalid height");
+   }
+
    const auto phi = toRadians(m_lat);
    const auto lambda = toRadians(m_lon);
    const auto h = m_height;
    const auto a = ellipsoid.a, f = ellipsoid.f;
+
+   if (!std::isfinite(ellipsoid.a) || !std::isfinite(ellipsoid.b) || !std::isfinite(ellipsoid.f)
+      || ellipsoid.a <= 0 || ellipsoid.b <= 0 || ellipsoid.b > ellipsoid.a || ellipsoid.f <= 0 || ellipsoid.f >= 1)
+   {
+      throw std::invalid_argument("invalid ellipsoid");
+   }
 
    const auto sinphi = std::sin(phi), cosphi = std::cos(phi);
    const auto sinlambda = std::sin(lambda), coslambda = std::cos(lambda);

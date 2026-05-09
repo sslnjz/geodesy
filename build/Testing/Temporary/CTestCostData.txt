@@ -1,12 +1,12 @@
-js_reference_examples_baseline_unittest 9 0.0113196
-dms_unittest 10 0.014244
-latlon_unittest 11 0.00968077
-latlon_spherical_unittest 2 0.0140128
-latlon_nvector_spherical_unittest 7 0.0161099
-latlon_ellipsoidal_unittest 8 0.0136677
-latlon_ellipsoidal_referenceframe_unittest 7 0.0126207
-latlon_ellipsoidal_datum_unittest 8 0.0133936
+js_reference_examples_baseline_unittest 11 0.00807763
+dms_unittest 12 0.00776338
+latlon_unittest 13 0.00610342
+latlon_spherical_unittest 4 0.0314542
+latlon_nvector_spherical_unittest 9 0.0130607
+latlon_ellipsoidal_unittest 11 0.0112311
+latlon_ellipsoidal_referenceframe_unittest 9 0.0087046
+latlon_ellipsoidal_datum_unittest 11 0.00122253
 latlon_ellipsoidal_vincenty_unittest 0 0
-vector3d_unittest 9 0.00939573
+vector3d_unittest 11 0.0052726
 ---
 latlon_ellipsoidal_vincenty_unittest
