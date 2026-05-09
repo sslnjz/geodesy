@@ -136,8 +136,8 @@ TEST_F(latlon_ellipsoidal_vincenty_unittest, direct_rejects_starting_point_above
 {
    const Vincenty elevated(51.47788, -0.00147, 10.0);
 
-   EXPECT_THROW(elevated.destinationPoint(1000.0, 90.0), std::range_error);
-   EXPECT_THROW(elevated.finalBearingOn(1000.0, 90.0), std::range_error);
+   EXPECT_THROW(elevated.destinationPoint(1000.0, 90.0), std::invalid_argument);
+   EXPECT_THROW(elevated.finalBearingOn(1000.0, 90.0), std::invalid_argument);
 }
 
 TEST_F(latlon_ellipsoidal_vincenty_unittest, direct_normalizes_destination_across_antimeridian)

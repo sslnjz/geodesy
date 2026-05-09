@@ -179,7 +179,7 @@ VincentyDirectResult LatLonEllipsoidalVincenty::direct(double distance, double i
     if (!std::isfinite(distance)) { throw std::invalid_argument("invalid distance"); }
     if (distance == 0) { return {*this, NAN, 0}; }
     if (!std::isfinite(initialBearing)) { throw std::invalid_argument("invalid bearing"); }
-    if (height() != 0) { throw std::range_error("point must be on the surface of the ellipsoid"); }
+    if (height() != 0) { throw std::invalid_argument("point must be on the surface of the ellipsoid"); }
 
     const auto phi1 = toRadians(lat()), lambda1 = toRadians(lon());
     const auto alpha1 = toRadians(initialBearing);
