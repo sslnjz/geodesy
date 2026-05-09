@@ -1,4 +1,4 @@
-﻿/**********************************************************************************
+/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
 *  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
@@ -33,9 +33,9 @@
 /**
  * Distances & bearings between points, and destination points given start points & initial bearings,
  * calculated on an ellipsoidal earth model using ‘direct and inverse solutions of geodesics on the
- * ellipsoid’ devised by Thaddeus VincentyInverse.
+ * ellipsoid’ devised by Thaddeus Vincenty.
  *
- * From: T VincentyInverse, "Direct and Inverse Solutions of Geodesics on the Ellipsoid with application of
+ * From: T Vincenty, "Direct and Inverse Solutions of Geodesics on the Ellipsoid with application of
  * nested equations", Survey Review, vol XXIII no 176, 1975. www.ngs.noaa.gov/PUBS_LIB/inverse.pdf.
  *
  * @module latlon-ellipsoidal-vincenty
@@ -64,8 +64,8 @@ namespace geodesy
      *
      * @extends LatLonEllipsoidal
      */
-     struct VI;
-     struct VD;
+     struct VincentyInverseResult;
+     struct VincentyDirectResult;
      class LatLonEllipsoidalVincenty : public LatLonEllipsoidal
      {
      public:
@@ -174,7 +174,7 @@ namespace geodesy
          * @throws  {RangeError} Point must be on surface of ellipsoid.
          * @throws  {EvalError}  Formula failed to converge.
          */
-        VD direct(double distance, double initialBearing) const;
+        VincentyDirectResult direct(double distance, double initialBearing) const;
 
         /**
          * Vincenty inverse calculation.
@@ -188,7 +188,7 @@ namespace geodesy
          * @throws  {RangeError} Points must be on surface of ellipsoid.
          * @throws  {EvalError}  Formula failed to converge.
          */
-        VI inverse(const LatLonEllipsoidal& point) const;
+        VincentyInverseResult inverse(const LatLonEllipsoidal& point) const;
     };
 }
 
