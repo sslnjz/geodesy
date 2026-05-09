@@ -34,6 +34,13 @@
 #include <vector>
 
 #include "latlon.h"
+#ifndef LATLON_SPHERICAL_H
+#define LATLON_SPHERICAL_H
+
+#include <string>
+#include <vector>
+
+#include "latlon.h"
 
 namespace geodesy
 {
@@ -292,7 +299,7 @@ namespace geodesy
        *   const polygon = [new LatLonSpherical(0,0), new LatLonSpherical(1,0), new LatLonSpherical(0,1)];
        *   const area = LatLonSpherical.areaOf(polygon); // 6.18e9 m²
        */
-      static double areaOf(std::vector<LatLonSpherical>& polygon, double radius = 6371e3);
+      static double areaOf(const std::vector<LatLonSpherical>& polygon, double radius = 6371e3);
    };
 }
 

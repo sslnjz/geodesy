@@ -1,7 +1,7 @@
 ﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                         *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -31,6 +31,9 @@
 
 #include "latlon_ellipsoidal.h"
 
+#include <optional>
+#include <string>
+
 namespace geodesy
 {
    class CartesianDatum;
@@ -49,15 +52,13 @@ namespace geodesy
        *   import LatLon from '/js/geodesy/latlon-ellipsoidal-datum.js';
        *   const p = new LatLon(53.3444, -6.2577, 17, LatLon.datums.Irl1975);
        */
-      LatLonEllipsoidalDatum( double lat, double lon, double height = 0, std::optional<Datum> datum= g_datums.WGS84);
+      LatLonEllipsoidalDatum(double lat, double lon, double height = 0,
+                             std::optional<Datum> datum = g_datums.WGS84);
 
       /**
        * Datum this point is defined within.
        */
-      std::optional<Datum> datum()
-      {
-         return m_datum;
-      }
+      [[nodiscard]] Datum datum() const;
 
       /**
        * Ellipsoids with their parameters; semi-major axis (a), semi-minor axis (b), and flattening (f).
@@ -67,10 +68,7 @@ namespace geodesy
        * @example
        *   const a = LatLon.ellipsoids.Airy1830.a; // 6377563.396
        */
-      static Ellipsoids ellipsoids()
-      {
-         return g_ellipsoids;
-      }
+      static Ellipsoids ellipsoids();
 
 
       /**
@@ -89,10 +87,7 @@ namespace geodesy
        *   const tx = LatLon.datums.OSGB36.transform;                     // [ tx, ty, tz, s, rx, ry, rz ]
        *   const availableDatums = Object.keys(LatLon.datums).join(', '); // ED50, Irl1975, NAD27, ...
        */
-      static Datums datums()
-      {
-         return g_datums;
-      }
+      static Datums datums();
 
       /**
        * Parses a latitude/longitude point from a variety of formats.

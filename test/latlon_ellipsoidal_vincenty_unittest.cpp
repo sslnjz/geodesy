@@ -31,8 +31,8 @@ TEST_F(latlon_ellipsoidal_vincenty_unittest, example)
    EXPECT_NEAR(Vincenty(50.06632, -5.71475).finalBearingTo({58.64402, -3.07009}), 11.2972, 0.0001);
    EXPECT_NEAR(Vincenty(-37.95103, 144.42487).finalBearingOn(54972.271, 306.86816), 307.1736, 0.0001);
 
-   EXPECT_EQ(Vincenty(-37.95103, 144.42487).destinationPoint(54972.271, 306.86816).toString(), "37.6528°S, 143.9265°E");
-   EXPECT_EQ(Vincenty(50.06632, -5.71475).intermediatePointTo({58.64402, -3.07009}, 0.5).toString(), "54.3639°N, 004.5304°W");
+   EXPECT_EQ(Vincenty(-37.95103, 144.42487).destinationPoint(54972.271, 306.86816).toString(), "37.6528ï¿½S, 143.9265ï¿½E");
+   EXPECT_EQ(Vincenty(50.06632, -5.71475).intermediatePointTo({58.64402, -3.07009}, 0.5).toString(), "54.3639ï¿½N, 004.5304ï¿½W");
 }
 
 TEST_F(latlon_ellipsoidal_vincenty_unittest, Uk)

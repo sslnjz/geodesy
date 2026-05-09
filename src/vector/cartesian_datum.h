@@ -1,7 +1,7 @@
 ﻿/**********************************************************************************
 *  MIT License                                                                    *
 *                                                                                 *
-*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                         *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
 *                                                                                 *
 *  Geodesy tools for conversions between (historical) datums                      *
 *  (c) Chris Veness 2005-2019                                                     *
@@ -31,6 +31,9 @@
 
 #include "geodesy/cartesian.h"
 
+#include <optional>
+#include <string>
+
 namespace geodesy
 {
    class LatLonEllipsoidalDatum;
@@ -57,7 +60,7 @@ namespace geodesy
       /**
        * Datum this point is defined within.
        */
-      Datum datum();
+      [[nodiscard]] Datum datum() const;
       void setDatum(const Datum& datum);
 
       /**
@@ -74,7 +77,7 @@ namespace geodesy
         *   const c = new Cartesian(4027893.924, 307041.993, 4919474.294);
         *   const p = c.toLatLon(); // 50.7978°N, 004.3592°E
         */
-       LatLonEllipsoidalDatum toLatLon(std::optional<Datum> deprecatedDatum = std::nullopt);
+       [[nodiscard]] LatLonEllipsoidalDatum toLatLon(std::optional<Datum> deprecatedDatum = std::nullopt);
 
 
       /**
@@ -88,7 +91,7 @@ namespace geodesy
        *   const c = new Cartesian(3980574.247, -102.127, 4966830.065, LatLon.datums.OSGB36);
        *   c.convertDatum(LatLon.datums.Irl1975); // [??,??,??]
        */
-      CartesianDatum convertDatum(Datum toDatum);
+      [[nodiscard]] CartesianDatum convertDatum(Datum toDatum) const;
 
 
       /**
