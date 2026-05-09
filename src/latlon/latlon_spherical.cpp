@@ -58,11 +58,6 @@ namespace
       const double clamped = std::clamp(a, 0.0, 1.0);
       return 2.0 * std::atan2(std::sqrt(clamped), std::sqrt(1.0 - clamped));
    }
-}
-
-LatLonSpherical::LatLonSpherical()
-   : LatLon()
-{
    void validateTrackPath(const LatLonSpherical& pathStart, const LatLonSpherical& pathEnd)
    {
       if (pathStart == pathEnd)
@@ -432,58 +427,13 @@ double LatLonSpherical::areaOf(const std::vector<LatLonSpherical>& polygon, doub
 {
    validateRadius(radius);
 
-   if (polygon.empty()) 
+   if (polygon.empty())
       return std::numeric_limits<double>::infinity() * 0.0;
 
    // uses method due to Karney: osgeo-org.1560.x6.nabble.com/Area-of-a-spherical-polygon-td3841625.html;
    // for each edge of the polygon, tan(E/2) = tan(Δλ/2)·(tan(φ₁/2)+tan(φ₂/2)) / (1+tan(φ₁/2)·tan(φ₂/2))
    // where E is the spherical excess of the trapezium obtained by extending the edge to the equator
    // (Karney's method is probably more efficient than the more widely known L’Huilier’s Theorem)
-   const auto R = radius;
-   // close polygon so that last point equals first point
-   const auto closed = polygon[0] == (polygon[polygon.size() - 1]);
-   if (!closed) {
-      polygon.push_back(polygon[0]);
-   }
-   const size_t nVertices = polygon.size() - 1;
-   auto S = 0.0; // spherical excess in steradians
-   for (size_t v = 0; v < nVertices; ++v) 
-   {
-      const auto phi1 = toRadians(polygon[v].lat());
-      const auto phi2 = toRadians(polygon[v + 1].lat());
-      const auto DELTAlambda = toRadians((polygon[v + 1].lon() - polygon[v].lon()));
-      const auto E = 2 * std::atan2(std::tan(DELTAlambda / 2) * (std::tan(phi1 / 2) + std::tan(phi2 / 2)), 1 + std::tan(phi1 / 2) * std::tan(phi2 / 2));
-      S += E;
-   }
-
-   if (auto isPoleEnclosedBy =  [](const std::vector<LatLonSpherical>& p){
-         // Pole enclosure follows the reference bearing-sum heuristic for spherical polygons.
-         double SIGMADELTA = 0.0;
-         double prevBrng = p[0].initialBearingTo(p[1]);
-         for (size_t v = 0; v < p.size() - 1; v++)
-         {
-            const auto initBrng = p[v].initialBearingTo(p[v + 1]);
-            const auto finalBrng = p[v].finalBearingTo(p[v + 1]);
-            SIGMADELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
-            SIGMADELTA += std::fmod((finalBrng - initBrng + 540), 360) - 180;
-            prevBrng = finalBrng;
-         }
-         const auto initBrng = p[0].initialBearingTo(p[1]);
-         SIGMADELTA += std::fmod((initBrng - prevBrng + 540), 360) - 180;
-         // Edge crossings close to a pole can make longitude direction numerically fragile.
-         return (std::abs(SIGMADELTA) < 90);
-      }; isPoleEnclosedBy(polygon)) 
-   {
-      S = std::fabs(S) - 2 * pi;
-   }
-
-   const auto A = std::abs(S * R * R); // area in units of R
-   if (!closed) 
-   {
-      polygon.pop_back(); // restore polygon to pristine condition
-   }
-   return A;
-}
    const auto R = radius;
    const auto closed = polygon[0] == (polygon[polygon.size() - 1]);
    const size_t nVertices = closed ? polygon.size() - 1 : polygon.size();

@@ -28,15 +28,53 @@
 ***********************************************************************************/
 #include "utm.h"
 
-#include <iomanip>
-#include <regex>
-#include <sstream>
-
-#include "strutil.h"
 #include "algorithm.h"
 #include "latlon_utm.h"
+#include "strutil.h"
+
+#include <cmath>
+#include <iomanip>
+#include <sstream>
+#include <stdexcept>
 
 using namespace geodesy;
+
+namespace
+{
+constexpr double minEastingMetres = 0.0;
+constexpr double maxEastingMetres = 1000e3;
+constexpr double maxNorthingNorthernMetres = 9329006.0;
+constexpr double minNorthingSouthernMetres = 1116914.0;
+constexpr double falseNorthingMetres = 10000e3;
+
+[[nodiscard]] bool isFinite(double value)
+{
+   return std::isfinite(value);
+}
+
+[[nodiscard]] std::string hemisphereToString(Utm::Hemisphere hemisphere)
+{
+   switch (hemisphere)
+   {
+   case Utm::Hemisphere::N:
+      return "N";
+   case Utm::Hemisphere::S:
+      return "S";
+   }
+
+   throw std::invalid_argument("invalid UTM hemisphere");
+}
+
+[[nodiscard]] Utm::Hemisphere parseHemisphere(const std::string& hemisphere)
+{
+   if (hemisphere == "N" || hemisphere == "n")
+      return Utm::Hemisphere::N;
+   if (hemisphere == "S" || hemisphere == "s")
+      return Utm::Hemisphere::S;
+
+   throw std::invalid_argument("invalid UTM hemisphere: expected N or S");
+}
+}
 
 Utm::Utm(int zone, Hemisphere h, double easting, double northing, std::optional<Datum> datum,
                   std::optional<double> convergence, std::optional<double> scale, bool verifyEN)
@@ -44,31 +82,36 @@ Utm::Utm(int zone, Hemisphere h, double easting, double northing, std::optional<
    , m_datum(datum), m_convergence(convergence), m_scale(scale)
 {
    if (!(1 <= zone && zone <= 60))
-      throw std::range_error("invalid UTM zone: out of range [1, 60]");
+      throw std::invalid_argument("invalid UTM zone: expected integer in range [1, 60]");
+
+   (void)hemisphereToString(h);
+
+   if (!isFinite(easting))
+      throw std::invalid_argument("invalid UTM easting: expected finite metres");
+   if (!isFinite(northing))
+      throw std::invalid_argument("invalid UTM northing: expected finite metres");
+   if (convergence.has_value() && !isFinite(*convergence))
+      throw std::invalid_argument("invalid UTM convergence: expected finite degrees");
+   if (scale.has_value() && !isFinite(*scale))
+      throw std::invalid_argument("invalid UTM scale: expected finite scale factor");
 
    if (verifyEN)
    {
-      // range-check E/N values
-      if (!(0 <= easting && easting <= 1000e3))
-      {
-         throw std::range_error("invalid UTM easting: out of range [0, 1000e3]");
-      }
+      // UTM eastings and northings are metres from false origins; these checks mirror the
+      // reference library's rough validity ranges while allowing callers to opt out for
+      // extended coherent coordinates.
+      if (!(minEastingMetres <= easting && easting <= maxEastingMetres))
+         throw std::invalid_argument("invalid UTM easting: out of range [0, 1000000]");
 
       switch (h)
       {
       case Hemisphere::N:
-         {
-            if (0 <= northing && northing < 9328094)
-            {
-               throw std::range_error("invalid UTM northing: out of range [0, 9328094]");
-            }
-         }
+         if (!(0.0 <= northing && northing < maxNorthingNorthernMetres))
+            throw std::invalid_argument("invalid UTM northing: out of range [0, 9329006)");
          break;
       case Hemisphere::S:
-         if (1118414 <= northing && northing < 10000e3)
-         {
-            throw std::range_error("invalid UTM northing: out of range [1118414, 10000e3]");
-         }
+         if (!(minNorthingSouthernMetres <= northing && northing < falseNorthingMetres))
+            throw std::invalid_argument("invalid UTM northing: out of range [1116914, 10000000)");
          break;
       }
    }
@@ -81,24 +124,44 @@ Utm::Utm(int zone, Hemisphere h, double easting, double northing, std::optional<
 
 Utm Utm::parse(const std::string& utmCoord, std::optional<Datum> datum)
 {
-   // match separate elements (separated by whitespace)
-   const std::string utm = strutil::strip(utmCoord);
-   std::smatch sm;
-   std::regex_match(utm, sm, std::regex("\\S+"));
+   // A valid UTM text coordinate is four whitespace-separated fields:
+   // zone, hemisphere, easting in metres, and northing in metres.
+   std::istringstream stream(strutil::strip(utmCoord));
+   std::string zoneText;
+   std::string hemisphereText;
+   std::string eastingText;
+   std::string northingText;
+   std::string extra;
 
-   if (sm.size() != 4) 
-      throw std::invalid_argument("invalid UTM coordinate");
-
-   const std::string zone = sm[0].str(), hemisphere = sm[1].str(), easting = sm[2].str(), northing = sm[3].str();
+   if (!(stream >> zoneText >> hemisphereText >> eastingText >> northingText) || (stream >> extra))
+      throw std::invalid_argument("invalid UTM coordinate: expected zone hemisphere easting northing");
 
    try
    {
-      Hemisphere h = sm[1].str() == "N" || sm[1].str() == "n" ? Hemisphere::N : Hemisphere::S;
-      return Utm(std::stoi(zone), h, std::stod(easting), std::stod(northing), datum); // 'new this' as may return subclassed types
+      std::size_t parsed = 0;
+      const int zone = std::stoi(zoneText, &parsed);
+      if (parsed != zoneText.size())
+         throw std::invalid_argument("invalid UTM zone");
+
+      parsed = 0;
+      const double easting = std::stod(eastingText, &parsed);
+      if (parsed != eastingText.size())
+         throw std::invalid_argument("invalid UTM easting");
+
+      parsed = 0;
+      const double northing = std::stod(northingText, &parsed);
+      if (parsed != northingText.size())
+         throw std::invalid_argument("invalid UTM northing");
+
+      return Utm(zone, parseHemisphere(hemisphereText), easting, northing, datum);
    }
-   catch (const std::exception& e)
+   catch (const std::invalid_argument&)
    {
-      throw std::invalid_argument("invalid UTM coordinate");
+      throw;
+   }
+   catch (const std::out_of_range&)
+   {
+      throw std::invalid_argument("invalid UTM coordinate: numeric field out of range");
    }
 }
 
@@ -203,9 +266,12 @@ LatLonUtm Utm::toLatLon() const
 
 std::string Utm::toString(int dp) const
 {
-   std::stringstream ss;
-   ss << std::setw(2) << std::left << std::setfill('0') << m_zone;
+   if (dp < 0)
+      throw std::invalid_argument("invalid UTM precision: expected non-negative decimal places");
 
-   return ss.str() + " " + (m_hemisphere == Hemisphere::N ? "N " : "S ")
-      + geodesy::toFixed(m_easting, dp) + geodesy::toFixed(m_northing, dp);
+   std::stringstream ss;
+   ss << std::setw(2) << std::setfill('0') << m_zone;
+
+   return ss.str() + " " + hemisphereToString(m_hemisphere) + " "
+      + geodesy::toFixed(m_easting, dp) + " " + geodesy::toFixed(m_northing, dp);
 }

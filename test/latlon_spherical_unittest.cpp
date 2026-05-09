@@ -141,10 +141,6 @@ TEST_F(latlon_spherical_unittest, great_circle_handles_poles)
    EXPECT_EQ(acrossPole.toString(), "89.0000°N, 180.0000°E");
 }
 
-   EXPECT_EQ(greenwich.destinationPoint(dist, brng).toString(), "51.5136°N, 000.0983°W");
-   EXPECT_EQ(greenwich.destinationPoint(dist, brng, 6371e3).toString(), "51.5136°N, 000.0983°W");
-}
-
 TEST_F(latlon_spherical_unittest, dist_brng_dest_fails)
 {
    const auto cambg = geodesy::LatLonSpherical(52.205, 0.119), paris = geodesy::LatLonSpherical(48.857, 2.351);

@@ -43,11 +43,11 @@
  *
  */
 
-#include <optional>
-#include <string>
-
 #include "ellipsoids.h"
 #include "latlon_ellipsoidal.h"
+
+#include <optional>
+#include <string>
 
 namespace geodesy
 {
@@ -143,8 +143,13 @@ namespace geodesy
       [[nodiscard]] std::string toString(int dp = 0) const;
 
 
-      [[nodiscard]] double northing() const { return m_northing; }
+      [[nodiscard]] int zone() const { return m_zone; }
+      [[nodiscard]] Hemisphere hemisphere() const { return m_hemisphere; }
       [[nodiscard]] double easting() const { return m_easting; }
+      [[nodiscard]] double northing() const { return m_northing; }
+      [[nodiscard]] std::optional<Datum> datum() const { return m_datum; }
+      [[nodiscard]] std::optional<double> convergence() const { return m_convergence; }
+      [[nodiscard]] std::optional<double> scale() const { return m_scale; }
 
    //protected:
       int m_zone;

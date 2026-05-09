@@ -34,13 +34,6 @@
 #include <vector>
 
 #include "latlon.h"
-#ifndef LATLON_SPHERICAL_H
-#define LATLON_SPHERICAL_H
-
-#include <string>
-#include <vector>
-
-#include "latlon.h"
 
 namespace geodesy
 {
