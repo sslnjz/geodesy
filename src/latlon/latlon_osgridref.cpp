@@ -1,84 +1,121 @@
-﻿#include "latlon_osgridref.h"
-#include "algorithm.h"
+/**********************************************************************************
+*  MIT License                                                                    *
+*                                                                                 *
+*  Copyright (c) 2021 Binbin Song <ssln.jzs@gmail.com>                            *
+*                                                                                 *
+*  Geodesy tools for conversions between (historical) datums                      *
+*  (c) Chris Veness 2005-2019                                                     *
+*  www.movable-type.co.uk/scripts/latlong-convert-coords.html                     *
+*  www.movable-type.co.uk/scripts/geodesy-library.html#latlon-ellipsoidal-datum   *
+*                                                                                 *
+*  Permission is hereby granted, free of charge, to any person obtaining a copy   *
+*  of this software and associated documentation files (the "Software"), to deal  *
+*  in the Software without restriction, including without limitation the rights   *
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      *
+*  copies of the Software, and to permit persons to whom the Software is          *
+*  furnished to do so, subject to the following conditions:                       *
+*                                                                                 *
+*  The above copyright notice and this permission notice shall be included in all *
+*  copies or substantial portions of the Software.                                *
+*                                                                                 *
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     *
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       *
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    *
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  *
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  *
+*  SOFTWARE.                                                                      *
+***********************************************************************************/
 
+#include "latlon_osgridref.h"
+
+#include "algorithm.h"
 #include "osgridref.h"
 
-using namespace geodesy;
+#include <cmath>
+
+namespace geodesy
+{
 
 LatLonOsGridRef::LatLonOsGridRef(double lat, double lon, double height, std::optional<Datum> datum)
       : LatLonEllipsoidalDatum(lat, lon, height, datum)
 {
 }
 
-OsGridRef LatLonOsGridRef::toOsGrid()
+OsGridRef LatLonOsGridRef::toOsGrid() const
 {
-   // if necessary convert to OSGB36 first
-   const auto point = this->datum() == datums().OSGB36
+   // The National Grid projection is defined on OSGB36, so WGS84 inputs first pass through Helmert conversion.
+   const LatLonOsGridRef point = this->datum() == datums().OSGB36
                          ? *this
                          : convertDatum(datums().OSGB36);
 
-   const auto phi = toRadians(point.lat());
-   const auto lambda = toRadians(point.lon());
+   const double phi = toRadians(point.lat());
+   const double lambda = toRadians(point.lon());
 
-   const auto [ a, b, f ] = nationalGrid.ellipsoid;            // a = 6377563.396, b = 6356256.909
-   const auto phi0 = toRadians(nationalGrid.trueOrigin.lat); // latitude of true origin, 49°N
-   const auto lambda0 = toRadians(nationalGrid.trueOrigin.lon); // longitude of true origin, 2°W
-   const auto E0 = -nationalGrid.falseOrigin.easting;       // easting of true origin, 400km
-   const auto N0 = -nationalGrid.falseOrigin.northing;      // northing of true origin, -100km
-   const auto F0 = nationalGrid.scaleFactor;                // 0.9996012717
+   const auto [ a, b, f ] = nationalGrid.ellipsoid;
+   const double phi0 = toRadians(nationalGrid.trueOrigin.lat);
+   const double lambda0 = toRadians(nationalGrid.trueOrigin.lon);
+   const double E0 = -nationalGrid.falseOrigin.easting;
+   const double N0 = -nationalGrid.falseOrigin.northing;
+   const double F0 = nationalGrid.scaleFactor;
 
-   const auto e2 = 1 - (b * b) / (a * a);                          // eccentricity squared
-   const auto n = (a - b) / (a + b), n2 = n * n, n3 = n * n * n;         // n, n², n³
+   const double e2 = 1.0 - (b * b) / (a * a);
+   const double n = (a - b) / (a + b);
+   const double n2 = n * n;
+   const double n3 = n2 * n;
 
-   const auto cosphi = std::cos(phi), sinphi = std::sin(phi);
-   const auto nu = a * F0 / std::sqrt(1 - e2 * sinphi * sinphi);            // nu = transverse radius of curvature
-   const auto rho = a * F0 * (1 - e2) / std::pow(1 - e2 * sinphi * sinphi, 1.5); // rho = meridional radius of curvature
-   const auto eta2 = nu / rho - 1;                                    // eta = ?
+   const double cosPhi = std::cos(phi);
+   const double sinPhi = std::sin(phi);
+   const double nu = a * F0 / std::sqrt(1.0 - e2 * sinPhi * sinPhi);
+   const double rho = a * F0 * (1.0 - e2) / std::pow(1.0 - e2 * sinPhi * sinPhi, 1.5);
+   const double eta2 = nu / rho - 1.0;
 
-   const auto Ma = (1 + n + (5 / 4) * n2 + (5 / 4) * n3) * (phi - phi0);
-   const auto Mb = (3 * n + 3 * n * n + (21 / 8) * n3) * std::sin(phi - phi0) * std::cos(phi + phi0);
-   const auto Mc = ((15 / 8) * n2 + (15 / 8) * n3) * std::sin(2 * (phi - phi0)) * std::cos(2 * (phi + phi0));
-   const auto Md = (35 / 24) * n3 * std::sin(3 * (phi - phi0)) * std::cos(3 * (phi + phi0));
-   const auto M = b * F0 * (Ma - Mb + Mc - Md);              // meridional arc
+   // Meridional arc from true origin to latitude on the Airy 1830 ellipsoid.
+   const double Ma = (1.0 + n + (5.0 / 4.0) * n2 + (5.0 / 4.0) * n3) * (phi - phi0);
+   const double Mb = (3.0 * n + 3.0 * n2 + (21.0 / 8.0) * n3)
+      * std::sin(phi - phi0) * std::cos(phi + phi0);
+   const double Mc = ((15.0 / 8.0) * n2 + (15.0 / 8.0) * n3)
+      * std::sin(2.0 * (phi - phi0)) * std::cos(2.0 * (phi + phi0));
+   const double Md = (35.0 / 24.0) * n3
+      * std::sin(3.0 * (phi - phi0)) * std::cos(3.0 * (phi + phi0));
+   const double M = b * F0 * (Ma - Mb + Mc - Md);
 
-   const auto cos3phi = cosphi * cosphi * cosphi;
-   const auto cos5phi = cos3phi * cosphi * cosphi;
-   const auto tan2phi = std::tan(phi) * std::tan(phi);
-   const auto tan4phi = tan2phi * tan2phi;
+   const double cos3Phi = cosPhi * cosPhi * cosPhi;
+   const double cos5Phi = cos3Phi * cosPhi * cosPhi;
+   const double tanPhi = std::tan(phi);
+   const double tan2Phi = tanPhi * tanPhi;
+   const double tan4Phi = tan2Phi * tan2Phi;
 
-   const auto I = M + N0;
-   const auto II = (nu / 2) * sinphi * cosphi;
-   const auto III = (nu / 24) * sinphi * cos3phi * (5 - tan2phi + 9 * eta2);
-   const auto IIIA = (nu / 720) * sinphi * cos5phi * (61 - 58 * tan2phi + tan4phi);
-   const auto IV = nu * cosphi;
-   const auto V = (nu / 6) * cos3phi * (nu / rho - tan2phi);
-   const auto VI = (nu / 120) * cos5phi * (5 - 18 * tan2phi + tan4phi + 14 * eta2 - 58 * tan2phi * eta2);
+   const double I = M + N0;
+   const double II = (nu / 2.0) * sinPhi * cosPhi;
+   const double III = (nu / 24.0) * sinPhi * cos3Phi * (5.0 - tan2Phi + 9.0 * eta2);
+   const double IIIA = (nu / 720.0) * sinPhi * cos5Phi * (61.0 - 58.0 * tan2Phi + tan4Phi);
+   const double IV = nu * cosPhi;
+   const double V = (nu / 6.0) * cos3Phi * (nu / rho - tan2Phi);
+   const double VI = (nu / 120.0) * cos5Phi
+      * (5.0 - 18.0 * tan2Phi + tan4Phi + 14.0 * eta2 - 58.0 * tan2Phi * eta2);
 
-   const auto DELTAlambda = lambda - lambda0;
-   const auto DELTAlambda2 = DELTAlambda * DELTAlambda;
-   const auto DELTAlambda3 = DELTAlambda2 * DELTAlambda;
-   const auto DELTAlambda4 = DELTAlambda3 * DELTAlambda;
-   const auto DELTAlambda5 = DELTAlambda4 * DELTAlambda;
-   const auto DELTAlambda6 = DELTAlambda5 * DELTAlambda;
+   const double deltaLambda = lambda - lambda0;
+   const double deltaLambda2 = deltaLambda * deltaLambda;
+   const double deltaLambda3 = deltaLambda2 * deltaLambda;
+   const double deltaLambda4 = deltaLambda3 * deltaLambda;
+   const double deltaLambda5 = deltaLambda4 * deltaLambda;
+   const double deltaLambda6 = deltaLambda5 * deltaLambda;
 
-   auto N = I + II * DELTAlambda2 + III * DELTAlambda4 + IIIA * DELTAlambda6;
-   auto E = E0 + IV * DELTAlambda + V * DELTAlambda3 + VI * DELTAlambda5;
+   double northing = I + II * deltaLambda2 + III * deltaLambda4 + IIIA * deltaLambda6;
+   double easting = E0 + IV * deltaLambda + V * deltaLambda3 + VI * deltaLambda5;
 
-   N = std::stod(toFixed(N, 3)); // round to mm precision
-   E = std::stod(toFixed(E,3));
+   // Keep the reference implementation's millimetre rounding before constructing the value type.
+   northing = std::stod(toFixed(northing, 3));
+   easting = std::stod(toFixed(easting, 3));
 
-   try 
-   {
-      return OsGridRef(E, N); // note: gets truncated to SW corner of 1m grid square
-   }
-   catch (const std::exception& e) 
-   {
-      throw std::runtime_error(e.what());
-   }
+   return OsGridRef(easting, northing);
 }
 
 LatLonOsGridRef LatLonOsGridRef::convertDatum(const Datum& toDatum) const
 {
-   auto osgbED = LatLonEllipsoidalDatum::convertDatum(toDatum); // returns LatLonEllipsoidal_Datum
+   const LatLonEllipsoidalDatum osgbED = LatLonEllipsoidalDatum::convertDatum(toDatum);
    return LatLonOsGridRef(osgbED.lat(), osgbED.lon(), osgbED.height(), osgbED.datum());
+}
+
 }

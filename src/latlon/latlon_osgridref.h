@@ -29,30 +29,32 @@
 #ifndef LATLON_OSGRIDREF_H
 #define LATLON_OSGRIDREF_H
 
-#include "latlon_ellipsoidal_datum.h"
 #include "ellipsoids.h"
+#include "latlon_ellipsoidal_datum.h"
 
 namespace geodesy
 {
-   static const struct _nationalGrid
+   struct NationalGridOrigin
    {
-      inline static const struct _originGrid  // true origin of grid 49°N,2°W on OSGB36 datum
-      {
-         double lat;
-         double lon;
-      } &trueOrigin = *new _originGrid { 49, -2.0 };
+      double lat;
+      double lon;
+   };
 
-      inline static const struct _falseOrign  // easting & northing of false origin, metres from true origin
-      {
-         double easting;
-         double northing;
-      } &falseOrigin = *new _falseOrign {-400e3, 100e3};
+   struct NationalGridFalseOrigin
+   {
+      double easting;
+      double northing;
+   };
 
-      double scaleFactor = 0.9996012717;      // scale factor on central meridian
-      Ellipsoid ellipsoid = LatLonEllipsoidalDatum::ellipsoids().Airy1830;
+   struct NationalGrid
+   {
+      NationalGridOrigin trueOrigin { 49.0, -2.0 };
+      NationalGridFalseOrigin falseOrigin { -400e3, 100e3 };
+      double scaleFactor { 0.9996012717 };
+      Ellipsoid ellipsoid { LatLonEllipsoidalDatum::ellipsoids().Airy1830 };
+   };
 
-   } &nationalGrid = *new _nationalGrid;
-   // note Irish National Grid uses t/o 53°30′N, 8°W, f/o 200kmW, 250kmS, scale factor 1.000035, on Airy 1830 Modified ellipsoid
+   inline const NationalGrid nationalGrid {};
 
    class OsGridRef;
    class LatLonOsGridRef : public LatLonEllipsoidalDatum
@@ -83,7 +85,7 @@ namespace geodesy
        *   // for conversion of (historical) OSGB36 latitude/longitude point:
        *   const grid = new LatLon(52.65798, 1.71605).toOsGrid(LatLon.datums.OSGB36);
        */
-      OsGridRef toOsGrid();
+      [[nodiscard]] OsGridRef toOsGrid() const;
 
       /**
        * Override LatLonEllipsoidal.convertDatum() with version which returns LatLon_OsGridRef.
